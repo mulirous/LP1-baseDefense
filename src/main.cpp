@@ -51,25 +51,8 @@ class Character {
         if (Keyboard::isKeyPressed(Keyboard::S) && posY + h < hWindow) {
             posY += spd;
         }
-
-        /* if(Keyboard::isKeyPressed(Keyboard::Space)) {  // Dash
-            if (Keyboard::isKeyPressed(Keyboard::A) && posX > 0) {
-                posX -= 100.f;
-            }
-            if (Keyboard::isKeyPressed(Keyboard::D) && posX + w + 100.f < wWindow) {
-                posX += 100.f;
-            } else posX += (posX + w + 100.f - wWindow);
-            if (Keyboard::isKeyPressed(Keyboard::W) && posY > 0) {
-                posY -= 100.f;
-            }
-            if (Keyboard::isKeyPressed(Keyboard::S) && posY + h < hWindow) {
-                posY += 100.f;
-            } else posY = (posY + h + 100.f - hWindow);
-        } */
-
         shape.setPosition(posX, posY);  
     }
-
 
     void draw(RenderWindow& window) { // Desenhar o corpo do personagem na janela
         window.draw(shape);
@@ -97,7 +80,7 @@ class Enemy {
         posX(X),
         posY(Y),
         centerX(cX/2.0),
-        centerY(cY/2.0){
+        centerY(cY/2.0) {
         shape.setFillColor(Color::Red);
         shape.setPosition(X, Y);
     }
@@ -151,6 +134,7 @@ Enemy spawnEnemy (float centerX, float centerY){
 
 int main() {
     RenderWindow window(VideoMode(1200, 800), "Game Window");
+
     Character personagem(50.f, 50.f, 2, 100, 600.f, 400.f);
     
     list<Enemy> enemies;
@@ -186,8 +170,9 @@ int main() {
                     break;
             }
 
-            personagem.updateMovement(1200.f, 800.f);
         }
+
+        personagem.updateMovement(1200.f, 800.f);
 
         if (spawnTimer >= spawnInterval) { // Spawnar novos inimigos
             enemies.push_back(spawnEnemy(centerX, centerY));
@@ -203,11 +188,12 @@ int main() {
             }
         }
 
-        window.clear();
+        window.clear(Color::White);
         personagem.draw(window);
         for (auto& enemy : enemies) {
             enemy.draw(window);
         }
+
         window.display();
     }
     return 0;
