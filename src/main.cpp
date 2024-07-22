@@ -33,33 +33,22 @@ class Character {
         shape.setPosition(posX, posY);
     }
 
-    void goRight(){ // Ir para direita
-        if (posX > 0) { // Comparação para não sair da tela
+    void updateMovement(float wWindow, float hWindow) {
+        if (Keyboard::isKeyPressed(Keyboard::A) && posX > 0) {
             posX -= spd;
-            shape.setPosition(posX, posY);
         }
-    }
-
-    void goLeft(float wWindow){ // Ir para esquerda
-        if (posX + w < wWindow) { // Comparação para não sair da tela 
+        if (Keyboard::isKeyPressed(Keyboard::D) && posX + w < wWindow) {
             posX += spd;
-            shape.setPosition(posX, posY);
         }
-    }
-
-    void goUp(){ // Ir para cima
-        if (posY > 0) { // Comparação para não sair da tela
+        if (Keyboard::isKeyPressed(Keyboard::W) && posY > 0) {
             posY -= spd;
-            shape.setPosition(posX, posY);
         }
+        if (Keyboard::isKeyPressed(Keyboard::S) && posY + h < hWindow) {
+            posY += spd;
+        }
+        shape.setPosition(posX, posY);  
     }
 
-    void goDown(float hWindow){ // Ir para baixo
-        if (posY + h< hWindow) { // Comparação para não sair da tela
-            posY += spd;
-            shape.setPosition(posX, posY);
-        }
-    }
 
     void draw(RenderWindow& window) { // Desenhar o corpo do personagem na janela
         window.draw(shape);
@@ -68,7 +57,7 @@ class Character {
 
 int main() {
     RenderWindow window(VideoMode(800, 600), "Game Window");
-    Character personagem(50.f, 50.f, 8, 100, 100.f, 100.f);
+    Character personagem(50.f, 50.f, 2, 100, 100.f, 100.f);
 
     while (window.isOpen()) {
         Event event; // Inicialização da variável que captura eventos
@@ -82,19 +71,9 @@ int main() {
                     if (event.key.code == Keyboard::Escape) {  // Fechar a aplicação em caso de apertar 'Esc'
                         window.close();
                     }
-                    cout << "Key pressed: " << event.key.code << endl;
-                    if (event.key.code == 0) { // Apertar 'A'
-                        personagem.goRight();
-                    }
-                    if (event.key.code == 3) { // Apertar 'D'
-                        personagem.goLeft(800.f);
-                    }
-                    if (event.key.code == 18) { // Apertar 'S'
-                        personagem.goDown(600.f);
-                    }
-                    if (event.key.code == 22) { // Apertar 'W'
-                        personagem.goUp();
-                    }
+                    
+                    personagem.updateMovement(800.f, 600.f);
+
                     break;
                 case Event::KeyReleased: // Case para a captura de evento de teclas soltas
                     cout << "Key released: " << event.key.code << endl;
