@@ -22,9 +22,11 @@ class Character {
         h(height),
         spd(speed),
         life(vida),
+        posX(X),
+        posY(Y),
         shape(Vector2f(width, height)) {
         shape.setFillColor(Color::Cyan);
-        shape.setPosition(posX, posY);
+        shape.setPosition(X, Y);
     }
 
     void setPosition(float x, float y) { // Atualização da posição do personagem
