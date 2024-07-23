@@ -1,2 +1,2 @@
 bin/src/*
-!*.dll
+bin/app.exe
