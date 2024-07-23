@@ -1,41 +1,35 @@
-# Nome do executável a ser gerado
-TARGET = app
-
-# Diretórios
+TARGET = app.exe
 SRC_DIR = src
 BUILD_DIR = bin
+OBJ_DIR = $(BUILD_DIR)/src
 INCLUDE_DIR = sfml/include
 LIB_DIR = sfml/lib
 
-# Compilador e flags
 CXX = g++
 CXXFLAGS = -std=c++14 -Wall -Wextra -g
 LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system
-INC = -I$(INCLUDE_DIR)
+INC = -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(SRC_DIR)/domain -I$(SRC_DIR)/domain/interfaces
 
-# Listar todos os arquivos fonte .cpp
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+# Gets all .cpp files and transform them into .o files
+SOURCES = $(wildcard $(SRC_DIR)/**/*.cpp)
+OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
+OBJECTS += $(OBJ_DIR)/main.o
 
-# Gerar nomes de arquivos .o correspondentes
-OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-
-# Comando para criar o executável
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(BUILD_DIR)/$(TARGET) $(LDFLAGS)
-
-# Regra genérica para compilar arquivos .cpp em arquivos .o
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+# Instructions to compile any .cpp file into a .o file
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	if not exist $(subst /,\,$(dir $@)) mkdir $(subst /,\,$(dir $@))
 	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
 
-# Limpar arquivos intermediários e o executável
+# Creates the .exe file
+compile: $(OBJECTS)
+	g++ -o $(BUILD_DIR)/$(TARGET) $^ $(LDFLAGS)
+
+# Delete the .exe file and the generated .o files
 clean:
-	rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/$(TARGET)
+	del /q /f $(subst /,\,$(BUILD_DIR)\$(TARGET))
+	if exist $(subst /,\,$(OBJ_DIR)) rmdir /q /s $(subst /,\,$(OBJ_DIR))	
 
-# Comando padrão ao digitar apenas `make`
-all: $(TARGET)
-
-# Informações adicionais de depuração
 print-%:
 	@echo $* = $($*)
 
-.PHONY: clean all
+.PHONY: clean compile
