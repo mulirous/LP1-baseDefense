@@ -5,7 +5,7 @@
 
 int main()
 {
-    auto character = new Hero(50, 50, 50, 100, 600, 400);
+    auto character = new Hero(50, 50, 5, 100, 600, 400);
     auto game = new Game(1050, 700);
     game->setHero(character);
     game->run();

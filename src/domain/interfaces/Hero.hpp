@@ -19,6 +19,8 @@ public:
     };
     void move();
     sf::RectangleShape getShape() { return shape; }
+
+    void followPointer();
 };
 
 #endif

@@ -31,6 +31,46 @@ public:
     int getLife() { return currentLife; }
     float getPosX() { return positionX; }
     float getPosY() { return positionY; }
+
+    bool isCollidingWith(const Character &other) const
+    {
+        return this->positionX < other.positionX + other.width &&
+            this->positionX + this->width > other.positionX &&
+            this->positionY < other.positionY + other.height &&
+            this->positionY + this->height > other.positionY;
+    }
+
+    void resolveCollision(Character &other)
+    {
+        float overlapX = (this->width / 2 + other.width / 2) - std::abs(this->positionX - other.positionX);
+        float overlapY = (this->height / 2 + other.height / 2) - std::abs(this->positionY - other.positionY);
+
+        if (overlapX < overlapY)
+        {
+            if (this->positionX < other.positionX)
+                this->positionX -= overlapX / 2;
+            else
+                this->positionX += overlapX / 2;
+
+            if (this->positionX < other.positionX)
+                other.positionX += overlapX / 2;
+            else
+                other.positionX -= overlapX / 2;
+        }
+        else
+        {
+            if (this->positionY < other.positionY)
+                this->positionY -= overlapY / 2;
+            else
+                this->positionY += overlapY / 2;
+
+            if (this->positionY < other.positionY)
+                other.positionY += overlapY / 2;
+            else
+                other.positionY -= overlapY / 2;
+        }
+    }
+
     virtual void move() = 0; // Marked as "virtual" to be overriden by its child-classes (hero, enemy)
 };
 
