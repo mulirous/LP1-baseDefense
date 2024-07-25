@@ -44,12 +44,36 @@ void Game::handleEvents()
         {
             gameWindow.close();
         }
-        character->move();
     }
 }
 
 void Game::update(float deltaTime)
 {
+    character->move();
+
+    // Atualizar inimigos
+    for (auto &enemy : enemies)
+    {
+        enemy.update(deltaTime);
+    }
+
+    // Verificar colisões entre inimigos e herói
+    for (auto &enemy : enemies)
+    {
+        if (character->isCollidingWith(enemy))
+        {
+            character->resolveCollision(enemy);
+        }
+
+        for (auto &otherEnemy : enemies)
+        {
+            if (&enemy != &otherEnemy && enemy.isCollidingWith(otherEnemy))
+            {
+                enemy.resolveCollision(otherEnemy);
+            }
+        }
+    }
+
     spawnTimer += deltaTime;
     if (spawnTimer >= spawnInterval)
     {
