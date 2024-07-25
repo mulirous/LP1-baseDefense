@@ -44,12 +44,12 @@ void Game::handleEvents()
         {
             gameWindow.close();
         }
-        character->move();
     }
 }
 
 void Game::update(float deltaTime)
 {
+    character->move();
 
     // Atualizar inimigos
     for (auto &enemy : enemies)

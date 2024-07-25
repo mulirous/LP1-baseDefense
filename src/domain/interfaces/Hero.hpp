@@ -17,10 +17,9 @@ public:
         shape.setSize(sf::Vector2f(width, height));
         shape.setPosition(posX, posY);
     };
+
     void move();
     sf::RectangleShape getShape() { return shape; }
-
-    void followPointer();
 };
 
 #endif
