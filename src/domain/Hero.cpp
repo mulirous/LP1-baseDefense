@@ -40,8 +40,8 @@ void Hero::move()
     float diagonal = std::sqrt(moveX * moveX + moveY * moveY);
     if (diagonal != 0)
     {
-        moveX /= length;
-        moveY /= length;
+        moveX /= diagonal;
+        moveY /= diagonal;
     }
 
     this->positionX += moveX * currentSpeed * deltaTime;
