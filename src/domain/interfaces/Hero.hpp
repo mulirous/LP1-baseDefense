@@ -6,6 +6,9 @@
 /// @brief A class that represents the main character, known as "Hero"
 class Hero : public Character
 {
+protected:
+    sf::RectangleShape shape;
+
 public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY)
         : Character(width, height, speed, maxLife, posX, posY)
@@ -14,8 +17,8 @@ public:
         shape.setSize(sf::Vector2f(width, height));
         shape.setPosition(posX, posY);
     };
-    ~Hero() { delete this; };
-    void move(float windowWidth, float windowHeight);
+    void move();
+    sf::RectangleShape getShape() { return shape; }
 };
 
 #endif

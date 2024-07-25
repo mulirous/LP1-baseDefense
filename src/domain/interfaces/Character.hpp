@@ -16,9 +16,6 @@ protected:
     int maximumLife;
     /// @brief Current life of character
     int currentLife;
-    /// @brief Object representing the shape of character
-    // TO-DO: change this shape
-    sf::RectangleShape shape;
     /// @brief X-axis position of character on screen
     float positionX;
     /// @brief Y-axis position of character on screen
@@ -26,7 +23,7 @@ protected:
 
 public:
     Character(float width, float height, float speed, int maxLife, float posX, float posY);
-    ~Character();
+    virtual ~Character() = default;
     float getWidth() { return width; }
     float getHeigth() { return height; }
     float getSpeed() { return speed; }
@@ -34,9 +31,7 @@ public:
     int getLife() { return currentLife; }
     float getPosX() { return positionX; }
     float getPosY() { return positionY; }
-    sf::RectangleShape getShape() { return shape; }
-    void setShapePosition(float x, float y);
-    virtual void move(float windowWidth, float windowHeight) = 0; // Marked as "virtual" to be overriden by its child-classes (hero, enemy)
+    virtual void move() = 0; // Marked as "virtual" to be overriden by its child-classes (hero, enemy)
 };
 
 #endif

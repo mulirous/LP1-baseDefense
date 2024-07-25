@@ -11,15 +11,3 @@ Character::Character(float width, float height, float speed, int maxLife, float 
     this->positionX = posX;
     this->positionY = posY;
 };
-
-Character::~Character()
-{
-    delete this;
-}
-
-void Character::setShapePosition(float x, float y)
-{
-    this->positionX = x;
-    this->positionY = y;
-    shape.setPosition(x, y);
-}

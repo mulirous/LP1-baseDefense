@@ -1,13 +1,14 @@
 #include "interfaces/Hero.hpp"
+#include "interfaces/Game.hpp"
 #include <SFML/Graphics.hpp>
 
-void Hero::move(float wWindow, float hWindow)
+void Hero::move()
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && this->positionX > 0)
     {
         this->positionX -= this->speed;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && this->positionX + this->width < wWindow)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && this->positionX + this->width < Game::windowWidth)
     {
         this->positionX += this->speed;
     }
@@ -15,7 +16,7 @@ void Hero::move(float wWindow, float hWindow)
     {
         this->positionY -= this->speed;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && this->positionY + this->height < hWindow)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && this->positionY + this->height < Game::windowHeight)
     {
         this->positionY += this->speed;
     }
