@@ -1,6 +1,7 @@
 #ifndef CHARACTER_HPP
 #define CHARACTER_HPP
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 /// @brief An abstract class to serve as base to Hero and Enemy
 class Character
@@ -32,46 +33,44 @@ public:
     float getPosX() { return positionX; }
     float getPosY() { return positionY; }
 
-    bool isCollidingWith(const Character &other) const
+    bool isCollidingWith(std::shared_ptr<Character> other) const
     {
-        return this->positionX < other.positionX + other.width &&
-            this->positionX + this->width > other.positionX &&
-            this->positionY < other.positionY + other.height &&
-            this->positionY + this->height > other.positionY;
+        return this->positionX<other->positionX + other->width &&this->positionX + this->width> other->positionX &&
+               this->positionY<other->positionY + other->height &&this->positionY + this->height> other->positionY;
     }
 
-    void resolveCollision(Character &other)
+    void resolveCollision(std::shared_ptr<Character> other)
     {
-        float overlapX = (this->width / 2 + other.width / 2) - std::abs(this->positionX - other.positionX);
-        float overlapY = (this->height / 2 + other.height / 2) - std::abs(this->positionY - other.positionY);
+        float overlapX = (this->width / 2 + other->width / 2) - std::abs(this->positionX - other->positionX);
+        float overlapY = (this->height / 2 + other->height / 2) - std::abs(this->positionY - other->positionY);
 
         if (overlapX < overlapY)
         {
-            if (this->positionX < other.positionX)
+            if (this->positionX < other->positionX)
                 this->positionX -= overlapX / 2;
             else
                 this->positionX += overlapX / 2;
 
-            if (this->positionX < other.positionX)
-                other.positionX += overlapX / 2;
+            if (this->positionX < other->positionX)
+                other->positionX += overlapX / 2;
             else
-                other.positionX -= overlapX / 2;
+                other->positionX -= overlapX / 2;
         }
         else
         {
-            if (this->positionY < other.positionY)
+            if (this->positionY < other->positionY)
                 this->positionY -= overlapY / 2;
             else
                 this->positionY += overlapY / 2;
 
-            if (this->positionY < other.positionY)
-                other.positionY += overlapY / 2;
+            if (this->positionY < other->positionY)
+                other->positionY += overlapY / 2;
             else
-                other.positionY -= overlapY / 2;
+                other->positionY -= overlapY / 2;
         }
     }
 
-    virtual void move() = 0; // Marked as "virtual" to be overriden by its child-classes (hero, enemy)
+    virtual void move() = 0;
 };
 
 #endif

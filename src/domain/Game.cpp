@@ -11,7 +11,7 @@ const int Game::windowWidth = 1200;
 void Game::run()
 {
     Clock clock;
-    while (gameWindow.isOpen())
+    while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
         handleEvents();
@@ -22,54 +22,53 @@ void Game::run()
 
 void Game::render()
 {
-    gameWindow.clear(Color::White);
-    gameWindow.draw(character->getShape());
+    gameWindow->clear(Color::White);
+    gameWindow->draw(hero->getShape());
 
-    for (auto &enemy : enemies)
-        gameWindow.draw(enemy.getShape());
+    for (const auto &enemy : *enemies)
+        gameWindow->draw(enemy->getShape());
 
-    gameWindow.display();
+    gameWindow->display();
 }
 
 void Game::handleEvents()
 {
     Event event;
-    while (gameWindow.pollEvent(event))
+    while (gameWindow->pollEvent(event))
     {
         if (event.type == Event::Closed)
         {
-            gameWindow.close();
+            gameWindow->close();
         }
         else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
         {
-            gameWindow.close();
+            gameWindow->close();
         }
     }
 }
 
 void Game::update(float deltaTime)
 {
-    character->move();
+    hero->move();
 
-    // Atualizar inimigos
-    for (auto &enemy : enemies)
+    for (const auto &enemy : *enemies)
     {
-        enemy.update(deltaTime);
+        enemy->update(deltaTime);
     }
 
-    // Verificar colisões entre inimigos e herói
-    for (auto &enemy : enemies)
+    // Check collisions between hero and enemies
+    for (const auto &enemy : *enemies)
     {
-        if (character->isCollidingWith(enemy))
+        if (hero->isCollidingWith(enemy))
         {
-            character->resolveCollision(enemy);
+            hero->resolveCollision(enemy);
         }
 
-        for (auto &otherEnemy : enemies)
+        for (const auto &otherEnemy : *enemies)
         {
-            if (&enemy != &otherEnemy && enemy.isCollidingWith(otherEnemy))
+            if (&enemy != &otherEnemy && enemy->isCollidingWith(otherEnemy))
             {
-                enemy.resolveCollision(otherEnemy);
+                enemy->resolveCollision(otherEnemy);
             }
         }
     }
@@ -77,16 +76,17 @@ void Game::update(float deltaTime)
     spawnTimer += deltaTime;
     if (spawnTimer >= spawnInterval)
     {
-        enemies.push_back(this->spawnEnemy());
+        enemies->push_back(this->spawnEnemy());
         spawnTimer = 0.f;
     }
 
-    for (auto it = enemies.begin(); it != enemies.end();)
+    for (auto it = enemies->begin(); it != enemies->end();)
     {
-        it->update(deltaTime);
-        if (abs(it->getPosX() - centerX) < 5.f && abs(it->getPosY() - centerY) < 5.f)
+        auto enemy = *it;
+        enemy->update(deltaTime);
+        if (abs(enemy->getPosX() - centerX) < 5.f && abs(enemy->getPosY() - centerY) < 5.f)
         {
-            it = enemies.erase(it);
+            it = enemies->erase(it);
         }
         else
         {
@@ -95,7 +95,7 @@ void Game::update(float deltaTime)
     }
 }
 
-Enemy Game::spawnEnemy()
+std::shared_ptr<Enemy> Game::spawnEnemy()
 {
     float spawnX;
     float spawnY;
@@ -122,10 +122,10 @@ Enemy Game::spawnEnemy()
         break;
     }
 
-    return Enemy(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    return std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
 }
 
 void Game::close()
 {
-    gameWindow.close();
+    gameWindow->close();
 }
