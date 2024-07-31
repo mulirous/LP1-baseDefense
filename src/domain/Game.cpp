@@ -8,6 +8,14 @@ using namespace std;
 const int Game::windowHeight = 800;
 const int Game::windowWidth = 1200;
 
+Vector2f Game::setMousePosition()
+{
+    sf::Vector2i mousePositionInt = sf::Mouse::getPosition(*gameWindow);
+    sf::Vector2f mousePositionFloat(static_cast<float>(mousePositionInt.x), static_cast<float>(mousePositionInt.y));
+
+    return mousePositionFloat;
+}
+
 void Game::run()
 {
     Clock clock;
@@ -45,6 +53,11 @@ void Game::handleEvents()
             gameWindow->close();
         }
     }
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        hero->setTargetPosition(setMousePosition());
+    }
 }
 
 void Game::update(float deltaTime)
@@ -56,7 +69,6 @@ void Game::update(float deltaTime)
         enemy->update(deltaTime);
     }
 
-    // Check collisions between hero and enemies
     for (const auto &enemy : *enemies)
     {
         if (hero->isCollidingWith(enemy))

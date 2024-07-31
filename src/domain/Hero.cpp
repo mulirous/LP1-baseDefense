@@ -1,51 +1,31 @@
 #include "interfaces/Hero.hpp"
-#include "interfaces/Game.hpp"
 #include <SFML/Graphics.hpp>
-#include <ctime>
 #include <cmath>
 
 void Hero::move()
 {
-    sf::Clock clock;
-    float deltaTime = clock.restart().asSeconds() + 0.5;
-
     float currentSpeed = this->speed;
 
-    // Sprint on L or R Shift
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
     {
         currentSpeed += 3;
     }
 
-    float moveX = 0.0f;
-    float moveY = 0.0f;
+    sf::Vector2f currentPosition = shape.getPosition();
+    sf::Vector2f direction = this->targetPosition - currentPosition;
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && this->positionX > 0)
+    if (distance < 1.0f)
     {
-        moveX -= 1.0f;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && this->positionX + this->width < Game::windowWidth)
-    {
-        moveX += 1.0f;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && this->positionY > 0)
-    {
-        moveY -= 1.0f;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && this->positionY + this->height < Game::windowHeight)
-    {
-        moveY += 1.0f;
+        return;
     }
 
-    float diagonal = std::sqrt(moveX * moveX + moveY * moveY);
-    if (diagonal != 0)
-    {
-        moveX /= diagonal;
-        moveY /= diagonal;
-    }
+    direction /= distance;
 
-    this->positionX += moveX * currentSpeed * deltaTime;
-    this->positionY += moveY * currentSpeed * deltaTime;
+    float deltaTime = 0.1f; 
+    shape.move(direction * currentSpeed * deltaTime);
 
-    shape.setPosition(this->positionX, this->positionY);
+    sf::Vector2f newPosition = shape.getPosition();
+    this->positionX = newPosition.x;
+    this->positionY = newPosition.y;
 }

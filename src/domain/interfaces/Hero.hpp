@@ -8,6 +8,7 @@ class Hero : public Character
 {
 protected:
     sf::RectangleShape shape;
+    sf::Vector2f targetPosition; // Nova posição alvo
 
 public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY)
@@ -18,6 +19,7 @@ public:
         shape.setPosition(posX, posY);
     };
 
+    void setTargetPosition(sf::Vector2f target) { targetPosition = target; }
     void move();
     sf::RectangleShape getShape() { return shape; }
 };
