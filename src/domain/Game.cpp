@@ -1,12 +1,10 @@
 #include "interfaces/Game.hpp"
 #include "interfaces/Enemy.hpp"
+#include "../common.h"
 #include <iostream>
 
 using namespace sf;
 using namespace std;
-
-const int Game::windowHeight = 800;
-const int Game::windowWidth = 1200;
 
 void Game::run()
 {
@@ -14,9 +12,9 @@ void Game::run()
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
+        render();
         handleEvents();
         update(deltaTime);
-        render();
     }
 }
 
@@ -26,7 +24,24 @@ void Game::render()
     gameWindow->draw(hero->getShape());
 
     for (const auto &enemy : *enemies)
+    {
         gameWindow->draw(enemy->getShape());
+        // for (const auto &projectile : *enemy->getLaunchedProjectiles())
+        // {
+        //     if (projectile.expired())
+        //         return;
+        //     gameWindow->draw(projectile.lock()->getShape());
+        // }
+    }
+
+    auto heroProjectiles = *hero->getRangedWeapon()->getLaunchedProjectiles();
+    if (!heroProjectiles.empty())
+    {
+        for (const auto &projectile : heroProjectiles)
+        {
+            gameWindow->draw(projectile->getShape());
+        }
+    }
 
     gameWindow->display();
 }
@@ -44,16 +59,41 @@ void Game::handleEvents()
         {
             gameWindow->close();
         }
+        else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
+        {
+            hero->doAttack();
+        }
     }
 }
 
 void Game::update(float deltaTime)
 {
+    // Updates everything related to hero
     hero->move();
+    auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
+    if (!heroProjectiles->empty())
+    {
+        for (auto it = heroProjectiles->begin(); it != heroProjectiles->end(); it++)
+        {
+            auto projectile = *it;
+            if (projectile->isOffScreen())
+            {
+                it = heroProjectiles->erase(it);
+            }
+            projectile->update(deltaTime);
+        }
+    }
 
+    // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
-        enemy->update(deltaTime);
+        enemy->move(deltaTime);
+        // for (const auto &projectile : *enemy->getLaunchedProjectiles())
+        // {
+        //     if (projectile.expired())
+        //         return;
+        //     projectile.lock()->update(deltaTime);
+        // }
     }
 
     // Check collisions between hero and enemies
@@ -80,10 +120,11 @@ void Game::update(float deltaTime)
         spawnTimer = 0.f;
     }
 
+    // TODO: refactor this because enemy shouldnt be erased for get at the center of screen
     for (auto it = enemies->begin(); it != enemies->end();)
     {
         auto enemy = *it;
-        enemy->update(deltaTime);
+        enemy->move(deltaTime);
         if (abs(enemy->getPosX() - centerX) < 5.f && abs(enemy->getPosY() - centerY) < 5.f)
         {
             it = enemies->erase(it);
@@ -105,20 +146,20 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
     switch (side)
     {
     case 0: // Top
-        spawnX = rand() % Game::windowWidth;
-        spawnY = -20.f;
+        spawnX = rand() % GameWindowWidth;
+        spawnY = -20;
         break;
     case 1: // Right
-        spawnX = Game::windowWidth + 20.f;
-        spawnY = rand() % Game::windowHeight;
+        spawnX = GameWindowWidth + 20;
+        spawnY = rand() % GameWindowHeight;
         break;
     case 2: // Bottom
-        spawnX = rand() % Game::windowWidth;
-        spawnY = Game::windowHeight + 20.f;
+        spawnX = rand() % GameWindowWidth;
+        spawnY = GameWindowHeight + 20.f;
         break;
     case 3: // Left
         spawnX = -20.f;
-        spawnY = rand() % Game::windowHeight;
+        spawnY = rand() % GameWindowHeight;
         break;
     }
 

@@ -2,6 +2,8 @@
 #define CHARACTER_HPP
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <list>
+#include "Projectile.hpp"
 
 /// @brief An abstract class to serve as base to Hero and Enemy
 class Character
@@ -70,7 +72,9 @@ public:
         }
     }
 
-    virtual void move() = 0;
+    virtual void doAttack() = 0;
+
+    virtual void move(float deltaTime = {}) = 0;
 };
 
 #endif

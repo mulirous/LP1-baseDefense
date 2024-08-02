@@ -6,7 +6,8 @@ INCLUDE_DIR = sfml/include
 LIB_DIR = sfml/lib
 
 CXX = g++
-CXXFLAGS = -std=c++14 -Wall -Wextra -g
+# -Wall -Wextra
+CXXFLAGS = -std=c++14 -g3
 LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system
 INC = -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(SRC_DIR)/domain -I$(SRC_DIR)/domain/interfaces
 

@@ -23,8 +23,8 @@ public:
         shape.setPosition(this->positionX, this->positionY);
     }
 
-    void update(float deltaTime);
-    void move();
+    void move(float deltaTime) override;
+    void doAttack() override;
     const sf::CircleShape &getShape() const { return this->shape; }
 };
 

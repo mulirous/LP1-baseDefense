@@ -4,10 +4,10 @@
 #include <ctime>
 #include <cmath>
 
-void Hero::move()
+void Hero::move(float deltaTime)
 {
     sf::Clock clock;
-    float deltaTime = clock.restart().asSeconds() + 0.5;
+    deltaTime = clock.restart().asSeconds() + 0.5;
 
     float currentSpeed = this->speed;
 
@@ -24,7 +24,7 @@ void Hero::move()
     {
         moveX -= 1.0f;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && this->positionX + this->width < Game::windowWidth)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && this->positionX + this->width < GameWindowWidth)
     {
         moveX += 1.0f;
     }
@@ -32,7 +32,7 @@ void Hero::move()
     {
         moveY -= 1.0f;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && this->positionY + this->height < Game::windowHeight)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && this->positionY + this->height < GameWindowHeight)
     {
         moveY += 1.0f;
     }

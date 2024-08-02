@@ -30,29 +30,19 @@ public:
     {
         srand(static_cast<unsigned>(time(0))); // Seeds a random number to game
     };
-
-    static const int windowWidth;
-    static const int windowHeight;
-
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
-
     /// @brief Start point to run game.
     void run();
-
     /// @brief
     /// @return
     std::shared_ptr<Enemy> spawnEnemy();
-
     /// @brief Process events like inputs.
     void handleEvents();
-
     /// @brief Changes the state of objects.
     /// @param time
     void update(float time);
-
     /// @brief Renders the actual state of objects on screen.
     void render();
-
     /// @brief Closes the window and ends the game.
     void close();
 };

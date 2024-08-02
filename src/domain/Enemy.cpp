@@ -2,8 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-// TO-DO: use the move method instead update
-void Enemy::update(float deltaTime)
+void Enemy::move(float deltaTime)
 {
     float directionX = centerX - this->positionX;
     float directionY = centerY - this->positionY;
@@ -17,6 +16,4 @@ void Enemy::update(float deltaTime)
     }
 }
 
-void Enemy::move()
-{
-}
+void Enemy::doAttack() {}
