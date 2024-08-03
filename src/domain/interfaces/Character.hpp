@@ -72,7 +72,7 @@ public:
         }
     }
 
-    virtual void doAttack() = 0;
+    virtual void doAttack(sf::Vector2f &target) = 0;
 
     virtual void move(float deltaTime = {}) = 0;
 };

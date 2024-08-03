@@ -22,10 +22,10 @@ public:
         shape.setRadius(width / 2);
         shape.setPosition(this->positionX, this->positionY);
     }
+    const sf::CircleShape &getShape() const { return this->shape; }
 
     void move(float deltaTime) override;
-    void doAttack() override;
-    const sf::CircleShape &getShape() const { return this->shape; }
+    void doAttack(sf::Vector2f &target) override;
 };
 
 #endif

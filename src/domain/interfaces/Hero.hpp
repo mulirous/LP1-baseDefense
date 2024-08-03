@@ -32,15 +32,10 @@ public:
     {
         return this->weapon;
     }
-    void doAttack() override
+    void doAttack(sf::Vector2f &target) override
     {
         // Get hero position
         auto heroPosition = sf::Vector2f(this->positionX, this->positionY);
-
-        // Get mouse position when it's clicked
-        auto mousePosition = sf::Mouse::getPosition();
-        auto target = static_cast<sf::Vector2f>(mousePosition);
-        std::cout << "mouse position: " << target.x << " e " << target.y << "\n";
 
         // Set mouse position as target on ranged weapon and do attack
         this->weapon->shoot(target, heroPosition);

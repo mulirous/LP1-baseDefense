@@ -13,9 +13,8 @@ private:
     /// @brief Weapon's ammo
     int ammo;
     /// @brief Creates a projectile when character shoot
-    /// @param position
-    /// @return A weak pointer to projectile
-    std::shared_ptr<Projectile> launchProjectile(const sf::Vector2f &position);
+    /// @return A pointer to projectile
+    std::shared_ptr<Projectile> launchProjectile();
     /// @brief Current position
     sf::Vector2f currentPosition;
     /// @brief Target's position

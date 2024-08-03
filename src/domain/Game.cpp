@@ -61,7 +61,8 @@ void Game::handleEvents()
         }
         else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
         {
-            hero->doAttack();
+            auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+            hero->doAttack(mousePosition);
         }
     }
 }

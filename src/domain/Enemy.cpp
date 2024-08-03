@@ -16,4 +16,4 @@ void Enemy::move(float deltaTime)
     }
 }
 
-void Enemy::doAttack() {}
+void Enemy::doAttack(sf::Vector2f &target) {}

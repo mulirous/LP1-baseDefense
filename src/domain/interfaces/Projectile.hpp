@@ -17,24 +17,19 @@ private:
     /// @brief Projectile's damage
     int damage;
     /// @brief
-    sf::RectangleShape shape;
+    sf::CircleShape shape;
 
 public:
-    Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &direction)
-        : position(position), damage(damage), velocity(velocity)
+    Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target)
+        : position(position), damage(damage), velocity(velocity), target(target)
     {
-        shape.setSize(sf::Vector2f(20, 50));
+        shape.setRadius(5);
         shape.setFillColor(sf::Color::Green);
         shape.setPosition(this->position);
         shape.setRotation(atan2(target.y, target.x) * 180 / 3.14159265);
-
-        float dx = direction.x - position.x;
-        float dy = direction.y - position.y;
-        float length = sqrt(dx * dx + dy * dy);
-        target = sf::Vector2f(dx / length, dy / length);
     }
 
-    const sf::RectangleShape &getShape() const { return this->shape; }
+    const sf::CircleShape &getShape() const { return this->shape; }
 
     void update(float deltaTime)
     {
