@@ -6,6 +6,12 @@
 using namespace sf;
 using namespace std;
 
+Vector2f Game::setMousePosition()
+{
+    sf::Vector2f mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+    return mousePosition;
+}
+
 void Game::run()
 {
     Clock clock;
@@ -66,6 +72,11 @@ void Game::handleEvents()
             hero->doAttack(mousePosition);
         }
     }
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        hero->setTargetPosition(setMousePosition());
+    }
 }
 
 void Game::update(float deltaTime)
@@ -82,7 +93,6 @@ void Game::update(float deltaTime)
         enemy->move(deltaTime);
     }
 
-    // Check collisions between hero and enemies
     for (const auto &enemy : *enemies)
     {
         if (hero->isCollidingWith(enemy))

@@ -76,11 +76,15 @@ public:
                              enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
                              gameWindow(std::make_unique<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window"))
     {
-        srand(static_cast<unsigned>(time(0))); // Seeds a random number to game
+        srand(static_cast<unsigned>(time(0)));
     };
 
     void setDeltaTime(float time) { this->deltaTime = time; }
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
+
+    sf::Vector2f setMousePosition();
+
+    void targetMark();
 
     /// @brief Start point to run game.
     void run();
