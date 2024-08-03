@@ -12,18 +12,16 @@ protected:
 public:
     float centerX;
     float centerY;
+    const sf::CircleShape &getShape() const { return this->shape; }
 
     Enemy(float width, float height, float speed, int maxLife, float x, float y, float cX, float cY)
-        : Character(width, height, speed, maxLife, x, y)
+        : Character(width, height, speed, maxLife, x, y), centerX(cX / 2), centerY(cY / 2)
     {
-        this->centerX = cX / 2;
-        this->centerY = cY / 2.0;
+
         shape.setFillColor(sf::Color::Red);
         shape.setRadius(width / 2);
         shape.setPosition(this->positionX, this->positionY);
-    }
-    const sf::CircleShape &getShape() const { return this->shape; }
-
+    };
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target) override;
 };

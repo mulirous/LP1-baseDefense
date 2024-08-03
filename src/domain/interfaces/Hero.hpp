@@ -22,24 +22,17 @@ public:
         shape.setPosition(posX, posY);
         weapon = std::make_shared<RangedWeapon>(10, 5, 50);
     };
-
-    void move(float deltaTime = {}) override;
     sf::RectangleShape getShape()
     {
-        return shape;
+        return this->shape;
     }
     std::shared_ptr<RangedWeapon> getRangedWeapon()
     {
         return this->weapon;
     }
-    void doAttack(sf::Vector2f &target) override
-    {
-        // Get hero position
-        auto heroPosition = sf::Vector2f(this->positionX, this->positionY);
 
-        // Set mouse position as target on ranged weapon and do attack
-        this->weapon->shoot(target, heroPosition);
-    }
+    void move(float deltaTime = {}) override;
+    void doAttack(sf::Vector2f &target) override;
 };
 
 #endif

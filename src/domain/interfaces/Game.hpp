@@ -12,6 +12,10 @@
 class Game
 {
 private:
+    /// @brief Resolve conflicts with projectiles and characters (enemies or hero)
+    /// @tparam T A class derived from Character
+    /// @param projectiles A shared pointer to a list of Projectiles pointers
+    /// @param characters A shared pointer to a list of T pointers
     template <typename T>
     void calculateCollisionsWithProjectiles(
         std::shared_ptr<std::list<std::shared_ptr<Projectile>>> projectiles,
@@ -74,8 +78,10 @@ public:
     {
         srand(static_cast<unsigned>(time(0))); // Seeds a random number to game
     };
+
     void setDeltaTime(float time) { this->deltaTime = time; }
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
+
     /// @brief Start point to run game.
     void run();
     /// @brief

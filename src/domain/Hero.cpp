@@ -4,6 +4,15 @@
 #include <ctime>
 #include <cmath>
 
+void Hero::doAttack(sf::Vector2f &target)
+{
+    // Get hero position
+    auto heroPosition = sf::Vector2f(this->positionX, this->positionY);
+
+    // Set mouse position as target on ranged weapon and do attack
+    this->weapon->shoot(target, heroPosition);
+}
+
 void Hero::move(float deltaTime)
 {
     sf::Clock clock;
