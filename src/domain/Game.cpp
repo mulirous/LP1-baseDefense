@@ -12,6 +12,7 @@ void Game::run()
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
+        setDeltaTime(deltaTime);
         render();
         handleEvents();
         update(deltaTime);
@@ -73,28 +74,12 @@ void Game::update(float deltaTime)
     hero->move();
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
     if (!heroProjectiles->empty())
-    {
-        for (auto it = heroProjectiles->begin(); it != heroProjectiles->end(); it++)
-        {
-            auto projectile = *it;
-            if (projectile->isOffScreen())
-            {
-                it = heroProjectiles->erase(it);
-            }
-            projectile->update(deltaTime);
-        }
-    }
+        this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
 
     // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
-        // for (const auto &projectile : *enemy->getLaunchedProjectiles())
-        // {
-        //     if (projectile.expired())
-        //         return;
-        //     projectile.lock()->update(deltaTime);
-        // }
     }
 
     // Check collisions between hero and enemies
@@ -119,21 +104,6 @@ void Game::update(float deltaTime)
     {
         enemies->push_back(this->spawnEnemy());
         spawnTimer = 0.f;
-    }
-
-    // TODO: refactor this because enemy shouldnt be erased for get at the center of screen
-    for (auto it = enemies->begin(); it != enemies->end();)
-    {
-        auto enemy = *it;
-        enemy->move(deltaTime);
-        if (abs(enemy->getPosX() - centerX) < 5.f && abs(enemy->getPosY() - centerY) < 5.f)
-        {
-            it = enemies->erase(it);
-        }
-        else
-        {
-            ++it;
-        }
     }
 }
 

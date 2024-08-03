@@ -29,7 +29,10 @@ public:
         shape.setRotation(atan2(target.y, target.x) * 180 / 3.14159265);
     }
 
-    const sf::CircleShape &getShape() const { return this->shape; }
+    const sf::CircleShape &getShape() const
+    {
+        return this->shape;
+    }
 
     void update(float deltaTime)
     {

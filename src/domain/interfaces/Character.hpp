@@ -35,10 +35,14 @@ public:
     float getPosX() { return positionX; }
     float getPosY() { return positionY; }
 
-    bool isCollidingWith(std::shared_ptr<Character> other) const
+    bool isCollidingWith(const sf::FloatRect &rect)
     {
-        return this->positionX<other->positionX + other->width &&this->positionX + this->width> other->positionX &&
-               this->positionY<other->positionY + other->height &&this->positionY + this->height> other->positionY;
+        return this->getGlobalBounds().intersects(rect);
+    }
+
+    bool isCollidingWith(std::shared_ptr<Character> other)
+    {
+        return this->getGlobalBounds().intersects(other->getGlobalBounds());
     }
 
     void resolveCollision(std::shared_ptr<Character> other)
@@ -70,6 +74,11 @@ public:
             else
                 other->positionY -= overlapY / 2;
         }
+    }
+
+    sf::FloatRect getGlobalBounds()
+    {
+        return sf::FloatRect(this->positionX, this->positionY, this->width, this->height);
     }
 
     virtual void doAttack(sf::Vector2f &target) = 0;
