@@ -6,12 +6,6 @@
 using namespace sf;
 using namespace std;
 
-Vector2f Game::setMousePosition()
-{
-    sf::Vector2f mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
-    return mousePosition;
-}
-
 void Game::run()
 {
     Clock clock;
@@ -33,12 +27,14 @@ void Game::render()
     for (const auto &enemy : *enemies)
     {
         gameWindow->draw(enemy->getShape());
-        // for (const auto &projectile : *enemy->getLaunchedProjectiles())
-        // {
-        //     if (projectile.expired())
-        //         return;
-        //     gameWindow->draw(projectile.lock()->getShape());
-        // }
+        auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
+        if (!enemyProjectiles.empty())
+        {
+            for (const auto &projectile : enemyProjectiles) // Using value instead pointer to do this foreach
+            {
+                gameWindow->draw(projectile->getShape());
+            }
+        }
     }
 
     auto heroProjectiles = *hero->getRangedWeapon()->getLaunchedProjectiles();
@@ -85,12 +81,28 @@ void Game::update(float deltaTime)
     hero->move();
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
     if (!heroProjectiles->empty())
-        this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
+    {
+        for (auto &projectile : *heroProjectiles)
+            projectile->update(deltaTime);
 
+        this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
+    }
     // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
+        // TODO: improve this because enemies are shooting every projectile as soon as they spawn
+        if (rand() % 100 == 0)
+        {
+            auto heroPosition = sf::Vector2f(hero->getPosX(), hero->getPosY());
+            enemy->doAttack(heroPosition);
+        }
+        auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
+        for (auto &projectile : *enemyProjectiles)
+        {
+            projectile->update(deltaTime);
+        }
+        this->calculateCollisionsWithProjectiles(enemyProjectiles, std::make_shared<std::list<std::shared_ptr<Hero>>>(1, hero));
     }
 
     for (const auto &enemy : *enemies)
@@ -127,20 +139,20 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
     switch (side)
     {
     case 0: // Top
-        spawnX = rand() % GameWindowWidth;
+        spawnX = rand() % GAMEWINDOWWIDTH;
         spawnY = -20;
         break;
     case 1: // Right
-        spawnX = GameWindowWidth + 20;
-        spawnY = rand() % GameWindowHeight;
+        spawnX = GAMEWINDOWWIDTH + 20;
+        spawnY = rand() % GAMEWINDOWHEIGHT;
         break;
     case 2: // Bottom
-        spawnX = rand() % GameWindowWidth;
-        spawnY = GameWindowHeight + 20.f;
+        spawnX = rand() % GAMEWINDOWWIDTH;
+        spawnY = GAMEWINDOWHEIGHT + 20.f;
         break;
     case 3: // Left
         spawnX = -20.f;
-        spawnY = rand() % GameWindowHeight;
+        spawnY = rand() % GAMEWINDOWHEIGHT;
         break;
     }
 

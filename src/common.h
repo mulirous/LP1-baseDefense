@@ -1,7 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-const int GameWindowHeight = 800;
-const int GameWindowWidth = 1200;
+const int GAMEWINDOWHEIGHT = 800;
+const int GAMEWINDOWWIDTH = 1200;
+const int PROJECTILEVELOCITY = 100;
 
 #endif

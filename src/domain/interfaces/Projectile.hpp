@@ -36,7 +36,7 @@ public:
 
     void update(float deltaTime)
     {
-        shape.move(target * velocity);
+        shape.move(target * velocity * deltaTime);
     }
 
     sf::FloatRect getBounds() const
@@ -47,8 +47,8 @@ public:
     bool isOffScreen() const
     {
         sf::FloatRect bounds = shape.getGlobalBounds();
-        return (bounds.left + bounds.width < 0 || bounds.left > GameWindowWidth ||
-                bounds.top + bounds.height < 0 || bounds.top > GameWindowHeight);
+        return (bounds.left + bounds.width < 0 || bounds.left > GAMEWINDOWWIDTH ||
+                bounds.top + bounds.height < 0 || bounds.top > GAMEWINDOWHEIGHT);
     }
 };
 

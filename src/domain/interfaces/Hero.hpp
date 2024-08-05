@@ -10,8 +10,10 @@ class Hero : public Character
 {
 protected:
     sf::RectangleShape shape;
+    /// @brief Pointer to hero's ranged weapon
     std::shared_ptr<RangedWeapon> weapon;
-    sf::Vector2f targetPosition; // Nova posição alvo
+    /// @brief Position that hero will move to
+    sf::Vector2f targetPosition;
 
 public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY)

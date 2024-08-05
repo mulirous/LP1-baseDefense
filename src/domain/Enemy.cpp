@@ -16,4 +16,8 @@ void Enemy::move(float deltaTime)
     }
 }
 
-void Enemy::doAttack(sf::Vector2f &target) {}
+void Enemy::doAttack(sf::Vector2f &target)
+{
+    auto current = sf::Vector2f(this->positionX, this->positionY);
+    this->weapon->shoot(target, current);
+}

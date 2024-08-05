@@ -12,7 +12,7 @@
 class Game
 {
 private:
-    /// @brief Resolve conflicts with projectiles and characters (enemies or hero)
+    /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
     /// @param projectiles A shared pointer to a list of Projectiles pointers
     /// @param characters A shared pointer to a list of T pointers
@@ -21,6 +21,7 @@ private:
         std::shared_ptr<std::list<std::shared_ptr<Projectile>>> projectiles,
         std::shared_ptr<std::list<std::shared_ptr<T>>> characters)
     {
+        // Verify if type is derived from Character or not
         static_assert(std::is_base_of<Character, T>::value, "T must be derived from Character!");
 
         for (auto projectileIt = projectiles->begin(); projectileIt != projectiles->end(); projectileIt++)
@@ -82,7 +83,11 @@ public:
     void setDeltaTime(float time) { this->deltaTime = time; }
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
 
-    sf::Vector2f setMousePosition();
+    sf::Vector2f setMousePosition()
+    {
+        sf::Vector2f mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+        return mousePosition;
+    };
 
     void targetMark();
 
