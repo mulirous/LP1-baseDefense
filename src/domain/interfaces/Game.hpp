@@ -71,6 +71,8 @@ protected:
     float deltaTime;
     float spawnInterval = 2;
     float spawnTimer = 0;
+    /// @brief Render some information on screen (life and ammo).
+    void renderStatus();
 
 public:
     Game(float x, float y) : centerX(x), centerY(y),
@@ -79,22 +81,14 @@ public:
     {
         srand(static_cast<unsigned>(time(0)));
     };
-
+    sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
 
-    sf::Vector2f setMousePosition()
-    {
-        sf::Vector2f mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
-        return mousePosition;
-    };
-
-    void targetMark();
-
     /// @brief Start point to run game.
     void run();
-    /// @brief
-    /// @return
+    /// @brief Creates new enemy
+    /// @return Pointer to enemy
     std::shared_ptr<Enemy> spawnEnemy();
     /// @brief Process events like inputs.
     void handleEvents();

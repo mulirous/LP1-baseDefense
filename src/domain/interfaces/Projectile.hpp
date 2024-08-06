@@ -29,19 +29,12 @@ public:
         shape.setRotation(atan2(target.y, target.x) * 180 / 3.14159265);
     }
 
-    const sf::CircleShape &getShape() const
-    {
-        return this->shape;
-    }
+    const sf::CircleShape &getShape() { return this->shape; }
+    sf::FloatRect getBounds() { return shape.getGlobalBounds(); }
 
     void update(float deltaTime)
     {
         shape.move(target * velocity * deltaTime);
-    }
-
-    sf::FloatRect getBounds() const
-    {
-        return shape.getGlobalBounds();
     }
 
     bool isOffScreen() const

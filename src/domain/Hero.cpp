@@ -5,7 +5,7 @@
 void Hero::doAttack(sf::Vector2f &target)
 {
     // Get hero position
-    auto heroPosition = sf::Vector2f(this->positionX, this->positionY);
+    auto heroPosition = sf::Vector2f(this->currentPosition);
 
     // Set mouse position as target on ranged weapon and do attack
     this->weapon->shoot(target, heroPosition);
@@ -32,6 +32,5 @@ void Hero::move(float deltaTime)
     shape.move(direction * currentSpeed * deltaTime);
 
     sf::Vector2f newPosition = shape.getPosition();
-    this->positionX = newPosition.x;
-    this->positionY = newPosition.y;
+    this->setCurrentPosition(newPosition);
 }

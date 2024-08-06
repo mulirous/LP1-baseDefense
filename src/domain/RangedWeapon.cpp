@@ -21,11 +21,17 @@ void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition)
 
 void RangedWeapon::doAttack()
 {
-    if (ammo == 0)
+    if (ammo == 0 || !this->isReadyToAttack())
         return;
 
     // Creates a new projectile and shoot it
     auto newProjectile = this->launchProjectile();
     this->launchedProjectiles->push_back(newProjectile);
     this->ammo--;
+    this->releaseTimeCounter.restart();
+}
+
+bool RangedWeapon::isReadyToAttack()
+{
+    return this->releaseTimeCounter.getElapsedTime().asSeconds() >= this->releaseTime;
 }

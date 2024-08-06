@@ -22,12 +22,10 @@ public:
         shape.setFillColor(sf::Color::Cyan);
         shape.setSize(sf::Vector2f(width, height));
         shape.setPosition(posX, posY);
-        weapon = std::make_shared<RangedWeapon>(10, 5, 50);
+        weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
     };
-    std::shared_ptr<RangedWeapon> getRangedWeapon()
-    {
-        return this->weapon;
-    }
+
+    std::shared_ptr<RangedWeapon> getRangedWeapon() { return this->weapon; }
     sf::RectangleShape getShape() { return this->shape; }
     void setTargetPosition(sf::Vector2f target) { this->targetPosition = target; }
 

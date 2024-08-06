@@ -9,14 +9,42 @@ using namespace std;
 void Game::run()
 {
     Clock clock;
+
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
+        // TODO: use this field instead deltaTIme as parameter
         setDeltaTime(deltaTime);
         render();
         handleEvents();
         update(deltaTime);
     }
+}
+
+void Game::renderStatus()
+{
+    Font font = Font();
+    int baseLife = 30;
+    if (!font.loadFromFile("resources/fonts/ProggyClean.ttf"))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+    Text heroLifeText, ammoText;
+    heroLifeText.setFont(font);
+    heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
+    heroLifeText.setCharacterSize(24);
+    heroLifeText.setFillColor(sf::Color::Black);
+    heroLifeText.setPosition(GAMEWINDOWWIDTH - 150, 25);
+
+    ammoText.setFont(font);
+    ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
+    ammoText.setCharacterSize(24);
+    ammoText.setFillColor(sf::Color::Black);
+    ammoText.setPosition(GAMEWINDOWWIDTH - 150, 50);
+
+    gameWindow->draw(heroLifeText);
+    gameWindow->draw(ammoText);
 }
 
 void Game::render()
@@ -46,6 +74,7 @@ void Game::render()
         }
     }
 
+    this->renderStatus(); // Should be the last to render to be above other objects
     gameWindow->display();
 }
 
@@ -64,14 +93,14 @@ void Game::handleEvents()
         }
         else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
         {
-            auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+            sf::Vector2f mousePosition = this->getMousePosition();
             hero->doAttack(mousePosition);
         }
     }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        hero->setTargetPosition(setMousePosition());
+        hero->setTargetPosition(getMousePosition());
     }
 }
 
@@ -91,10 +120,10 @@ void Game::update(float deltaTime)
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
-        // TODO: improve this because enemies are shooting every projectile as soon as they spawn
-        if (rand() % 100 == 0)
+        int randNum = rand();
+        if (randNum % 2 == 0)
         {
-            auto heroPosition = sf::Vector2f(hero->getPosX(), hero->getPosY());
+            auto heroPosition = sf::Vector2f(hero->getCurrentPosition());
             enemy->doAttack(heroPosition);
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
@@ -105,6 +134,7 @@ void Game::update(float deltaTime)
         this->calculateCollisionsWithProjectiles(enemyProjectiles, std::make_shared<std::list<std::shared_ptr<Hero>>>(1, hero));
     }
 
+    // Resolve collisions between hero with enemies and enemies with other enemies
     for (const auto &enemy : *enemies)
     {
         if (hero->isCollidingWith(enemy))
@@ -121,11 +151,11 @@ void Game::update(float deltaTime)
         }
     }
 
-    spawnTimer += deltaTime;
-    if (spawnTimer >= spawnInterval)
+    this->spawnTimer += deltaTime;
+    if (this->spawnTimer >= this->spawnInterval)
     {
-        enemies->push_back(this->spawnEnemy());
-        spawnTimer = 0.f;
+        this->enemies->push_back(this->spawnEnemy());
+        this->spawnTimer = 0.f;
     }
 }
 
