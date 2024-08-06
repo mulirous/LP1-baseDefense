@@ -1,20 +1,10 @@
 #include "interfaces/Game.hpp"
 #include "interfaces/Enemy.hpp"
+#include "../common.h"
 #include <iostream>
 
 using namespace sf;
 using namespace std;
-
-const int Game::windowHeight = 800;
-const int Game::windowWidth = 1200;
-
-Vector2f Game::setMousePosition()
-{
-    sf::Vector2i mousePositionInt = sf::Mouse::getPosition(*gameWindow);
-    sf::Vector2f mousePositionFloat(static_cast<float>(mousePositionInt.x), static_cast<float>(mousePositionInt.y));
-
-    return mousePositionFloat;
-}
 
 void Game::run()
 {
@@ -22,9 +12,10 @@ void Game::run()
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
+        setDeltaTime(deltaTime);
+        render();
         handleEvents();
         update(deltaTime);
-        render();
     }
 }
 
@@ -34,7 +25,26 @@ void Game::render()
     gameWindow->draw(hero->getShape());
 
     for (const auto &enemy : *enemies)
+    {
         gameWindow->draw(enemy->getShape());
+        auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
+        if (!enemyProjectiles.empty())
+        {
+            for (const auto &projectile : enemyProjectiles) // Using value instead pointer to do this foreach
+            {
+                gameWindow->draw(projectile->getShape());
+            }
+        }
+    }
+
+    auto heroProjectiles = *hero->getRangedWeapon()->getLaunchedProjectiles();
+    if (!heroProjectiles.empty())
+    {
+        for (const auto &projectile : heroProjectiles)
+        {
+            gameWindow->draw(projectile->getShape());
+        }
+    }
 
     gameWindow->display();
 }
@@ -52,6 +62,11 @@ void Game::handleEvents()
         {
             gameWindow->close();
         }
+        else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
+        {
+            auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+            hero->doAttack(mousePosition);
+        }
     }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -62,11 +77,32 @@ void Game::handleEvents()
 
 void Game::update(float deltaTime)
 {
+    // Updates everything related to hero
     hero->move();
+    auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
+    if (!heroProjectiles->empty())
+    {
+        for (auto &projectile : *heroProjectiles)
+            projectile->update(deltaTime);
 
+        this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
+    }
+    // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
-        enemy->update(deltaTime);
+        enemy->move(deltaTime);
+        // TODO: improve this because enemies are shooting every projectile as soon as they spawn
+        if (rand() % 100 == 0)
+        {
+            auto heroPosition = sf::Vector2f(hero->getPosX(), hero->getPosY());
+            enemy->doAttack(heroPosition);
+        }
+        auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
+        for (auto &projectile : *enemyProjectiles)
+        {
+            projectile->update(deltaTime);
+        }
+        this->calculateCollisionsWithProjectiles(enemyProjectiles, std::make_shared<std::list<std::shared_ptr<Hero>>>(1, hero));
     }
 
     for (const auto &enemy : *enemies)
@@ -91,20 +127,6 @@ void Game::update(float deltaTime)
         enemies->push_back(this->spawnEnemy());
         spawnTimer = 0.f;
     }
-
-    for (auto it = enemies->begin(); it != enemies->end();)
-    {
-        auto enemy = *it;
-        enemy->update(deltaTime);
-        if (abs(enemy->getPosX() - centerX) < 5.f && abs(enemy->getPosY() - centerY) < 5.f)
-        {
-            it = enemies->erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
 }
 
 std::shared_ptr<Enemy> Game::spawnEnemy()
@@ -117,20 +139,20 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
     switch (side)
     {
     case 0: // Top
-        spawnX = rand() % Game::windowWidth;
-        spawnY = -20.f;
+        spawnX = rand() % GAMEWINDOWWIDTH;
+        spawnY = -20;
         break;
     case 1: // Right
-        spawnX = Game::windowWidth + 20.f;
-        spawnY = rand() % Game::windowHeight;
+        spawnX = GAMEWINDOWWIDTH + 20;
+        spawnY = rand() % GAMEWINDOWHEIGHT;
         break;
     case 2: // Bottom
-        spawnX = rand() % Game::windowWidth;
-        spawnY = Game::windowHeight + 20.f;
+        spawnX = rand() % GAMEWINDOWWIDTH;
+        spawnY = GAMEWINDOWHEIGHT + 20.f;
         break;
     case 3: // Left
         spawnX = -20.f;
-        spawnY = rand() % Game::windowHeight;
+        spawnY = rand() % GAMEWINDOWHEIGHT;
         break;
     }
 

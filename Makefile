@@ -6,7 +6,7 @@ INCLUDE_DIR = sfml/include
 LIB_DIR = sfml/lib
 
 CXX = g++
-CXXFLAGS = -std=c++14 -Wall -Wextra -g
+CXXFLAGS = -std=c++17 -g3 -Wall -Wextra
 LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system
 INC = -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(SRC_DIR)/domain -I$(SRC_DIR)/domain/interfaces
 
@@ -26,7 +26,7 @@ compile: $(OBJECTS)
 
 # Delete the .exe file and the generated .o files
 clean:
-	del /q /f $(subst /,\,$(BUILD_DIR)\$(TARGET))
+	if exist $(subst /,\,$(BUILD_DIR)\$(TARGET)) del /q /f $(subst /,\,$(BUILD_DIR)\$(TARGET))
 	if exist $(subst /,\,$(OBJ_DIR)) rmdir /q /s $(subst /,\,$(OBJ_DIR))	
 
 print-%:

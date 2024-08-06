@@ -1,13 +1,33 @@
 #include "interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
-Character::Character(float width, float height, float speed, int maxLife, float posX, float posY)
+void Character::resolveCollision(std::shared_ptr<Character> other)
 {
-    this->width = width;
-    this->height = height;
-    this->speed = speed;
-    this->maximumLife = maxLife;
-    this->currentLife = maxLife;
-    this->positionX = posX;
-    this->positionY = posY;
-};
+    float overlapX = (this->width / 2 + other->width / 2) - std::abs(this->positionX - other->positionX);
+    float overlapY = (this->height / 2 + other->height / 2) - std::abs(this->positionY - other->positionY);
+
+    if (overlapX < overlapY)
+    {
+        if (this->positionX < other->positionX)
+            this->positionX -= overlapX / 2;
+        else
+            this->positionX += overlapX / 2;
+
+        if (this->positionX < other->positionX)
+            other->positionX += overlapX / 2;
+        else
+            other->positionX -= overlapX / 2;
+    }
+    else
+    {
+        if (this->positionY < other->positionY)
+            this->positionY -= overlapY / 2;
+        else
+            this->positionY += overlapY / 2;
+
+        if (this->positionY < other->positionY)
+            other->positionY += overlapY / 2;
+        else
+            other->positionY -= overlapY / 2;
+    }
+}

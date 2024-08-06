@@ -2,6 +2,9 @@
 #define CHARACTER_HPP
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <list>
+#include <iostream>
+#include "Projectile.hpp"
 
 /// @brief An abstract class to serve as base to Hero and Enemy
 class Character
@@ -23,7 +26,8 @@ protected:
     float positionY;
 
 public:
-    Character(float width, float height, float speed, int maxLife, float posX, float posY);
+    Character(float width, float height, float speed, int maxLife, float posX, float posY) : width(width), height(height), speed(speed),
+                                                                                             maximumLife(maxLife), currentLife(maxLife), positionX(posX), positionY(posY) {};
     virtual ~Character() = default;
     float getWidth() { return width; }
     float getHeigth() { return height; }
@@ -33,44 +37,26 @@ public:
     float getPosX() { return positionX; }
     float getPosY() { return positionY; }
 
-    bool isCollidingWith(std::shared_ptr<Character> other) const
+    bool isCollidingWith(const sf::FloatRect &rect)
     {
-        return this->positionX<other->positionX + other->width &&this->positionX + this->width> other->positionX &&
-               this->positionY<other->positionY + other->height &&this->positionY + this->height> other->positionY;
+        return this->getGlobalBounds().intersects(rect);
     }
 
-    void resolveCollision(std::shared_ptr<Character> other)
+    bool isCollidingWith(std::shared_ptr<Character> other)
     {
-        float overlapX = (this->width / 2 + other->width / 2) - std::abs(this->positionX - other->positionX);
-        float overlapY = (this->height / 2 + other->height / 2) - std::abs(this->positionY - other->positionY);
-
-        if (overlapX < overlapY)
-        {
-            if (this->positionX < other->positionX)
-                this->positionX -= overlapX / 2;
-            else
-                this->positionX += overlapX / 2;
-
-            if (this->positionX < other->positionX)
-                other->positionX += overlapX / 2;
-            else
-                other->positionX -= overlapX / 2;
-        }
-        else
-        {
-            if (this->positionY < other->positionY)
-                this->positionY -= overlapY / 2;
-            else
-                this->positionY += overlapY / 2;
-
-            if (this->positionY < other->positionY)
-                other->positionY += overlapY / 2;
-            else
-                other->positionY -= overlapY / 2;
-        }
+        return this->getGlobalBounds().intersects(other->getGlobalBounds());
     }
 
-    virtual void move() = 0;
+    sf::FloatRect getGlobalBounds()
+    {
+        return sf::FloatRect(this->positionX, this->positionY, this->width, this->height);
+    }
+
+    void resolveCollision(std::shared_ptr<Character> other);
+
+    virtual void doAttack(sf::Vector2f &target) = 0;
+
+    virtual void move(float deltaTime = {}) = 0;
 };
 
 #endif
