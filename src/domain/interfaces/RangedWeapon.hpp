@@ -22,6 +22,9 @@ private:
     /// @brief Launched projectiles of weapon on screen
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> launchedProjectiles;
 
+    /// @brief Makes an attack
+    /// @note Only attack if there is remaining ammo and if the weapon's release time has passed
+    /// @returns void
     void doAttack() override;
 
 public:
@@ -41,8 +44,11 @@ public:
     void setCurrentPosition(const sf::Vector2f &position) { this->currentPosition = position; }
     void setTarget(const sf::Vector2f &target) { this->target = target; }
 
-    /// @note ENEMY SHOULD SET A DIFFERENT TARGET THAN THE HERO
-    /// @param target A vector
+    /// @brief Represents the ranged weapon's attack.
+    /// @param target Target's position on Vector2f type
+    /// @param currentPosition Character's current position on Vector2f type
+    /// @note Internally calls Weapon->doAttack method
     void shoot(sf::Vector2f &target, sf::Vector2f &currentPosition);
+    bool isReadyToAttack() override;
 };
 #endif

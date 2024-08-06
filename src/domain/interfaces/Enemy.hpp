@@ -23,7 +23,7 @@ public:
         shape.setFillColor(sf::Color::Red);
         shape.setRadius(width / 2);
         shape.setPosition(this->currentPosition);
-        weapon = std::make_shared<RangedWeapon>(10, 5, 50);
+        weapon = std::make_shared<RangedWeapon>(10, 2, 50);
     };
 
     std::shared_ptr<RangedWeapon> getRangedWeapon() { return this->weapon; }

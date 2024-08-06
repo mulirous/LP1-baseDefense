@@ -13,6 +13,7 @@ void Game::run()
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
+        // TODO: use this field instead deltaTIme as parameter
         setDeltaTime(deltaTime);
         render();
         handleEvents();
@@ -119,8 +120,8 @@ void Game::update(float deltaTime)
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
-        // TODO: improve this because enemies are shooting every projectile as soon as they spawn
-        if (rand() % 100 == 0)
+        int randNum = rand();
+        if (randNum % 2 == 0)
         {
             auto heroPosition = sf::Vector2f(hero->getCurrentPosition());
             enemy->doAttack(heroPosition);
@@ -149,11 +150,11 @@ void Game::update(float deltaTime)
         }
     }
 
-    spawnTimer += deltaTime;
-    if (spawnTimer >= spawnInterval)
+    this->spawnTimer += deltaTime;
+    if (this->spawnTimer >= this->spawnInterval)
     {
-        enemies->push_back(this->spawnEnemy());
-        spawnTimer = 0.f;
+        this->enemies->push_back(this->spawnEnemy());
+        this->spawnTimer = 0.f;
     }
 }
 
