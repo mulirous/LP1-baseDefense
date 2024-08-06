@@ -51,6 +51,7 @@ void Game::render()
 {
     gameWindow->clear(Color::White);
     gameWindow->draw(hero->getShape());
+    gameWindow->draw(base->getShape());
 
     for (const auto &enemy : *enemies)
     {

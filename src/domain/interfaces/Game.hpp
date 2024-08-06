@@ -2,6 +2,7 @@
 #define GAME_HPP
 #include "Enemy.hpp"
 #include "Hero.hpp"
+#include "Base.hpp"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -73,10 +74,12 @@ protected:
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
+    /// @brief A pointer to the base
+    std::shared_ptr<Base> base;
     /// @brief A unique pointer to game's window
     std::unique_ptr<sf::RenderWindow> gameWindow;
     float deltaTime;
-    float spawnInterval = 2;
+    float spawnInterval = 5;
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
@@ -91,6 +94,7 @@ public:
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
+    void setBase(std::shared_ptr<Base> base) { this->base = base; }
 
     /// @brief Start point to run game.
     void run();
