@@ -9,6 +9,7 @@ using namespace std;
 void Game::run()
 {
     Clock clock;
+
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
@@ -17,6 +18,32 @@ void Game::run()
         handleEvents();
         update(deltaTime);
     }
+}
+
+void Game::renderStatus()
+{
+    Font font = Font();
+    int baseLife = 30;
+    if (!font.loadFromFile("resources/fonts/ProggyClean.ttf"))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+    Text heroLifeText, ammoText;
+    heroLifeText.setFont(font);
+    heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
+    heroLifeText.setCharacterSize(24);
+    heroLifeText.setFillColor(sf::Color::Black);
+    heroLifeText.setPosition(GAMEWINDOWWIDTH - 150, 25);
+
+    ammoText.setFont(font);
+    ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
+    ammoText.setCharacterSize(24);
+    ammoText.setFillColor(sf::Color::Black);
+    ammoText.setPosition(GAMEWINDOWWIDTH - 150, 50);
+
+    gameWindow->draw(heroLifeText);
+    gameWindow->draw(ammoText);
 }
 
 void Game::render()
@@ -46,6 +73,7 @@ void Game::render()
         }
     }
 
+    this->renderStatus(); // Should be the last to render to be above other objects
     gameWindow->display();
 }
 

@@ -71,6 +71,8 @@ protected:
     float deltaTime;
     float spawnInterval = 2;
     float spawnTimer = 0;
+    /// @brief Render some information on screen (life and ammo).
+    void renderStatus();
 
 public:
     Game(float x, float y) : centerX(x), centerY(y),
@@ -88,8 +90,6 @@ public:
         sf::Vector2f mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
         return mousePosition;
     };
-
-    void targetMark();
 
     /// @brief Start point to run game.
     void run();
