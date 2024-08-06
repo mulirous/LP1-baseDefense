@@ -93,14 +93,14 @@ void Game::handleEvents()
         }
         else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
         {
-            auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+            sf::Vector2f mousePosition = this->getMousePosition();
             hero->doAttack(mousePosition);
         }
     }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        hero->setTargetPosition(setMousePosition());
+        hero->setTargetPosition(getMousePosition());
     }
 }
 
@@ -134,6 +134,7 @@ void Game::update(float deltaTime)
         this->calculateCollisionsWithProjectiles(enemyProjectiles, std::make_shared<std::list<std::shared_ptr<Hero>>>(1, hero));
     }
 
+    // Resolve collisions between hero with enemies and enemies with other enemies
     for (const auto &enemy : *enemies)
     {
         if (hero->isCollidingWith(enemy))

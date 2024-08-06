@@ -1,6 +1,5 @@
 #include "interfaces/Enemy.hpp"
 #include <cmath>
-#include <iostream>
 
 void Enemy::move(float deltaTime)
 {

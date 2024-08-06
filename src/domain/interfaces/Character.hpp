@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <list>
-#include <iostream>
 #include "Projectile.hpp"
 
 /// @brief An abstract class to serve as base to Hero and Enemy
@@ -20,10 +19,6 @@ protected:
     int maximumLife;
     /// @brief Current life of character
     int currentLife;
-    // /// @brief X-axis position of character on screen
-    // float positionX;
-    // /// @brief Y-axis position of character on screen
-    // float positionY;
     /// @brief Position of character on screen
     sf::Vector2f currentPosition;
 
@@ -38,27 +33,15 @@ public:
     int getMaxLife() { return this->maximumLife; }
     int getLife() { return this->currentLife; }
     sf::Vector2f getCurrentPosition() { return this->currentPosition; }
+    /// @brief Get bounds for character
+    /// @return A FloatRect object that represents bounds
+    sf::FloatRect getGlobalBounds() { return sf::FloatRect(this->currentPosition.x, this->currentPosition.y, this->width, this->height); }
     void setCurrentPosition(sf::Vector2f &position) { this->currentPosition = position; }
 
-    bool isCollidingWith(const sf::FloatRect &rect)
-    {
-        return this->getGlobalBounds().intersects(rect);
-    }
-
-    bool isCollidingWith(std::shared_ptr<Character> other)
-    {
-        return this->getGlobalBounds().intersects(other->getGlobalBounds());
-    }
-
-    sf::FloatRect getGlobalBounds()
-    {
-        return sf::FloatRect(this->currentPosition.x, this->currentPosition.y, this->width, this->height);
-    }
-
+    bool isCollidingWith(const sf::FloatRect &rect);
+    bool isCollidingWith(std::shared_ptr<Character> other);
     void resolveCollision(std::shared_ptr<Character> other);
-
     virtual void doAttack(sf::Vector2f &target) = 0;
-
     virtual void move(float deltaTime = {}) = 0;
 };
 

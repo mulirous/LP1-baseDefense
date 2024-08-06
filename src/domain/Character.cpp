@@ -1,6 +1,16 @@
 #include "interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
+bool Character::isCollidingWith(const sf::FloatRect &rect)
+{
+    return this->getGlobalBounds().intersects(rect);
+}
+
+bool Character::isCollidingWith(std::shared_ptr<Character> other)
+{
+    return this->getGlobalBounds().intersects(other->getGlobalBounds());
+}
+
 void Character::resolveCollision(std::shared_ptr<Character> other)
 {
     float overlapX = (this->width / 2 + other->width / 2) - std::abs(this->currentPosition.x - other->currentPosition.x);
