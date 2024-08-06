@@ -57,7 +57,7 @@ private:
         }
     }
 
-
+    void gameOverScreen();
 protected:
     /// @brief The screen's center on x-axis
     float centerX;

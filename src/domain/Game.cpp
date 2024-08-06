@@ -13,18 +13,24 @@ void Game::run()
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
-        // TODO: use this field instead deltaTIme as parameter
+    
         setDeltaTime(deltaTime);
-        render();
-        handleEvents();
-        update(deltaTime);
+        if (base->getLife() <= 0 || hero->getLife() <= 0)
+        {
+            gameOverScreen();
+        }
+        else
+        {
+            render();
+            handleEvents();
+            update(deltaTime);
+        }
     }
 }
 
 void Game::renderStatus()
 {
     Font font = Font();
-    int baseLife = 30;
     if (!font.loadFromFile("resources/fonts/ProggyClean.ttf"))
     {
         std::cout << "Couldn't load font. Exiting.";
@@ -66,7 +72,7 @@ void Game::render()
         auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
         if (!enemyProjectiles.empty())
         {
-            for (const auto &projectile : enemyProjectiles) // Using value instead pointer to do this foreach
+            for (const auto &projectile : enemyProjectiles)
             {
                 gameWindow->draw(projectile->getShape());
             }
@@ -82,7 +88,7 @@ void Game::render()
         }
     }
 
-    this->renderStatus(); // Should be the last to render to be above other objects
+    this->renderStatus();
     gameWindow->display();
 }
 
@@ -114,7 +120,6 @@ void Game::handleEvents()
 
 void Game::update(float deltaTime)
 {
-    // Updates everything related to hero
     hero->move();
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
     if (!heroProjectiles->empty())
@@ -125,7 +130,6 @@ void Game::update(float deltaTime)
         this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
 
-    // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
@@ -144,10 +148,14 @@ void Game::update(float deltaTime)
                 base->takeDamage(projectile->getDamage());
                 enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
             }
+            if (hero->isCollidingWith(projectile->getBounds()))
+            {
+                hero->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
         }
     }
 
-    // Resolve collisions between hero with enemies and enemies with other enemies
     for (const auto &enemy : *enemies)
     {
         if (hero->isCollidingWith(enemy))
@@ -211,4 +219,49 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
 void Game::close()
 {
     gameWindow->close();
+}
+
+void Game::gameOverScreen()
+{
+    RenderWindow gameOverWindow(VideoMode(500, 300), "Game Over", Style::None);
+    gameOverWindow.setPosition(sf::Vector2i(350, 150));
+
+    Font font;
+    if (!font.loadFromFile("resources/fonts/ProggyClean.ttf"))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+
+    Text gameOverText, exitText;
+    gameOverText.setFont(font);
+    gameOverText.setString("Game Over");
+    gameOverText.setCharacterSize(48);
+    gameOverText.setFillColor(Color::Red);
+    gameOverText.setPosition(150, 100);
+
+    exitText.setFont(font);
+    exitText.setString("Aperte qualquer tecla para sair");
+    exitText.setCharacterSize(24);
+    exitText.setFillColor(Color::White);
+    exitText.setPosition(95, 160);
+
+    while (gameOverWindow.isOpen())
+    {
+        Event event;
+        while (gameOverWindow.pollEvent(event))
+        {
+            if (event.type == Event::Closed || event.type == Event::KeyPressed)
+            {
+                gameOverWindow.close();
+                gameWindow->close();
+            }
+        }
+
+        gameOverWindow.clear(Color::Black);
+        gameOverWindow.draw(gameOverText);
+        gameOverWindow.draw(exitText);
+        gameOverWindow.display();
+    }
+
 }
