@@ -40,7 +40,14 @@ private:
                     projectileIt = projectiles->erase(projectileIt);
                     if constexpr (std::is_same<Hero, T>::value)
                     {
-                        // TODO: decrease life and hit animation
+                        if (!(character->getLife() <= 0))
+                        {
+                            character->takeDamage(projectile->getDamage());
+                        }
+                        else
+                        {
+                            // GAME OVER
+                        }
                     }
                     else if constexpr (std::is_same<Enemy, T>::value)
                     {

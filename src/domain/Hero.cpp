@@ -2,6 +2,13 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
+void Hero::takeDamage(int damage)
+{
+    if (damage <= 0)
+        return;
+    this->currentLife -= damage;
+}
+
 void Hero::doAttack(sf::Vector2f &target)
 {
     // Get hero position
