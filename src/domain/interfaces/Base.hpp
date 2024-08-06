@@ -24,6 +24,19 @@ public:
 
     sf::CircleShape getShape() { return this->shape; }
 
+    sf::Vector2f getPosition() { return this->currentPosition; }
+
+    void takeDamage(int damage) {
+        if (damage <= 0)
+            return;
+        this->currentLife -= damage;
+    }
+
+    int getLife() const { return this->currentLife; }
+
+    bool isCollidingWith(const sf::FloatRect &other) const {
+        return shape.getGlobalBounds().intersects(other);
+    }
 };
 
 #endif

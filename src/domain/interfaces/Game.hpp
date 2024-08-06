@@ -22,8 +22,7 @@ private:
         std::shared_ptr<std::list<std::shared_ptr<Projectile>>> projectiles,
         std::shared_ptr<std::list<std::shared_ptr<T>>> characters)
     {
-        // Verify if type is derived from Character or not
-        static_assert(std::is_base_of<Character, T>::value, "T must be derived from Character!");
+        static_assert(std::is_base_of<Character, T>::value || std::is_same<Base, T>::value, "T must be derived from Character or Base!");
 
         for (auto projectileIt = projectiles->begin(); projectileIt != projectiles->end(); projectileIt++)
         {
@@ -39,16 +38,9 @@ private:
                 if (character->isCollidingWith(projectile->getBounds()))
                 {
                     projectileIt = projectiles->erase(projectileIt);
-                    if constexpr (std::is_same<Hero, T>::value)
+                    if constexpr (std::is_same<Hero, T>::value || std::is_same<Base, T>::value)
                     {
-                        if (!(character->getLife() <= 0))
-                        {
-                            character->takeDamage(projectile->getDamage());
-                        }
-                        else
-                        {
-                            // GAME OVER
-                        }
+                        character->takeDamage(projectile->getDamage());
                     }
                     else if constexpr (std::is_same<Enemy, T>::value)
                     {
@@ -64,6 +56,7 @@ private:
             projectile->update(deltaTime);
         }
     }
+
 
 protected:
     /// @brief The screen's center on x-axis

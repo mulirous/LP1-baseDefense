@@ -30,21 +30,28 @@ void Game::renderStatus()
         std::cout << "Couldn't load font. Exiting.";
         return;
     }
-    Text heroLifeText, ammoText;
+    Text heroLifeText, ammoText, baseLifeText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(24);
     heroLifeText.setFillColor(sf::Color::Black);
-    heroLifeText.setPosition(GAMEWINDOWWIDTH - 150, 25);
+    heroLifeText.setPosition(GAMEWINDOWWIDTH - 200, 25);
 
     ammoText.setFont(font);
     ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
     ammoText.setCharacterSize(24);
     ammoText.setFillColor(sf::Color::Black);
-    ammoText.setPosition(GAMEWINDOWWIDTH - 150, 50);
+    ammoText.setPosition(GAMEWINDOWWIDTH - 200, 50);
+
+    baseLifeText.setFont(font);
+    baseLifeText.setString("BASE LIFE: " + to_string(base->getLife()));
+    baseLifeText.setCharacterSize(24);
+    baseLifeText.setFillColor(sf::Color::Black);
+    baseLifeText.setPosition(GAMEWINDOWWIDTH - 200, 100);
 
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
+    gameWindow->draw(baseLifeText);
 }
 
 void Game::render()
@@ -117,6 +124,7 @@ void Game::update(float deltaTime)
 
         this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
+
     // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
@@ -124,15 +132,19 @@ void Game::update(float deltaTime)
         int randNum = rand();
         if (randNum % 2 == 0)
         {
-            auto heroPosition = sf::Vector2f(hero->getCurrentPosition());
-            enemy->doAttack(heroPosition);
+            auto basePosition = sf::Vector2f(base->getShape().getPosition());
+            enemy->doAttack(basePosition);
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
         for (auto &projectile : *enemyProjectiles)
         {
             projectile->update(deltaTime);
+            if (base->isCollidingWith(projectile->getBounds()))
+            {
+                base->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
         }
-        this->calculateCollisionsWithProjectiles(enemyProjectiles, std::make_shared<std::list<std::shared_ptr<Hero>>>(1, hero));
     }
 
     // Resolve collisions between hero with enemies and enemies with other enemies
@@ -141,6 +153,12 @@ void Game::update(float deltaTime)
         if (hero->isCollidingWith(enemy))
         {
             hero->resolveCollision(enemy);
+        }
+
+        if (base->isCollidingWith(enemy->getShape().getGlobalBounds()))
+        {
+            base->takeDamage(50);
+            enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
         }
 
         for (const auto &otherEnemy : *enemies)
