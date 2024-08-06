@@ -31,6 +31,7 @@ public:
 
     const sf::CircleShape &getShape() { return this->shape; }
     sf::FloatRect getBounds() { return shape.getGlobalBounds(); }
+    int getDamage() { return this->damage; }
 
     void update(float deltaTime)
     {

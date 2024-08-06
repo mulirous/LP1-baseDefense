@@ -29,6 +29,7 @@ public:
     sf::RectangleShape getShape() { return this->shape; }
     void setTargetPosition(sf::Vector2f target) { this->targetPosition = target; }
 
+    void takeDamage(int damage);
     void move(float deltaTime = {}) override;
     void doAttack(sf::Vector2f &target) override;
 };
