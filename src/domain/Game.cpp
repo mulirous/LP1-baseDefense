@@ -122,7 +122,7 @@ void Game::update(float deltaTime)
         // TODO: improve this because enemies are shooting every projectile as soon as they spawn
         if (rand() % 100 == 0)
         {
-            auto heroPosition = sf::Vector2f(hero->getPosX(), hero->getPosY());
+            auto heroPosition = sf::Vector2f(hero->getCurrentPosition());
             enemy->doAttack(heroPosition);
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();

@@ -24,10 +24,8 @@ public:
         shape.setPosition(posX, posY);
         weapon = std::make_shared<RangedWeapon>(10, 5, 50);
     };
-    std::shared_ptr<RangedWeapon> getRangedWeapon()
-    {
-        return this->weapon;
-    }
+
+    std::shared_ptr<RangedWeapon> getRangedWeapon() { return this->weapon; } // Passing "big" objects as reference can improve performance
     sf::RectangleShape getShape() { return this->shape; }
     void setTargetPosition(sf::Vector2f target) { this->targetPosition = target; }
 
