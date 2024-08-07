@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <type_traits>
+#include "Menu.hpp"
 #include "Projectile.hpp"
 
 /// @brief The central point of all game.
@@ -65,6 +66,7 @@ private:
     }
 
 protected:
+    std::unique_ptr<Menu> gameMenu;
     /// @brief The screen's center on x-axis
     float centerX;
     /// @brief The screen's center on y-axis
@@ -73,8 +75,8 @@ protected:
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
-    /// @brief A unique pointer to game's window
-    std::unique_ptr<sf::RenderWindow> gameWindow;
+    /// @brief A pointer to game's window
+    std::shared_ptr<sf::RenderWindow> gameWindow;
     float deltaTime;
     float spawnInterval = 2;
     float spawnTimer = 0;
@@ -84,9 +86,10 @@ protected:
 public:
     Game(float x, float y) : centerX(x), centerY(y),
                              enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
-                             gameWindow(std::make_unique<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window"))
+                             gameWindow(std::make_shared<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window"))
     {
         srand(static_cast<unsigned>(time(0)));
+        this->gameMenu = std::make_unique<Menu>(this->gameWindow);
     };
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }

@@ -15,9 +15,11 @@ void Game::run()
         float deltaTime = clock.restart().asSeconds();
         // TODO: use this field instead deltaTIme as parameter
         setDeltaTime(deltaTime);
-        render();
-        handleEvents();
-        update(deltaTime);
+        this->gameMenu->run();
+        // JUST TEMPORARY
+        // render();
+        // handleEvents();
+        // update(deltaTime);
     }
 }
 
@@ -25,7 +27,7 @@ void Game::renderStatus()
 {
     Font font = Font();
     int baseLife = 30;
-    if (!font.loadFromFile("resources/fonts/ProggyClean.ttf"))
+    if (!font.loadFromFile(GAMEFONT))
     {
         std::cout << "Couldn't load font. Exiting.";
         return;
