@@ -6,7 +6,8 @@
 class Menu
 {
 private:
-    int pos;
+    /// @brief Index of current option
+    int current;
     /// @brief True if menu has element pressed.
     bool pressed;
     /// @brief True if menu has 1 or more element selected

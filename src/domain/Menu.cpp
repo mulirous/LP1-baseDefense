@@ -4,7 +4,7 @@
 
 void Menu::init()
 {
-    this->pos = 0;
+    this->current = 0;
     this->pressed = this->selected = false;
     if (!(this->font->loadFromFile(GAMEFONT)))
     {
@@ -23,7 +23,7 @@ void Menu::init()
 
         float scaleX = static_cast<float>(windowSize.x) / imageSize.x;
         float scaleY = static_cast<float>(windowSize.y) / imageSize.y;
-        bg->setScale(scaleX, scaleX);
+        bg->setScale(scaleX, scaleY);
 
         float newHeight = imageSize.y * scaleX;
         float offsetY = (windowSize.y - newHeight) / 2;
@@ -47,6 +47,7 @@ void Menu::init()
         (*optionsTexts)[i].setOutlineColor(sf::Color::White);
         (*optionsTexts)[i].setPosition((*optionsCoords)[i]);
     }
+    (*optionsTexts)[0].setOutlineThickness(2); // Always start on 'Start'
 }
 
 void Menu::handleEvents()
@@ -63,6 +64,44 @@ void Menu::handleEvents()
         case sf::Event::Closed:
             windowPtr->close();
             break;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !pressed)
+        {
+            // If there is more options below, advance once and highlight new option
+            if (this->current < (int)this->optionsTexts->size() - 1)
+            {
+                ++this->current;
+                this->pressed = true;
+                (*this->optionsTexts)[this->current].setOutlineThickness(2);
+                (*this->optionsTexts)[this->current - 1].setOutlineThickness(0);
+                this->pressed = false;
+                this->selected = false;
+            }
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !pressed)
+        {
+            // If there is more options above, advance once and hightlight new one
+            if (this->current >= 1)
+            {
+                --this->current;
+                this->pressed = true;
+                (*this->optionsTexts)[this->current].setOutlineThickness(2);
+                (*this->optionsTexts)[this->current + 1].setOutlineThickness(0);
+                this->pressed = false;
+                this->selected = false;
+            }
+        }
+        // Allows to enter only once on the option because of the selected field
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
+        {
+            this->selected = false;
+            // If user enters on quit option (the last one)
+            if (this->current == (int)this->optionsTexts->size() - 1)
+            {
+                auto windowPtr = window.lock();
+                if (windowPtr)
+                    windowPtr->close();
+            }
         }
     }
 }
