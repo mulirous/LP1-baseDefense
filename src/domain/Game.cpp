@@ -38,7 +38,7 @@ void Game::run()
 void Game::renderStatus()
 {
     Font font = Font();
-    if (!font.loadFromFile(GAMEFONT))
+    if (!font.loadFromFile(GAME_FONT))
     {
         std::cout << "Couldn't load font. Exiting.";
         return;
@@ -48,19 +48,19 @@ void Game::renderStatus()
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
     heroLifeText.setFillColor(sf::Color::White);
-    heroLifeText.setPosition(GAMEWINDOWWIDTH - 200, 25);
+    heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
 
     ammoText.setFont(font);
     ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
     ammoText.setCharacterSize(16);
     ammoText.setFillColor(sf::Color::White);
-    ammoText.setPosition(GAMEWINDOWWIDTH - 200, 50);
+    ammoText.setPosition(GAME_WINDOW_WIDTH - 200, 50);
 
     baseLifeText.setFont(font);
     baseLifeText.setString("BASE: " + to_string(base->getLife()));
     baseLifeText.setCharacterSize(16);
     baseLifeText.setFillColor(sf::Color::White);
-    baseLifeText.setPosition(GAMEWINDOWWIDTH - 200, 75);
+    baseLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 75);
 
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
@@ -70,7 +70,7 @@ void Game::renderStatus()
 void Game::render()
 {
     Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("src/sprites/background4.png"))
+    if (!backgroundTexture.loadFromFile(BACKGROUND_GAME))
     {
         cout << "Background load failed." << endl;
         return;
@@ -161,8 +161,16 @@ void Game::update(float deltaTime)
         int randNum = rand();
         if (randNum % 2 == 0)
         {
-            auto basePosition = sf::Vector2f(base->getSprite().getPosition());
-            enemy->doAttack(basePosition);
+            if (randNum % 5 == 0)
+            {
+                auto basePosition = sf::Vector2f(base->getSprite().getPosition());
+                enemy->doAttack(basePosition);
+            }
+            else
+            {
+                auto heroPosition = sf::Vector2f(hero->getSprite().getPosition());
+                enemy->doAttack(heroPosition);
+            }
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
         for (auto &projectile : *enemyProjectiles)
@@ -220,20 +228,20 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
     switch (side)
     {
     case 0: // Top
-        spawnX = rand() % GAMEWINDOWWIDTH;
+        spawnX = rand() % GAME_WINDOW_WIDTH;
         spawnY = -20;
         break;
     case 1: // Right
-        spawnX = GAMEWINDOWWIDTH + 20;
-        spawnY = rand() % GAMEWINDOWHEIGHT;
+        spawnX = GAME_WINDOW_WIDTH + 20;
+        spawnY = rand() % GAME_WINDOW_HEIGHT;
         break;
     case 2: // Bottom
-        spawnX = rand() % GAMEWINDOWWIDTH;
-        spawnY = GAMEWINDOWHEIGHT + 20.f;
+        spawnX = rand() % GAME_WINDOW_WIDTH;
+        spawnY = GAME_WINDOW_HEIGHT + 20.f;
         break;
     case 3: // Left
         spawnX = -20.f;
-        spawnY = rand() % GAMEWINDOWHEIGHT;
+        spawnY = rand() % GAME_WINDOW_HEIGHT;
         break;
     }
 
@@ -248,7 +256,7 @@ void Game::close()
 void Game::showGameOver()
 {
     Font font;
-    if (!font.loadFromFile(GAMEFONT))
+    if (!font.loadFromFile(GAME_FONT))
     {
         std::cout << "Couldn't load font. Exiting.";
         return;
@@ -259,13 +267,13 @@ void Game::showGameOver()
     gameOverText.setString("Game Over");
     gameOverText.setCharacterSize(48);
     gameOverText.setFillColor(Color::Red);
-    gameOverText.setPosition((GAMEWINDOWWIDTH / 2) - (GAMEWINDOWWIDTH / 5), 280);
+    gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
     exitText.setFont(font);
     exitText.setString("Press any key to exit");
     exitText.setCharacterSize(24);
     exitText.setFillColor(Color::White);
-    exitText.setPosition((GAMEWINDOWWIDTH / 2) - (GAMEWINDOWWIDTH / 5), 350);
+    exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
 
     while (gameWindow->isOpen())
     {

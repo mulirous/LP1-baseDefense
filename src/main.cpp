@@ -3,8 +3,8 @@
 #include "enums/GameState.h"
 #include "common.h"
 
-const float CENTER_X = GAMEWINDOWWIDTH / 2;
-const float CENTER_Y = GAMEWINDOWHEIGHT / 2;
+const float CENTER_X = GAME_WINDOW_WIDTH / 2;
+const float CENTER_Y = GAME_WINDOW_HEIGHT / 2;
 
 int main()
 {

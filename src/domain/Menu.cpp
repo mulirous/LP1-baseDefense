@@ -6,11 +6,11 @@ void Menu::init()
 {
     this->current = 0;
     this->pressed = this->selected = false;
-    if (!(this->font->loadFromFile(GAMEFONT)))
+    if (!(this->font->loadFromFile(GAME_FONT)))
     {
         std::cout << "Can't load font :(\n ";
     };
-    if (!(this->image->loadFromFile(MENUIMAGE)))
+    if (!(this->image->loadFromFile(MENU_IMAGE)))
     {
         std::cout << "Can't load menu image :( \n";
     };
@@ -34,7 +34,7 @@ void Menu::init()
     this->mouseCords = sf::Vector2f(0, 0);
     this->options = std::make_unique<std::vector<const char *>>(std::initializer_list<const char *>{"START", "ABOUT", "EXIT"});
     this->optionsSize = std::make_unique<std::vector<std::size_t>>(std::initializer_list<std::size_t>{24, 24, 24});
-    this->optionsCoords = std::make_unique<std::vector<sf::Vector2f>>(std::initializer_list<sf::Vector2f>{{(GAMEWINDOWWIDTH - 100) / 2, 191}, {(GAMEWINDOWWIDTH - 100) / 2, 282}, {(GAMEWINDOWWIDTH - 100) / 2, 370}});
+    this->optionsCoords = std::make_unique<std::vector<sf::Vector2f>>(std::initializer_list<sf::Vector2f>{{(GAME_WINDOW_WIDTH - 100) / 2, 191}, {(GAME_WINDOW_WIDTH - 100) / 2, 282}, {(GAME_WINDOW_WIDTH - 100) / 2, 370}});
 
     this->optionsTexts = std::make_unique<std::vector<sf::Text>>();
     this->optionsTexts->resize(options->size());
