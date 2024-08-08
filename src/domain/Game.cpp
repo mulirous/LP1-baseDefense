@@ -15,11 +15,9 @@ void Game::run()
         float deltaTime = clock.restart().asSeconds();
         // TODO: use this field instead deltaTIme as parameter
         setDeltaTime(deltaTime);
-        this->gameMenu->run();
-        // JUST TEMPORARY
-        // render();
-        // handleEvents();
-        // update(deltaTime);
+        render();
+        handleEvents();
+        update(deltaTime);
     }
 }
 

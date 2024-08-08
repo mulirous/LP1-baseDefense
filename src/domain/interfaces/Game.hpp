@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <type_traits>
-#include "Menu.hpp"
 #include "Projectile.hpp"
 
 /// @brief The central point of all game.
@@ -66,7 +65,6 @@ private:
     }
 
 protected:
-    std::unique_ptr<Menu> gameMenu;
     /// @brief The screen's center on x-axis
     float centerX;
     /// @brief The screen's center on y-axis
@@ -84,12 +82,11 @@ protected:
     void renderStatus();
 
 public:
-    Game(float x, float y) : centerX(x), centerY(y),
-                             enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
-                             gameWindow(std::make_shared<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window"))
+    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) : centerX(x), centerY(y),
+                                                                       enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
+                                                                       gameWindow(window)
     {
         srand(static_cast<unsigned>(time(0)));
-        this->gameMenu = std::make_unique<Menu>(this->gameWindow);
     };
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }

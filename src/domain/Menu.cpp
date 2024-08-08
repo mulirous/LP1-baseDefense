@@ -34,7 +34,7 @@ void Menu::init()
     this->mouseCords = sf::Vector2f(0, 0);
     this->options = std::make_unique<std::vector<const char *>>(std::initializer_list<const char *>{"START", "ABOUT", "EXIT"});
     this->optionsSize = std::make_unique<std::vector<std::size_t>>(std::initializer_list<std::size_t>{24, 24, 24});
-    this->optionsCoords = std::make_unique<std::vector<sf::Vector2f>>(std::initializer_list<sf::Vector2f>{{610, 191}, {590, 282}, {600, 370}});
+    this->optionsCoords = std::make_unique<std::vector<sf::Vector2f>>(std::initializer_list<sf::Vector2f>{{(GAMEWINDOWWIDTH - 100) / 2, 191}, {(GAMEWINDOWWIDTH - 100) / 2, 282}, {(GAMEWINDOWWIDTH - 100) / 2, 370}});
 
     this->optionsTexts = std::make_unique<std::vector<sf::Text>>();
     this->optionsTexts->resize(options->size());
@@ -50,12 +50,12 @@ void Menu::init()
     (*optionsTexts)[0].setOutlineThickness(2); // Always start on 'Start'
 }
 
-void Menu::handleEvents()
+MenuActions Menu::handleActions()
 {
     sf::Event menuEvent;
     auto windowPtr = window.lock();
     if (!windowPtr)
-        return;
+        return MenuActions::EXIT; // Error ocurred
 
     while (windowPtr->pollEvent(menuEvent))
     {
@@ -65,6 +65,7 @@ void Menu::handleEvents()
             windowPtr->close();
             break;
         }
+        // TODO: cleanup this code and use some switchs
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !pressed)
         {
             // If there is more options below, advance once and highlight new option
@@ -95,15 +96,16 @@ void Menu::handleEvents()
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
         {
             this->selected = false;
+            // If user enters on start option, it should start the game
+            if (this->current == 0)
+                return MenuActions::START;
+
             // If user enters on quit option (the last one)
             if (this->current == (int)this->optionsTexts->size() - 1)
-            {
-                auto windowPtr = window.lock();
-                if (windowPtr)
-                    windowPtr->close();
-            }
+                return MenuActions::EXIT;
         }
     }
+    return MenuActions::NONE; // Don't do anything
 }
 
 void Menu::drawAll()
@@ -121,18 +123,33 @@ void Menu::drawAll()
     windowPtr->display();
 }
 
-void Menu::run()
+bool Menu::run()
 {
     auto windowPtr = window.lock();
     if (!windowPtr)
     {
         std::cout << "WINDOW CRASH";
-        return;
+        return true;
     }
 
     while (windowPtr->isOpen())
     {
         drawAll();
-        handleEvents();
+        MenuActions action = handleActions();
+
+        // Only breaks up the menu loop if player selected start option
+        switch (action)
+        {
+        case MenuActions::START:
+            return false;
+        case MenuActions::NONE:
+        case MenuActions::ABOUT:
+            return true;
+        case MenuActions::EXIT:
+            windowPtr->close();
+            break;
+        }
     }
+    // if nothing happens, stays on menu
+    return true;
 }
