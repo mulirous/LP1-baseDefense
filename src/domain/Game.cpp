@@ -2,12 +2,18 @@
 #include "interfaces/Enemy.hpp"
 #include "../common.h"
 #include <iostream>
+#include <math.h>
 
 using namespace sf;
 using namespace std;
 
 void Game::run()
 {
+    // Instancia a base com posição centralizada
+    float windowCenterX = gameWindow->getSize().x / 2.0f;
+    float windowCenterY = gameWindow->getSize().y / 2.0f;
+    this->base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
+
     Clock clock;
 
     while (gameWindow->isOpen())
@@ -29,7 +35,6 @@ void Game::run()
         }
     }
 }
-
 void Game::renderStatus()
 {
     Font font = Font();
@@ -42,19 +47,19 @@ void Game::renderStatus()
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
-    heroLifeText.setFillColor(sf::Color::Black);
+    heroLifeText.setFillColor(sf::Color::White);
     heroLifeText.setPosition(GAMEWINDOWWIDTH - 200, 25);
 
     ammoText.setFont(font);
     ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
     ammoText.setCharacterSize(16);
-    ammoText.setFillColor(sf::Color::Black);
+    ammoText.setFillColor(sf::Color::White);
     ammoText.setPosition(GAMEWINDOWWIDTH - 200, 50);
 
     baseLifeText.setFont(font);
     baseLifeText.setString("BASE: " + to_string(base->getLife()));
     baseLifeText.setCharacterSize(16);
-    baseLifeText.setFillColor(sf::Color::Black);
+    baseLifeText.setFillColor(sf::Color::White);
     baseLifeText.setPosition(GAMEWINDOWWIDTH - 200, 75);
 
     gameWindow->draw(heroLifeText);
@@ -64,9 +69,27 @@ void Game::renderStatus()
 
 void Game::render()
 {
+    Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("src/sprites/background4.png"))
+    {
+        cout << "Background load failed." << endl;
+        return;
+    }
+    Sprite backgroundSprite;
+    backgroundSprite.setTexture(backgroundTexture);
+
+    Vector2u textureSize = backgroundTexture.getSize();
+    Vector2u windowSize = gameWindow->getSize();
+
+    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+
+    backgroundSprite.setScale(scaleX, scaleY);
+
     gameWindow->clear(Color::White);
-    gameWindow->draw(hero->getShape());
-    gameWindow->draw(base->getShape());
+    gameWindow->draw(backgroundSprite);
+    gameWindow->draw(base->getSprite());
+    gameWindow->draw(hero->getSprite());
 
     for (const auto &enemy : *enemies)
     {
@@ -122,8 +145,7 @@ void Game::handleEvents()
 
 void Game::update(float deltaTime)
 {
-    // Updates everything related to hero
-    hero->move();
+    hero->move(deltaTime);
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
     if (!heroProjectiles->empty())
     {
@@ -139,7 +161,7 @@ void Game::update(float deltaTime)
         int randNum = rand();
         if (randNum % 2 == 0)
         {
-            auto basePosition = sf::Vector2f(base->getShape().getPosition());
+            auto basePosition = sf::Vector2f(base->getSprite().getPosition());
             enemy->doAttack(basePosition);
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
@@ -180,7 +202,6 @@ void Game::update(float deltaTime)
             }
         }
     }
-
     this->spawnTimer += deltaTime;
     if (this->spawnTimer >= this->spawnInterval)
     {

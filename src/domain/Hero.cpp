@@ -23,10 +23,10 @@ void Hero::move(float deltaTime)
     float currentSpeed = this->speed;
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
     {
-        currentSpeed += 3;
+        currentSpeed += 4;
     }
 
-    sf::Vector2f currentPosition = shape.getPosition();
+    sf::Vector2f currentPosition = sprite.getPosition();
     sf::Vector2f direction = this->targetPosition - currentPosition;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -35,9 +35,26 @@ void Hero::move(float deltaTime)
 
     direction /= distance;
 
-    deltaTime = 0.1f;
-    shape.move(direction * currentSpeed * deltaTime);
+    deltaTime = 0.08f;
+    sprite.move(direction * currentSpeed * deltaTime);
 
-    sf::Vector2f newPosition = shape.getPosition();
+    sf::Vector2f newPosition = sprite.getPosition();
     this->setCurrentPosition(newPosition);
+    updateAnimation(deltaTime);
+}
+
+sf::Vector2f Hero::getPosition()
+{
+    return sprite.getPosition();
+}
+
+void Hero::updateAnimation(float deltaTime)
+{
+    timeSinceLastFrame += deltaTime;
+    if (timeSinceLastFrame >= frameTime)
+    {
+        timeSinceLastFrame = 0.0f;
+        currentFrame = (currentFrame + 1) % (texture.getSize().x / frameSize.x);
+        sprite.setTextureRect(sf::IntRect(currentFrame * frameSize.x, 0, frameSize.x, frameSize.y));
+    }
 }

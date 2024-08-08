@@ -77,6 +77,15 @@ protected:
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
+    /// @brief Textures for hero, enemy, and base
+    sf::Texture heroTexture;
+    sf::Texture enemyTexture;
+    sf::Texture baseTexture;
+
+    /// @brief Sprites for hero, enemy, and base
+    sf::Sprite heroSprite;
+    sf::Sprite enemySprite;
+    sf::Sprite baseSprite;
 
 public:
     Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) : centerX(x), centerY(y),
