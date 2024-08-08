@@ -2,12 +2,18 @@
 #include "interfaces/Enemy.hpp"
 #include "../common.h"
 #include <iostream>
+#include <math.h>
 
 using namespace sf;
 using namespace std;
 
 void Game::run()
 {
+    // Instancia a base com posição centralizada
+    float windowCenterX = gameWindow->getSize().x / 2.0f;
+    float windowCenterY = gameWindow->getSize().y / 2.0f;
+    this->base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
+
     Clock clock;
 
     while (gameWindow->isOpen())
@@ -27,7 +33,6 @@ void Game::run()
         }
     }
 }
-
 void Game::renderStatus()
 {
     Font font = Font();
@@ -62,10 +67,28 @@ void Game::renderStatus()
 
 void Game::render()
 {
-    gameWindow->clear(Color::White);
-    gameWindow->draw(hero->getShape());
-    gameWindow->draw(base->getShape());
+    Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("src/sprites/background4.png"))
+    {
+        cout << "Background load failed." << endl;
+        return;
+    }
+    Sprite backgroundSprite;
+    backgroundSprite.setTexture(backgroundTexture);
 
+    Vector2u textureSize = backgroundTexture.getSize();
+    Vector2u windowSize = gameWindow->getSize();
+
+    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+
+    backgroundSprite.setScale(scaleX, scaleY);
+
+    gameWindow->clear(Color::White);
+    gameWindow->draw(backgroundSprite);
+    gameWindow->draw(base->getSprite());
+    gameWindow->draw(hero->getSprite());
+    
     for (const auto &enemy : *enemies)
     {
         gameWindow->draw(enemy->getShape());
@@ -120,7 +143,7 @@ void Game::handleEvents()
 
 void Game::update(float deltaTime)
 {
-    hero->move();
+    hero->move(deltaTime);
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
     if (!heroProjectiles->empty())
     {
@@ -129,14 +152,14 @@ void Game::update(float deltaTime)
 
         this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
-
+  
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
         int randNum = rand();
         if (randNum % 2 == 0)
         {
-            auto basePosition = sf::Vector2f(base->getShape().getPosition());
+            auto basePosition = sf::Vector2f(base->getSprite().getPosition());
             enemy->doAttack(basePosition);
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
@@ -177,7 +200,6 @@ void Game::update(float deltaTime)
             }
         }
     }
-
     this->spawnTimer += deltaTime;
     if (this->spawnTimer >= this->spawnInterval)
     {

@@ -20,3 +20,8 @@ void Enemy::doAttack(sf::Vector2f &target)
     auto current = sf::Vector2f(this->currentPosition);
     this->weapon->shoot(target, current);
 }
+
+sf::Sprite& Enemy::getSprite() {
+    // Implementação do método
+    return sprite;
+}

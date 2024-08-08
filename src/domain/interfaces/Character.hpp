@@ -43,6 +43,7 @@ public:
     void resolveCollision(std::shared_ptr<Character> other);
     virtual void doAttack(sf::Vector2f &target) = 0;
     virtual void move(float deltaTime = {}) = 0;
+    virtual sf::Sprite& getSprite() = 0; 
 };
 
 #endif
