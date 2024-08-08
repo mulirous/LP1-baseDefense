@@ -13,11 +13,20 @@ void Game::run()
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
-        // TODO: use this field instead deltaTIme as parameter
+
         setDeltaTime(deltaTime);
-        render();
-        handleEvents();
-        update(deltaTime);
+
+        if (base->getLife() <= 0 || hero->getLife() <= 0)
+        {
+            showGameOver();
+            break;
+        }
+        else
+        {
+            render();
+            handleEvents();
+            update(deltaTime);
+        }
     }
 }
 
@@ -29,27 +38,35 @@ void Game::renderStatus()
         std::cout << "Couldn't load font. Exiting.";
         return;
     }
-    Text heroLifeText, ammoText;
+    Text heroLifeText, ammoText, baseLifeText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
     heroLifeText.setFillColor(sf::Color::Black);
-    heroLifeText.setPosition(GAMEWINDOWWIDTH - 150, 25);
+    heroLifeText.setPosition(GAMEWINDOWWIDTH - 200, 25);
 
     ammoText.setFont(font);
     ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
     ammoText.setCharacterSize(16);
     ammoText.setFillColor(sf::Color::Black);
-    ammoText.setPosition(GAMEWINDOWWIDTH - 150, 50);
+    ammoText.setPosition(GAMEWINDOWWIDTH - 200, 50);
+
+    baseLifeText.setFont(font);
+    baseLifeText.setString("BASE: " + to_string(base->getLife()));
+    baseLifeText.setCharacterSize(16);
+    baseLifeText.setFillColor(sf::Color::Black);
+    baseLifeText.setPosition(GAMEWINDOWWIDTH - 200, 75);
 
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
+    gameWindow->draw(baseLifeText);
 }
 
 void Game::render()
 {
     gameWindow->clear(Color::White);
     gameWindow->draw(hero->getShape());
+    gameWindow->draw(base->getShape());
 
     for (const auto &enemy : *enemies)
     {
@@ -57,7 +74,7 @@ void Game::render()
         auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
         if (!enemyProjectiles.empty())
         {
-            for (const auto &projectile : enemyProjectiles) // Using value instead pointer to do this foreach
+            for (const auto &projectile : enemyProjectiles)
             {
                 gameWindow->draw(projectile->getShape());
             }
@@ -73,7 +90,7 @@ void Game::render()
         }
     }
 
-    this->renderStatus(); // Should be the last to render to be above other objects
+    this->renderStatus();
     gameWindow->display();
 }
 
@@ -122,23 +139,37 @@ void Game::update(float deltaTime)
         int randNum = rand();
         if (randNum % 2 == 0)
         {
-            auto heroPosition = sf::Vector2f(hero->getCurrentPosition());
-            enemy->doAttack(heroPosition);
+            auto basePosition = sf::Vector2f(base->getShape().getPosition());
+            enemy->doAttack(basePosition);
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
         for (auto &projectile : *enemyProjectiles)
         {
             projectile->update(deltaTime);
+            if (base->isCollidingWith(projectile->getBounds()))
+            {
+                base->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
+            if (hero->isCollidingWith(projectile->getBounds()))
+            {
+                hero->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
         }
-        this->calculateCollisionsWithProjectiles(enemyProjectiles, std::make_shared<std::list<std::shared_ptr<Hero>>>(1, hero));
     }
 
-    // Resolve collisions between hero with enemies and enemies with other enemies
     for (const auto &enemy : *enemies)
     {
         if (hero->isCollidingWith(enemy))
         {
             hero->resolveCollision(enemy);
+        }
+
+        if (base->isCollidingWith(enemy->getShape().getGlobalBounds()))
+        {
+            base->takeDamage(50);
+            enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
         }
 
         for (const auto &otherEnemy : *enemies)
@@ -191,4 +222,44 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
 void Game::close()
 {
     gameWindow->close();
+}
+
+void Game::showGameOver()
+{
+    Font font;
+    if (!font.loadFromFile(GAMEFONT))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+
+    Text gameOverText, exitText;
+    gameOverText.setFont(font);
+    gameOverText.setString("Game Over");
+    gameOverText.setCharacterSize(48);
+    gameOverText.setFillColor(Color::Red);
+    gameOverText.setPosition((GAMEWINDOWWIDTH / 2) - (GAMEWINDOWWIDTH / 5), 280);
+
+    exitText.setFont(font);
+    exitText.setString("Press any key to exit");
+    exitText.setCharacterSize(24);
+    exitText.setFillColor(Color::White);
+    exitText.setPosition((GAMEWINDOWWIDTH / 2) - (GAMEWINDOWWIDTH / 5), 350);
+
+    while (gameWindow->isOpen())
+    {
+        Event event;
+        while (gameWindow->pollEvent(event))
+        {
+            if (event.type == Event::Closed || event.type == Event::KeyPressed)
+            {
+                gameWindow->close();
+            }
+        }
+
+        gameWindow->clear();
+        gameWindow->draw(gameOverText);
+        gameWindow->draw(exitText);
+        gameWindow->display();
+    }
 }

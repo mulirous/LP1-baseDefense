@@ -18,12 +18,12 @@ public:
     sf::CircleShape getShape() { return this->shape; }
 
     Enemy(float width, float height, float speed, int maxLife, float x, float y, float cX, float cY)
-        : Character(width, height, speed, maxLife, x, y), centerX(cX / 2), centerY(cY / 2)
+        : Character(width, height, speed, maxLife, x, y), centerX(cX), centerY(cY)
     {
         shape.setFillColor(sf::Color::Red);
         shape.setRadius(width / 2);
         shape.setPosition(this->currentPosition);
-        weapon = std::make_shared<RangedWeapon>(10, 2, 50);
+        weapon = std::make_shared<RangedWeapon>(5, 2, 50);
     };
 
     std::shared_ptr<RangedWeapon> getRangedWeapon() { return this->weapon; }

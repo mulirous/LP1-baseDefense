@@ -2,6 +2,7 @@
 #define GAME_HPP
 #include "Enemy.hpp"
 #include "Hero.hpp"
+#include "Base.hpp"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -21,8 +22,7 @@ private:
         std::shared_ptr<std::list<std::shared_ptr<Projectile>>> projectiles,
         std::shared_ptr<std::list<std::shared_ptr<T>>> characters)
     {
-        // Verify if type is derived from Character or not
-        static_assert(std::is_base_of<Character, T>::value, "T must be derived from Character!");
+        static_assert(std::is_base_of<Character, T>::value || std::is_same<Base, T>::value, "T must be derived from Character or Base!");
 
         for (auto projectileIt = projectiles->begin(); projectileIt != projectiles->end(); projectileIt++)
         {
@@ -38,16 +38,9 @@ private:
                 if (character->isCollidingWith(projectile->getBounds()))
                 {
                     projectileIt = projectiles->erase(projectileIt);
-                    if constexpr (std::is_same<Hero, T>::value)
+                    if constexpr (std::is_same<Hero, T>::value || std::is_same<Base, T>::value)
                     {
-                        if (!(character->getLife() <= 0))
-                        {
-                            character->takeDamage(projectile->getDamage());
-                        }
-                        else
-                        {
-                            // GAME OVER
-                        }
+                        character->takeDamage(projectile->getDamage());
                     }
                     else if constexpr (std::is_same<Enemy, T>::value)
                     {
@@ -64,6 +57,8 @@ private:
         }
     }
 
+    void showGameOver();
+
 protected:
     /// @brief The screen's center on x-axis
     float centerX;
@@ -73,10 +68,12 @@ protected:
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
+    /// @brief A pointer to the base
+    std::shared_ptr<Base> base;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
     float deltaTime;
-    float spawnInterval = 2;
+    float spawnInterval = 5;
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
@@ -91,6 +88,7 @@ public:
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
+    void setBase(std::shared_ptr<Base> base) { this->base = base; }
 
     /// @brief Start point to run game.
     void run();

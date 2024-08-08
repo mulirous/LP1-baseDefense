@@ -1,17 +1,20 @@
 #include "domain/interfaces/Game.hpp"
 #include "domain/interfaces/Menu.hpp"
 #include "enums/GameState.h"
+#include "common.h"
 
-const float CENTER_X = 1050.f;
-const float CENTER_Y = 700.f;
+const float CENTER_X = GAMEWINDOWWIDTH / 2;
+const float CENTER_Y = GAMEWINDOWHEIGHT / 2;
 
 int main()
 {
-    auto newHero = std::make_shared<Hero>(50, 50, 5, 100, 600, 400);
+    auto newHero = std::make_shared<Hero>(50, 50, 15, 100, 600, 400);
+    auto newBase = std::make_shared<Base>(50, 500, 500, CENTER_X, CENTER_Y);
     auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window");
     Menu mainMenu(window);
     Game game(CENTER_X, CENTER_Y, window);
     game.setHero(newHero);
+    game.setBase(newBase);
 
     // First state is always menu
     auto currentState = GameState::MENU;
