@@ -15,7 +15,6 @@ protected:
     int currentFrame;
     float frameTime;
     float timeSinceLastFrame;
-
     /// @brief Pointer to hero's ranged weapon
     std::shared_ptr<RangedWeapon> weapon;
     /// @brief Position that hero will move to
@@ -25,7 +24,6 @@ public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY)
         : Character(width, height, speed, maxLife, posX, posY), currentFrame(0), frameTime(0.1f), timeSinceLastFrame(0.0f)
     {
-
         texture.loadFromFile("src/sprites/hero.png");
         sprite.setTexture(texture);
         frameSize = sf::Vector2i(width, height);

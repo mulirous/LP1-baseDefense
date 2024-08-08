@@ -65,4 +65,3 @@ void Hero::updateAnimation(float deltaTime)
         sprite.setTextureRect(sf::IntRect(currentFrame * frameSize.x, 0, frameSize.x, frameSize.y));
     }
 }
-

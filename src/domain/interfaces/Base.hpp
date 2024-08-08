@@ -29,11 +29,7 @@ public:
     baseSprite.setPosition(posX - (baseSprite.getGlobalBounds().width / 2), 
                            posY - (baseSprite.getGlobalBounds().height / 2));
 }
-
-
-
     sf::Sprite getSprite() { return this->baseSprite; }
-
     sf::Vector2f getPosition() { return this->currentPosition; }
 
     void takeDamage(int damage) {
@@ -43,7 +39,6 @@ public:
     }
 
     int getLife() const { return this->currentLife; }
-
     bool isCollidingWith(const sf::FloatRect &other) const {
         return baseSprite.getGlobalBounds().intersects(other);
     }

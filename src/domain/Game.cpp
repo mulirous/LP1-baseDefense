@@ -33,8 +33,6 @@ void Game::run()
         }
     }
 }
-
-
 void Game::renderStatus()
 {
     Font font = Font();
@@ -154,7 +152,7 @@ void Game::update(float deltaTime)
 
         this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
-
+  
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
@@ -202,7 +200,6 @@ void Game::update(float deltaTime)
             }
         }
     }
-
     this->spawnTimer += deltaTime;
     if (this->spawnTimer >= this->spawnInterval)
     {

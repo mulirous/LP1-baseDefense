@@ -58,7 +58,6 @@ private:
     }
 
     void gameOverScreen();
-
 protected:
     /// @brief The screen's center on x-axis
     float centerX;
@@ -77,7 +76,6 @@ protected:
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
-
     /// @brief Textures for hero, enemy, and base
     sf::Texture heroTexture;
     sf::Texture enemyTexture;
