@@ -1,13 +1,43 @@
 #include "interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
-Character::Character(float width, float height, float speed, int maxLife, float posX, float posY)
+bool Character::isCollidingWith(const sf::FloatRect &rect)
 {
-    this->width = width;
-    this->height = height;
-    this->speed = speed;
-    this->maximumLife = maxLife;
-    this->currentLife = maxLife;
-    this->positionX = posX;
-    this->positionY = posY;
-};
+    return this->getGlobalBounds().intersects(rect);
+}
+
+bool Character::isCollidingWith(std::shared_ptr<Character> other)
+{
+    return this->getGlobalBounds().intersects(other->getGlobalBounds());
+}
+
+void Character::resolveCollision(std::shared_ptr<Character> other)
+{
+    float overlapX = (this->width / 2 + other->width / 2) - std::abs(this->currentPosition.x - other->currentPosition.x);
+    float overlapY = (this->height / 2 + other->height / 2) - std::abs(this->currentPosition.y - other->currentPosition.y);
+
+    if (overlapX < overlapY)
+    {
+        if (this->currentPosition.x < other->currentPosition.x)
+            this->currentPosition.x -= overlapX / 2;
+        else
+            this->currentPosition.x += overlapX / 2;
+
+        if (this->currentPosition.x < other->currentPosition.x)
+            other->currentPosition.x += overlapX / 2;
+        else
+            other->currentPosition.x -= overlapX / 2;
+    }
+    else
+    {
+        if (this->currentPosition.y < other->currentPosition.y)
+            this->currentPosition.y -= overlapY / 2;
+        else
+            this->currentPosition.y += overlapY / 2;
+
+        if (this->currentPosition.y < other->currentPosition.y)
+            other->currentPosition.y += overlapY / 2;
+        else
+            other->currentPosition.y -= overlapY / 2;
+    }
+}
