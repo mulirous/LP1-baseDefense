@@ -9,11 +9,6 @@ using namespace std;
 
 void Game::run()
 {
-    // Instancia a base com posição centralizada
-    float windowCenterX = gameWindow->getSize().x / 2.0f;
-    float windowCenterY = gameWindow->getSize().y / 2.0f;
-    this->base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
-
     Clock clock;
 
     while (gameWindow->isOpen())

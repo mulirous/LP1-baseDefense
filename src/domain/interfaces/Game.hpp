@@ -57,6 +57,7 @@ private:
         }
     }
 
+    /// @brief Changes to game over screen
     void showGameOver();
 
 protected:
@@ -93,6 +94,9 @@ public:
                                                                        gameWindow(window)
     {
         srand(static_cast<unsigned>(time(0)));
+        float windowCenterX = gameWindow->getSize().x / 2.0f;
+        float windowCenterY = gameWindow->getSize().y / 2.0f;
+        this->base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
     };
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
