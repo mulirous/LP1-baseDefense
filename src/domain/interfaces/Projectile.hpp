@@ -41,8 +41,8 @@ public:
     bool isOffScreen() const
     {
         sf::FloatRect bounds = shape.getGlobalBounds();
-        return (bounds.left + bounds.width < 0 || bounds.left > GAMEWINDOWWIDTH ||
-                bounds.top + bounds.height < 0 || bounds.top > GAMEWINDOWHEIGHT);
+        return (bounds.left + bounds.width < 0 || bounds.left > GAME_WINDOW_WIDTH ||
+                bounds.top + bounds.height < 0 || bounds.top > GAME_WINDOW_HEIGHT);
     }
 };
 
