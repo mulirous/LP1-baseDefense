@@ -88,6 +88,19 @@ protected:
     sf::Sprite enemySprite;
     sf::Sprite baseSprite;
 
+    /// @brief Creates new enemy
+    /// @return Pointer to enemy
+    std::shared_ptr<Enemy> spawnEnemy();
+    /// @brief Process events like inputs.
+    void handleEvents();
+    /// @brief Changes the state of objects.
+    /// @param time
+    void update(float time);
+    /// @brief Renders the actual state of objects on screen.
+    void render();
+    /// @brief Closes the window and ends the game.
+    void close();
+
 public:
     Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) : centerX(x), centerY(y),
                                                                        enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
@@ -105,18 +118,6 @@ public:
 
     /// @brief Start point to run game.
     void run();
-    /// @brief Creates new enemy
-    /// @return Pointer to enemy
-    std::shared_ptr<Enemy> spawnEnemy();
-    /// @brief Process events like inputs.
-    void handleEvents();
-    /// @brief Changes the state of objects.
-    /// @param time
-    void update(float time);
-    /// @brief Renders the actual state of objects on screen.
-    void render();
-    /// @brief Closes the window and ends the game.
-    void close();
 };
 
 #endif
