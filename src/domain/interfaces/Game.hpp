@@ -50,7 +50,7 @@ private:
                     if (character->hasDrop())
                     {
                         sf::Vector2f pos = character->getCurrentPosition();
-                        drops->push_back(spawnDrop(pos));
+                        spawnDrop(pos);
                     }
                 }
             }
@@ -90,10 +90,10 @@ protected:
     sf::Sprite enemySprite;
     sf::Sprite baseSprite;
 
-    /// @brief Creates new enemy
-    /// @return Pointer to enemy
-    std::shared_ptr<Enemy> spawnEnemy();
-    std::shared_ptr<Drop> spawnDrop(sf::Vector2f &enemyPosition);
+    /// @brief Adds a new enemy to game
+    /// @note Internally, it adds a enemy to enemies's list
+    void spawnEnemy();
+    void spawnDrop(sf::Vector2f &enemyPosition);
 
     /// @brief Process events like inputs.
     void handleEvents();

@@ -266,17 +266,17 @@ void Game::update(float deltaTime)
     this->spawnTimer += deltaTime;
     if (this->spawnTimer >= this->spawnInterval)
     {
-        this->enemies->push_back(this->spawnEnemy());
+        spawnEnemy();
         this->spawnTimer = 0.f;
     }
 }
 
-std::shared_ptr<Enemy> Game::spawnEnemy()
+void Game::spawnEnemy()
 {
     float spawnX;
     float spawnY;
 
-    int side = rand() % 4;
+    int side = getRandomNumber(0, 3) % 4;
 
     switch (side)
     {
@@ -298,7 +298,8 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
         break;
     }
 
-    return std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    enemies->push_back(enemy);
 }
 
 void Game::close()
@@ -306,17 +307,17 @@ void Game::close()
     gameWindow->close();
 }
 
-std::shared_ptr<Drop> Game::spawnDrop(sf::Vector2f &position)
+void Game::spawnDrop(sf::Vector2f &position)
 {
     // Randomically selects item
     int num = getRandomNumber(0, 100);
 
     auto item = std::make_shared<Potion>();
+
     // Creates new Drop
     auto drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
 
-    // Return it
-    return drop;
+    drops->push_back(drop);
 }
 
 void Game::showGameOver()
