@@ -3,7 +3,11 @@
 #include <SFML/Graphics.hpp>
 #include "Character.hpp"
 #include <memory>
+#include "Item.hpp"
 #include "RangedWeapon.hpp"
+#include <iostream>
+#include "Potion.hpp"
+#include <type_traits>
 
 /// @brief A class that represents the main character, known as "Hero"
 class Hero : public Character
@@ -19,6 +23,11 @@ protected:
     std::shared_ptr<RangedWeapon> weapon;
     /// @brief Position that hero will move to
     sf::Vector2f targetPosition;
+
+    void heal(int healAmount)
+    {
+        this->currentLife += healAmount;
+    };
 
 public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY)
@@ -42,10 +51,30 @@ public:
 
     std::shared_ptr<RangedWeapon> getRangedWeapon() { return this->weapon; }
     void setTargetPosition(sf::Vector2f target) { this->targetPosition = target; }
-
     void takeDamage(int damage);
+
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target) override;
+    template <typename T>
+    void useItem(std::shared_ptr<T> item)
+    {
+        static_assert(std::is_base_of<Item, T>::value, "Not an item.");
+        try
+        {
+            auto potion = std::dynamic_pointer_cast<Potion>(item);
+            if (potion)
+            {
+                int life = potion->getHealAmount();
+                this->heal(life);
+                return;
+            }
+        }
+        catch (std::exception &ex)
+        {
+            return;
+        }
+    }
+    void recharge(int ammo);
 };
 
 #endif

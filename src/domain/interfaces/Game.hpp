@@ -3,6 +3,7 @@
 #include "Enemy.hpp"
 #include "Hero.hpp"
 #include "Base.hpp"
+#include "Drop.hpp"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -32,25 +33,25 @@ private:
                 projectileIt = projectiles->erase(projectileIt);
                 continue;
             }
-            for (auto characterIt = characters->begin(); characterIt != characters->end();)
+            for (auto characterIt = characters->begin(); characterIt != characters->end(); characterIt++)
             {
                 auto character = *characterIt;
-                if (character->isCollidingWith(projectile->getBounds()))
+                if (!character->isCollidingWith(projectile->getBounds()))
+                    continue;
+
+                projectileIt = projectiles->erase(projectileIt);
+                if constexpr (std::is_same<Hero, T>::value || std::is_same<Base, T>::value)
                 {
-                    projectileIt = projectiles->erase(projectileIt);
-                    if constexpr (std::is_same<Hero, T>::value || std::is_same<Base, T>::value)
-                    {
-                        character->takeDamage(projectile->getDamage());
-                    }
-                    else if constexpr (std::is_same<Enemy, T>::value)
-                    {
-                        characterIt = characters->erase(characterIt);
-                    }
-                    break;
+                    character->takeDamage(projectile->getDamage());
                 }
-                else
+                else if constexpr (std::is_same<Enemy, T>::value)
                 {
-                    ++characterIt;
+                    character->kill();
+                    if (character->hasDrop())
+                    {
+                        sf::Vector2f pos = character->getCurrentPosition();
+                        drops->push_back(spawnDrop(pos));
+                    }
                 }
             }
             projectile->update(deltaTime);
@@ -65,8 +66,9 @@ protected:
     float centerX;
     /// @brief The screen's center on y-axis
     float centerY;
-    /// @brief A unique pointer to a list of enemies pointers
+    /// @brief A pointer to a list of enemies pointers
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
+    std::unique_ptr<std::list<std::shared_ptr<Drop>>> drops;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
     /// @brief A pointer to the base
@@ -91,6 +93,8 @@ protected:
     /// @brief Creates new enemy
     /// @return Pointer to enemy
     std::shared_ptr<Enemy> spawnEnemy();
+    std::shared_ptr<Drop> spawnDrop(sf::Vector2f &enemyPosition);
+
     /// @brief Process events like inputs.
     void handleEvents();
     /// @brief Changes the state of objects.
@@ -102,15 +106,7 @@ protected:
     void close();
 
 public:
-    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) : centerX(x), centerY(y),
-                                                                       enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
-                                                                       gameWindow(window)
-    {
-        srand(static_cast<unsigned>(time(0)));
-        float windowCenterX = gameWindow->getSize().x / 2.0f;
-        float windowCenterY = gameWindow->getSize().y / 2.0f;
-        this->base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
-    };
+    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window);
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
     void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }

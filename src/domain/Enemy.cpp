@@ -21,7 +21,7 @@ void Enemy::doAttack(sf::Vector2f &target)
     this->weapon->shoot(target, current);
 }
 
-sf::Sprite& Enemy::getSprite() {
-    // Implementação do método
+sf::Sprite &Enemy::getSprite()
+{
     return sprite;
 }
