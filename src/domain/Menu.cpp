@@ -158,17 +158,11 @@ bool Menu::run()
     return true;
 }
 
-void Menu::showAbout()  // RESOLVER PROBLEMA DA TEXTURA DA IMAGEM DE FUNDO 
+void Menu::showAbout()
 {
     auto windowPtr = window.lock();
     if (!windowPtr)
         return;
-
-    if (!(this->image->loadFromFile(MENU_IMAGE)))
-    {
-        std::cout << "Can't load menu image :( \n";
-    };
-    sf::Texture bg = this->bg->setTexture(*image);
 
     sf::Text aboutText;
     aboutText.setFont(*font);
@@ -189,6 +183,7 @@ void Menu::showAbout()  // RESOLVER PROBLEMA DA TEXTURA DA IMAGEM DE FUNDO
         }
 
         windowPtr->clear();
+        windowPtr->draw(*bg);
         windowPtr->draw(aboutText);
         windowPtr->display();
     }
