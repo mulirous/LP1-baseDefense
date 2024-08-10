@@ -40,14 +40,7 @@ void Hero::move(float deltaTime)
 
     sf::Vector2f newPosition = sprite.getPosition();
     this->setCurrentPosition(newPosition);
-
-
-
-    //if (moved)
-    //{
-    //    sprite.setPosition(this->positionX, this->positionY);
-        updateAnimation(deltaTime);
-    //}
+    updateAnimation(deltaTime);
 }
 
 sf::Vector2f Hero::getPosition()
@@ -65,4 +58,3 @@ void Hero::updateAnimation(float deltaTime)
         sprite.setTextureRect(sf::IntRect(currentFrame * frameSize.x, 0, frameSize.x, frameSize.y));
     }
 }
-

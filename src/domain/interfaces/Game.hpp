@@ -57,7 +57,8 @@ private:
         }
     }
 
-    void gameOverScreen();
+    /// @brief Changes to game over screen
+    void showGameOver();
 
 protected:
     /// @brief The screen's center on x-axis
@@ -70,14 +71,13 @@ protected:
     std::shared_ptr<Hero> hero;
     /// @brief A pointer to the base
     std::shared_ptr<Base> base;
-    /// @brief A unique pointer to game's window
-    std::unique_ptr<sf::RenderWindow> gameWindow;
+    /// @brief A pointer to game's window
+    std::shared_ptr<sf::RenderWindow> gameWindow;
     float deltaTime;
     float spawnInterval = 5;
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
-
     /// @brief Textures for hero, enemy, and base
     sf::Texture heroTexture;
     sf::Texture enemyTexture;
@@ -88,20 +88,6 @@ protected:
     sf::Sprite enemySprite;
     sf::Sprite baseSprite;
 
-public:
-    Game(float x, float y) : centerX(x), centerY(y),
-                             enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
-                             gameWindow(std::make_unique<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window"))
-    {
-        srand(static_cast<unsigned>(time(0)));
-    };
-    sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
-    void setDeltaTime(float time) { this->deltaTime = time; }
-    void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
-    void setBase(std::shared_ptr<Base> base) { this->base = base; }
-
-    /// @brief Start point to run game.
-    void run();
     /// @brief Creates new enemy
     /// @return Pointer to enemy
     std::shared_ptr<Enemy> spawnEnemy();
@@ -114,6 +100,24 @@ public:
     void render();
     /// @brief Closes the window and ends the game.
     void close();
+
+public:
+    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) : centerX(x), centerY(y),
+                                                                       enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
+                                                                       gameWindow(window)
+    {
+        srand(static_cast<unsigned>(time(0)));
+        float windowCenterX = gameWindow->getSize().x / 2.0f;
+        float windowCenterY = gameWindow->getSize().y / 2.0f;
+        this->base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
+    };
+    sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
+    void setDeltaTime(float time) { this->deltaTime = time; }
+    void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
+    void setBase(std::shared_ptr<Base> base) { this->base = base; }
+
+    /// @brief Start point to run game.
+    void run();
 };
 
 #endif

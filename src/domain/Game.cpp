@@ -9,21 +9,18 @@ using namespace std;
 
 void Game::run()
 {
-    // Instancia a base com posição centralizada
-    float windowCenterX = gameWindow->getSize().x / 2.0f;
-    float windowCenterY = gameWindow->getSize().y / 2.0f;
-    this->base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
-
     Clock clock;
 
     while (gameWindow->isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
-    
+
         setDeltaTime(deltaTime);
+
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
-            gameOverScreen();
+            showGameOver();
+            break;
         }
         else
         {
@@ -33,12 +30,10 @@ void Game::run()
         }
     }
 }
-
-
 void Game::renderStatus()
 {
     Font font = Font();
-    if (!font.loadFromFile("resources/fonts/ProggyClean.ttf"))
+    if (!font.loadFromFile(GAME_FONT))
     {
         std::cout << "Couldn't load font. Exiting.";
         return;
@@ -46,21 +41,21 @@ void Game::renderStatus()
     Text heroLifeText, ammoText, baseLifeText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
-    heroLifeText.setCharacterSize(24);
-    heroLifeText.setFillColor(sf::Color::Black);
-    heroLifeText.setPosition(GAMEWINDOWWIDTH - 200, 25);
+    heroLifeText.setCharacterSize(16);
+    heroLifeText.setFillColor(sf::Color::White);
+    heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
 
     ammoText.setFont(font);
     ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
-    ammoText.setCharacterSize(24);
-    ammoText.setFillColor(sf::Color::Black);
-    ammoText.setPosition(GAMEWINDOWWIDTH - 200, 50);
+    ammoText.setCharacterSize(16);
+    ammoText.setFillColor(sf::Color::White);
+    ammoText.setPosition(GAME_WINDOW_WIDTH - 200, 50);
 
     baseLifeText.setFont(font);
-    baseLifeText.setString("BASE LIFE: " + to_string(base->getLife()));
-    baseLifeText.setCharacterSize(24);
-    baseLifeText.setFillColor(sf::Color::Black);
-    baseLifeText.setPosition(GAMEWINDOWWIDTH - 200, 100);
+    baseLifeText.setString("BASE: " + to_string(base->getLife()));
+    baseLifeText.setCharacterSize(16);
+    baseLifeText.setFillColor(sf::Color::White);
+    baseLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 75);
 
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
@@ -70,7 +65,7 @@ void Game::renderStatus()
 void Game::render()
 {
     Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("src/sprites/background4.png"))
+    if (!backgroundTexture.loadFromFile(BACKGROUND_GAME))
     {
         cout << "Background load failed." << endl;
         return;
@@ -90,7 +85,7 @@ void Game::render()
     gameWindow->draw(backgroundSprite);
     gameWindow->draw(base->getSprite());
     gameWindow->draw(hero->getSprite());
-    
+
     for (const auto &enemy : *enemies)
 {
     gameWindow->draw(enemy->getShape());
@@ -154,15 +149,23 @@ void Game::update(float deltaTime)
 
         this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
-
+    // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
         enemy->move(deltaTime);
         int randNum = rand();
         if (randNum % 2 == 0)
         {
-            auto basePosition = sf::Vector2f(base->getSprite().getPosition());
-            enemy->doAttack(basePosition);
+            if (randNum % 5 == 0)
+            {
+                auto basePosition = sf::Vector2f(base->getSprite().getPosition());
+                enemy->doAttack(basePosition);
+            }
+            else
+            {
+                auto heroPosition = sf::Vector2f(hero->getSprite().getPosition());
+                enemy->doAttack(heroPosition);
+            }
         }
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
         for (auto &projectile : *enemyProjectiles)
@@ -202,7 +205,6 @@ void Game::update(float deltaTime)
             }
         }
     }
-
     this->spawnTimer += deltaTime;
     if (this->spawnTimer >= this->spawnInterval)
     {
@@ -221,20 +223,20 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
     switch (side)
     {
     case 0: // Top
-        spawnX = rand() % GAMEWINDOWWIDTH;
+        spawnX = rand() % GAME_WINDOW_WIDTH;
         spawnY = -20;
         break;
     case 1: // Right
-        spawnX = GAMEWINDOWWIDTH + 20;
-        spawnY = rand() % GAMEWINDOWHEIGHT;
+        spawnX = GAME_WINDOW_WIDTH + 20;
+        spawnY = rand() % GAME_WINDOW_HEIGHT;
         break;
     case 2: // Bottom
-        spawnX = rand() % GAMEWINDOWWIDTH;
-        spawnY = GAMEWINDOWHEIGHT + 20.f;
+        spawnX = rand() % GAME_WINDOW_WIDTH;
+        spawnY = GAME_WINDOW_HEIGHT + 20.f;
         break;
     case 3: // Left
         spawnX = -20.f;
-        spawnY = rand() % GAMEWINDOWHEIGHT;
+        spawnY = rand() % GAME_WINDOW_HEIGHT;
         break;
     }
 
@@ -246,13 +248,10 @@ void Game::close()
     gameWindow->close();
 }
 
-void Game::gameOverScreen()
+void Game::showGameOver()
 {
-    RenderWindow gameOverWindow(VideoMode(500, 300), "Game Over", Style::None);
-    gameOverWindow.setPosition(sf::Vector2i(350, 150));
-
     Font font;
-    if (!font.loadFromFile("resources/fonts/ProggyClean.ttf"))
+    if (!font.loadFromFile(GAME_FONT))
     {
         std::cout << "Couldn't load font. Exiting.";
         return;
@@ -263,30 +262,28 @@ void Game::gameOverScreen()
     gameOverText.setString("Game Over");
     gameOverText.setCharacterSize(48);
     gameOverText.setFillColor(Color::Red);
-    gameOverText.setPosition(150, 100);
+    gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
     exitText.setFont(font);
-    exitText.setString("Aperte qualquer tecla para sair");
+    exitText.setString("Press any key to exit");
     exitText.setCharacterSize(24);
     exitText.setFillColor(Color::White);
-    exitText.setPosition(95, 160);
+    exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
 
-    while (gameOverWindow.isOpen())
+    while (gameWindow->isOpen())
     {
         Event event;
-        while (gameOverWindow.pollEvent(event))
+        while (gameWindow->pollEvent(event))
         {
             if (event.type == Event::Closed || event.type == Event::KeyPressed)
             {
-                gameOverWindow.close();
                 gameWindow->close();
             }
         }
 
-        gameOverWindow.clear(Color::Black);
-        gameOverWindow.draw(gameOverText);
-        gameOverWindow.draw(exitText);
-        gameOverWindow.display();
+        gameWindow->clear();
+        gameWindow->draw(gameOverText);
+        gameWindow->draw(exitText);
+        gameWindow->display();
     }
-
 }
