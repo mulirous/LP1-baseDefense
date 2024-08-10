@@ -174,15 +174,14 @@ void Menu::showAbout()
         "Game Version 1.0\n"
         "Developed by\n\n\n"
         "Andriel Vinicius\n\n"
-        "   Responsible for developed key game functions, optimizing performance,\n"
-        "   modularizing code, and enhancing the game's audiovisual aspects\n"
+        "   Performance Optimizer, Modularizer, Game Designer, Sound Engineer\n"
+        "   & Developer\n"
         "\n\n"
         "Flawbert Lorran\n\n"
-        "   Focused on the development of audiovisual elements\n"
+        "   Game Designer, Sound Engineer & Developer\n"
         "\n\n"
         "Murilo Costa\n\n"
-        "   Developed key game functions and contributed to code modularization\n"
-        "   and performance optimization.\n";
+        "   Performance Optimizer, Modularizer & Developer\n";
 
     infoText.setString(aboutText);
     infoText.setPosition(100.f, 200.f);
