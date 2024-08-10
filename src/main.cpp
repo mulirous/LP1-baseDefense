@@ -2,12 +2,19 @@
 #include "domain/interfaces/Menu.hpp"
 #include "enums/GameState.h"
 #include "common.h"
+#include "modules/texture_manager/src/ResourceManager.hpp"
 
 const float CENTER_X = GAME_WINDOW_WIDTH / 2;
 const float CENTER_Y = GAME_WINDOW_HEIGHT / 2;
 
 int main()
 {
+    ResourceManager::preLoadTextures(ASSETS_FOLDER, true);
+    if (ResourceManager::getNumberOfTextures() <= 0)
+    {
+        throw std::runtime_error("Assets aren't ready.. \n");
+    }
+
     auto newHero = std::make_shared<Hero>(50, 50, 15, 100, 600, 400);
     auto newBase = std::make_shared<Base>(50, 500, 500, CENTER_X, CENTER_Y);
     auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window");
