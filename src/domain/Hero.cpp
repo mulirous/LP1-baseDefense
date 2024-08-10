@@ -40,14 +40,7 @@ void Hero::move(float deltaTime)
 
     sf::Vector2f newPosition = sprite.getPosition();
     this->setCurrentPosition(newPosition);
-
-
-
-    //if (moved)
-    //{
-    //    sprite.setPosition(this->positionX, this->positionY);
-        updateAnimation(deltaTime);
-    //}
+    updateAnimation(deltaTime);
 }
 
 sf::Vector2f Hero::getPosition()

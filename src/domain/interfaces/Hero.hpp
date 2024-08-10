@@ -24,20 +24,20 @@ public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY)
         : Character(width, height, speed, maxLife, posX, posY), currentFrame(0), frameTime(0.1f), timeSinceLastFrame(0.0f)
     {
-        texture.loadFromFile("src/sprites/hero.png");
+        texture.loadFromFile(HERO_IMAGE);
         sprite.setTexture(texture);
         frameSize = sf::Vector2i(width, height);
         sprite.setTextureRect(sf::IntRect(0, 0, frameSize.x, frameSize.y));
         sprite.setPosition(posX, posY);
         weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
 
-          // Escala a sprite para reduzir o tamanho
+        // Escala a sprite para reduzir o tamanho
         float scaleFactor = 1.5f; // diminui para 60% do tamanho original
         sprite.setScale(scaleFactor, scaleFactor);
     };
 
     void updateAnimation(float deltaTime);
-    sf::Sprite& getSprite() override { return sprite; } // Implement the pure virtual function
+    sf::Sprite &getSprite() override { return sprite; } // Implement the pure virtual function
     sf::Vector2f getPosition();
 
     std::shared_ptr<RangedWeapon> getRangedWeapon() { return this->weapon; }
