@@ -1,6 +1,5 @@
 #include "interfaces/Menu.hpp"
 #include "common.h"
-#include <vector>
 #include <iostream>
 
 void Menu::init()
