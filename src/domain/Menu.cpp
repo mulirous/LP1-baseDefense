@@ -148,8 +148,8 @@ bool Menu::run()
         case MenuActions::START:
             return false;
         case MenuActions::ABOUT:
-            showAbout(); // Mostra a tela de "Sobre"
-            break; // Retorna ao menu principal após mostrar o "Sobre"
+            showAbout();
+            break;
         case MenuActions::EXIT:
             windowPtr->close();
             break;
