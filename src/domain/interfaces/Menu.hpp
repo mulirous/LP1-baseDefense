@@ -1,7 +1,6 @@
 #pragma once // instead of ifndef and define
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "structs.h"
 #include "enums/MenuActions.h"
 #include <iostream>
 
@@ -26,6 +25,8 @@ private:
     std::unique_ptr<std::vector<sf::Vector2f>> optionsCoords;
     std::unique_ptr<std::vector<sf::Text>> optionsTexts;
     std::unique_ptr<std::vector<std::size_t>> optionsSize;
+    /// @brief Show the About Screen with the infos about Us, the developers
+    void showAbout();
 
 protected:
     /// @brief Catch user actions with menu
@@ -46,6 +47,7 @@ public:
         bg = std::make_unique<sf::Sprite>();
         init();
     }
+
     ~Menu() = default;
     bool run();
 };
