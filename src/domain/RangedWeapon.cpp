@@ -9,7 +9,7 @@ std::shared_ptr<Projectile> RangedWeapon::launchProjectile()
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     direction = sf::Vector2f(direction.x / length, direction.y / length);
 
-    return std::make_shared<Projectile>(10, PROJECTILEVELOCITY, this->currentPosition, direction);
+    return std::make_shared<Projectile>(10, PROJECTILEVELOCITY, this->currentPosition, direction, "src/sprites/arrow.png");
 }
 
 void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition)

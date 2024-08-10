@@ -4,43 +4,70 @@
 #include <memory>
 #include <math.h>
 #include "../common.h"
+#include <iostream>
+
+using namespace std;
 
 class Projectile
 {
 private:
-    /// @brief Projectile's current position
     sf::Vector2f position;
-    /// @brief Projectile's target
     sf::Vector2f target;
-    /// @brief Projectile's velocity
     float velocity;
-    /// @brief Projectile's damage
     int damage;
-    /// @brief
-    sf::CircleShape shape;
+    sf::Sprite sprite;
+    sf::Texture texture;
+    int spriteFrameWidth;
+    int spriteFrameHeight;
+    int currentFrame;
+    float animationTime;
+    float elapsedTime;
 
 public:
-    Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target)
-        : position(position), damage(damage), velocity(velocity), target(target)
+    Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target, const std::string& texturePath)
+        : position(position), damage(damage), velocity(velocity), target(target),
+          currentFrame(0), animationTime(0.1f), elapsedTime(0.0f)
     {
-        shape.setRadius(5);
-        shape.setFillColor(sf::Color::Green);
-        shape.setPosition(this->position);
-        shape.setRotation(atan2(target.y, target.x) * 180 / 3.14159265);
+        if (!texture.loadFromFile(texturePath))
+        {
+            cout << "Failed to load projectile texture. " << endl;
+        }
+
+        sprite.setTexture(texture);
+        spriteFrameWidth = texture.getSize().x / 4; // Assuming 4 frames horizontally
+        spriteFrameHeight = texture.getSize().y; // Full height
+        sprite.setTextureRect(sf::IntRect(0, 0, spriteFrameWidth, spriteFrameHeight));
+        sprite.setPosition(this->position);
+
+        float scaleFactor = 0.09f; // diminui para 60% do tamanho original
+        sprite.setScale(scaleFactor, scaleFactor);
     }
 
-    const sf::CircleShape &getShape() { return this->shape; }
-    sf::FloatRect getBounds() { return shape.getGlobalBounds(); }
+    sf::Sprite& getSprite() { return this->sprite; }
+    sf::FloatRect getBounds() { return sprite.getGlobalBounds(); }
     int getDamage() { return this->damage; }
 
     void update(float deltaTime)
     {
-        shape.move(target * velocity * deltaTime);
+        elapsedTime += deltaTime;
+        if (elapsedTime >= animationTime)
+        {
+            elapsedTime = 0;
+            currentFrame = (currentFrame + 1) % 4; // Cycle through 4 frames
+            sprite.setTextureRect(sf::IntRect(currentFrame * spriteFrameWidth, 0, spriteFrameWidth, spriteFrameHeight));
+        }
+
+        sf::Vector2f direction = target - position;
+        float magnitude = sqrt(direction.x * direction.x + direction.y * direction.y);
+        direction /= magnitude;
+
+        position += direction * velocity * deltaTime;
+        sprite.setPosition(position);
     }
 
     bool isOffScreen() const
     {
-        sf::FloatRect bounds = shape.getGlobalBounds();
+        sf::FloatRect bounds = sprite.getGlobalBounds();
         return (bounds.left + bounds.width < 0 || bounds.left > GAMEWINDOWWIDTH ||
                 bounds.top + bounds.height < 0 || bounds.top > GAMEWINDOWHEIGHT);
     }

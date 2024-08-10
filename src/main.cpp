@@ -13,6 +13,6 @@ int main()
     game.setHero(newHero);
     game.setBase(newBase);
     game.run();
-
+    
     return EXIT_SUCCESS;
 }

@@ -92,24 +92,24 @@ void Game::render()
     gameWindow->draw(hero->getSprite());
     
     for (const auto &enemy : *enemies)
+{
+    gameWindow->draw(enemy->getShape());
+    auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
+    if (!enemyProjectiles.empty())
     {
-        gameWindow->draw(enemy->getShape());
-        auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
-        if (!enemyProjectiles.empty())
+        for (const auto &projectile : enemyProjectiles)
         {
-            for (const auto &projectile : enemyProjectiles)
-            {
-                gameWindow->draw(projectile->getShape());
-            }
+            gameWindow->draw(projectile->getSprite());
         }
     }
+}
 
     auto heroProjectiles = *hero->getRangedWeapon()->getLaunchedProjectiles();
     if (!heroProjectiles.empty())
     {
         for (const auto &projectile : heroProjectiles)
         {
-            gameWindow->draw(projectile->getShape());
+            gameWindow->draw(projectile->getSprite());
         }
     }
 
