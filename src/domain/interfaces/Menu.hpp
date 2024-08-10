@@ -26,6 +26,8 @@ private:
     std::unique_ptr<std::vector<sf::Vector2f>> optionsCoords;
     std::unique_ptr<std::vector<sf::Text>> optionsTexts;
     std::unique_ptr<std::vector<std::size_t>> optionsSize;
+    /// @brief Show the About Screen with the infos about Us, the developers
+    void showAbout();
 
 protected:
     /// @brief Catch user actions with menu
@@ -47,7 +49,6 @@ public:
         init();
     }
 
-    void showAbout();
 
     ~Menu() = default;
     bool run();
