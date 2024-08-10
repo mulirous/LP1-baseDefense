@@ -99,6 +99,10 @@ MenuActions Menu::handleActions()
             // If user enters on start option, it should start the game
             if (this->current == 0)
                 return MenuActions::START;
+            
+            // If user enters on start option, it should show the about
+            if (this->current == (int)this->optionsTexts->size() - 2)
+                return MenuActions::ABOUT;
 
             // If user enters on quit option (the last one)
             if (this->current == (int)this->optionsTexts->size() - 1)
@@ -142,9 +146,9 @@ bool Menu::run()
         {
         case MenuActions::START:
             return false;
-        case MenuActions::NONE:
         case MenuActions::ABOUT:
-            return true;
+            showAbout(); // Mostra a tela de "Sobre"
+            break; // Retorna ao menu principal após mostrar o "Sobre"
         case MenuActions::EXIT:
             windowPtr->close();
             break;
@@ -152,4 +156,40 @@ bool Menu::run()
     }
     // if nothing happens, stays on menu
     return true;
+}
+
+void Menu::showAbout()  // RESOLVER PROBLEMA DA TEXTURA DA IMAGEM DE FUNDO 
+{
+    auto windowPtr = window.lock();
+    if (!windowPtr)
+        return;
+
+    if (!(this->image->loadFromFile(MENU_IMAGE)))
+    {
+        std::cout << "Can't load menu image :( \n";
+    };
+    sf::Texture bg = this->bg->setTexture(*image);
+
+    sf::Text aboutText;
+    aboutText.setFont(*font);
+    aboutText.setString("Sobre o Jogo:\n\nDesenvolvedores: Seu Nome\nDescricao: Jogo Exemplo.");
+    aboutText.setCharacterSize(24);
+    aboutText.setFillColor(sf::Color::White);
+    aboutText.setPosition(100, 100);
+
+    while (windowPtr->isOpen())
+    {
+        sf::Event event;
+        while (windowPtr->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed || (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)))
+            {
+                return;
+            }
+        }
+
+        windowPtr->clear();
+        windowPtr->draw(aboutText);
+        windowPtr->display();
+    }
 }

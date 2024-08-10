@@ -46,6 +46,9 @@ public:
         bg = std::make_unique<sf::Sprite>();
         init();
     }
+
+    void showAbout();
+
     ~Menu() = default;
     bool run();
 };
