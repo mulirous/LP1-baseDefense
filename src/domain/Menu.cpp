@@ -99,6 +99,10 @@ MenuActions Menu::handleActions()
             // If user enters on start option, it should start the game
             if (this->current == 0)
                 return MenuActions::START;
+            
+            // If user enters on start option, it should show the about
+            if (this->current == (int)this->optionsTexts->size() - 2)
+                return MenuActions::ABOUT;
 
             // If user enters on quit option (the last one)
             if (this->current == (int)this->optionsTexts->size() - 1)
@@ -142,9 +146,9 @@ bool Menu::run()
         {
         case MenuActions::START:
             return false;
-        case MenuActions::NONE:
         case MenuActions::ABOUT:
-            return true;
+            showAbout();
+            break;
         case MenuActions::EXIT:
             windowPtr->close();
             break;
@@ -152,4 +156,57 @@ bool Menu::run()
     }
     // if nothing happens, stays on menu
     return true;
+}
+
+void Menu::showAbout()
+{
+    auto windowPtr = window.lock();
+    if (!windowPtr)
+        return;
+
+    sf::Text infoText;
+    infoText.setFont(*font);
+    infoText.setCharacterSize(15);
+    infoText.setFillColor(sf::Color::White);
+    
+    std::string aboutText = 
+        "Game Version 1.0\n"
+        "Developed by\n\n\n"
+        "Andriel Vinicius\n\n"
+        "   Performance Optimizer, Modularizer, Game Designer, Sound Engineer\n"
+        "   & Developer\n"
+        "\n\n"
+        "Flawbert Lorran\n\n"
+        "   Game Designer, Sound Engineer & Developer\n"
+        "\n\n"
+        "Murilo Costa\n\n"
+        "   Performance Optimizer, Modularizer & Developer\n";
+
+    infoText.setString(aboutText);
+    infoText.setPosition(100.f, 200.f);
+
+    sf::Text exitText;
+    exitText.setFont(*font);
+    exitText.setCharacterSize(18);
+    exitText.setFillColor(sf::Color::White);
+    exitText.setString("Press `Q` to return");
+    exitText.setPosition(420.f, 600.f);
+
+    while (windowPtr->isOpen())
+    {
+        sf::Event event;
+        while (windowPtr->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+            {
+                return;
+            }
+        }
+
+        windowPtr->clear();
+        windowPtr->draw(*bg);
+        windowPtr->draw(infoText);
+        windowPtr->draw(exitText);
+        windowPtr->display();
+    }
 }
