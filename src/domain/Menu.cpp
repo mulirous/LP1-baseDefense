@@ -1,5 +1,6 @@
 #include "interfaces/Menu.hpp"
 #include "common.h"
+#include <vector>
 #include <iostream>
 
 void Menu::init()
@@ -164,19 +165,41 @@ void Menu::showAbout()
     if (!windowPtr)
         return;
 
-    sf::Text aboutText;
-    aboutText.setFont(*font);
-    aboutText.setString("Sobre o Jogo:\n\nDesenvolvedores: Seu Nome\nDescricao: Jogo Exemplo.");
-    aboutText.setCharacterSize(24);
-    aboutText.setFillColor(sf::Color::White);
-    aboutText.setPosition(100, 100);
+    sf::Text infoText;
+    infoText.setFont(*font);
+    infoText.setCharacterSize(15);
+    infoText.setFillColor(sf::Color::White);
+    
+    std::string aboutText = 
+        "Game Version 1.0\n"
+        "Developed by\n\n\n"
+        "Andriel Vinicius\n\n"
+        "   Responsible for developed key game functions, optimizing performance,\n"
+        "   modularizing code, and enhancing the game's audiovisual aspects\n"
+        "\n\n"
+        "Flawbert Lorran\n\n"
+        "   Focused on the development of audiovisual elements\n"
+        "\n\n"
+        "Murilo Costa\n\n"
+        "   Developed key game functions and contributed to code modularization\n"
+        "   and performance optimization.\n";
+
+    infoText.setString(aboutText);
+    infoText.setPosition(100.f, 200.f);
+
+    sf::Text exitText;
+    exitText.setFont(*font);
+    exitText.setCharacterSize(18);
+    exitText.setFillColor(sf::Color::White);
+    exitText.setString("Press `Q` to return");
+    exitText.setPosition(420.f, 600.f);
 
     while (windowPtr->isOpen())
     {
         sf::Event event;
         while (windowPtr->pollEvent(event))
         {
-            if (event.type == sf::Event::Closed || (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)))
+            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
             {
                 return;
             }
@@ -184,7 +207,8 @@ void Menu::showAbout()
 
         windowPtr->clear();
         windowPtr->draw(*bg);
-        windowPtr->draw(aboutText);
+        windowPtr->draw(infoText);
+        windowPtr->draw(exitText);
         windowPtr->display();
     }
 }
