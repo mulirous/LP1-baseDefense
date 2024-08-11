@@ -9,6 +9,7 @@
 #include <memory>
 #include <type_traits>
 #include "Projectile.hpp"
+#include "../../modules/animation/src/AnimationManager.hpp"
 
 /// @brief The central point of all game.
 class Game
@@ -75,6 +76,7 @@ protected:
     std::shared_ptr<Base> base;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
+    std::shared_ptr<AnimationManager> animationManager;
     float deltaTime;
     float spawnInterval = 5;
     float spawnTimer = 0;

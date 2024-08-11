@@ -13,6 +13,7 @@ const std::string BACKGROUND_GAME = "resources/assets/background4.png";
 const std::string BASE_IMAGE = "resources/assets/sprites/base.png";
 const std::string HERO_IMAGE = "resources/assets/sprites/hero.png";
 const std::string POTION_IMAGE = "resources/assets/items/red-potion.png";
+const std::string QUIVER_IMAGE = "resources/assets/items/quiver.png";
 
 inline int getRandomNumber(int min, int max)
 {

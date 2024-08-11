@@ -12,20 +12,22 @@ class Drop
 {
 private:
     sf::Vector2f position;
-    std::shared_ptr<sf::Sprite> sprite;
+    // std::shared_ptr<sf::Sprite> sprite;
     std::shared_ptr<Item> item;
     sf::Clock expiredCounter;
     float expirationTime;
     bool used;
 
 public:
-    Drop(std::shared_ptr<Item> item, sf::Vector2f &position, std::optional<float> expirationSeconds = std::nullopt)
+    /// @brief Default constructor
+    /// @param item Pointer to item-type object. Must be derived from Item
+    /// @param position Position that drop will be rendered
+    /// @param expirationSeconds Time that drop will remain on screen until disappears
+    Drop(std::shared_ptr<Item> item, sf::Vector2f &position, std::optional<float> expirationSeconds = 7)
     {
-        sprite = std::make_shared<sf::Sprite>();
-        sprite->setTexture(*ResourceManager::getTexture(POTION_IMAGE));
         this->item = item;
+        this->item->getSprite()->setPosition(position);
         this->position = position;
-        this->sprite->setPosition(position);
         expirationTime = *expirationSeconds;
         expiredCounter = sf::Clock();
         expiredCounter.restart();
@@ -35,9 +37,9 @@ public:
     void setPosition(sf::Vector2f &position) { this->position = position; }
     const sf::FloatRect getBounds()
     {
-        return this->sprite->getGlobalBounds();
+        return this->item->getSprite()->getGlobalBounds();
     }
-    const sf::Sprite getSprite() { return *sprite; }
+    std::shared_ptr<sf::Sprite> getItemSprite() { return this->item->getSprite(); }
     void setUsed(bool used) { this->used = used; }
     bool hasExpired() { return expiredCounter.getElapsedTime().asSeconds() >= expirationTime || used; }
     std::shared_ptr<Item> getItem() { return item; }

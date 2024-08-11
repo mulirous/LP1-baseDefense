@@ -2,6 +2,22 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
+Hero::Hero(float width, float height, float speed, int maxLife, float posX, float posY)
+    : Character(width, height, speed, maxLife, posX, posY)
+{
+    currentFrame = 0;
+    frameTime = 0.1f;
+    timeSinceLastFrame = 0;
+    texture.loadFromFile(HERO_IMAGE);
+    sprite.setTexture(texture);
+    frameSize = sf::Vector2i(width, height);
+    sprite.setTextureRect(sf::IntRect(0, 0, frameSize.x, frameSize.y));
+    sprite.setPosition(posX, posY);
+    weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
+
+    sprite.setScale(1.5f, 1.5f);
+};
+
 void Hero::takeDamage(int damage)
 {
     if (damage <= 0)
@@ -57,4 +73,27 @@ void Hero::updateAnimation(float deltaTime)
         currentFrame = (currentFrame + 1) % (texture.getSize().x / frameSize.x);
         sprite.setTextureRect(sf::IntRect(currentFrame * frameSize.x, 0, frameSize.x, frameSize.y));
     }
+}
+
+void Hero::heal(int healAmount)
+{
+    if (healAmount + currentLife > 100)
+        return;
+
+    this->currentLife += healAmount;
+}
+
+void Hero::recharge(int ammo)
+{
+    this->weapon->addAmmo(ammo);
+};
+
+std::shared_ptr<RangedWeapon> Hero::getRangedWeapon()
+{
+    return this->weapon;
+}
+
+void Hero::setTargetPosition(sf::Vector2f target)
+{
+    this->targetPosition = target;
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <math.h>
 #include "interfaces/Potion.hpp"
+#include "Quiver.hpp"
 
 using namespace sf;
 using namespace std;
@@ -19,6 +20,7 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     float windowCenterX = gameWindow->getSize().x / 2.0f;
     float windowCenterY = gameWindow->getSize().y / 2.0f;
     base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
+    animationManager = std::make_shared<AnimationManager>();
 };
 
 void Game::run()
@@ -118,7 +120,7 @@ void Game::render()
 
     for (const auto &drop : *drops)
     {
-        gameWindow->draw(drop->getSprite());
+        gameWindow->draw(*drop->getItemSprite());
     }
 
     auto heroProjectiles = *hero->getRangedWeapon()->getLaunchedProjectiles();
@@ -312,10 +314,19 @@ void Game::spawnDrop(sf::Vector2f &position)
     // Randomically selects item
     int num = getRandomNumber(0, 100);
 
-    auto item = std::make_shared<Potion>();
+    std::shared_ptr<Drop> drop;
 
-    // Creates new Drop
-    auto drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
+    if (num % 2)
+    {
+        auto item = std::make_shared<Potion>();
+        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
+    }
+    else
+    {
+        int arrows = getRandomNumber(5, 10);
+        auto item = std::make_shared<Quiver>(arrows);
+        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
+    }
 
     drops->push_back(drop);
 }

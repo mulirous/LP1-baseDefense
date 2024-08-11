@@ -3,7 +3,6 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include "common.h"
-#include <iostream>
 
 class Potion : public Item
 {
@@ -11,6 +10,6 @@ private:
     int healAmount;
 
 public:
-    Potion() : healAmount(10) {};
+    Potion() : healAmount(10), Item(POTION_IMAGE) {};
     int getHealAmount() { return healAmount; }
 };

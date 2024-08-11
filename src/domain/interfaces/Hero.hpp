@@ -2,6 +2,7 @@
 #define HERO_HPP
 #include <SFML/Graphics.hpp>
 #include "Character.hpp"
+#include "Quiver.hpp"
 #include <memory>
 #include "Item.hpp"
 #include "RangedWeapon.hpp"
@@ -24,37 +25,27 @@ protected:
     /// @brief Position that hero will move to
     sf::Vector2f targetPosition;
 
-    void heal(int healAmount)
-    {
-        this->currentLife += healAmount;
-    };
+    /// @brief Hero's heal action
+    /// @param healAmount Amount of health
+    /// @note If the hero's life exceeds 100, no effect occurs
+    void heal(int healAmount);
+
+    void recharge(int ammo);
 
 public:
-    Hero(float width, float height, float speed, int maxLife, float posX, float posY)
-        : Character(width, height, speed, maxLife, posX, posY), currentFrame(0), frameTime(0.1f), timeSinceLastFrame(0.0f)
-    {
-        texture.loadFromFile(HERO_IMAGE);
-        sprite.setTexture(texture);
-        frameSize = sf::Vector2i(width, height);
-        sprite.setTextureRect(sf::IntRect(0, 0, frameSize.x, frameSize.y));
-        sprite.setPosition(posX, posY);
-        weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
-
-        // Escala a sprite para reduzir o tamanho
-        float scaleFactor = 1.5f; // diminui para 60% do tamanho original
-        sprite.setScale(scaleFactor, scaleFactor);
-    };
+    Hero(float width, float height, float speed, int maxLife, float posX, float posY);
 
     void updateAnimation(float deltaTime);
     sf::Sprite &getSprite() override { return sprite; } // Implement the pure virtual function
     sf::Vector2f getPosition();
 
-    std::shared_ptr<RangedWeapon> getRangedWeapon() { return this->weapon; }
-    void setTargetPosition(sf::Vector2f target) { this->targetPosition = target; }
+    std::shared_ptr<RangedWeapon> getRangedWeapon();
+    void setTargetPosition(sf::Vector2f target);
     void takeDamage(int damage);
 
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target) override;
+
     template <typename T>
     void useItem(std::shared_ptr<T> item)
     {
@@ -68,13 +59,20 @@ public:
                 this->heal(life);
                 return;
             }
+            auto quiver = std::dynamic_pointer_cast<Quiver>(item);
+            if (quiver)
+            {
+                std::cout << "Hero is getting ammo from quiver\n";
+                int ammo = quiver->getArrows();
+                this->recharge(ammo);
+                return;
+            }
         }
         catch (std::exception &ex)
         {
             return;
         }
     }
-    void recharge(int ammo);
 };
 
 #endif
