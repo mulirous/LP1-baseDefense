@@ -1,8 +1,10 @@
-#include <string>
+#pragma once
+
+#include <iostream>
 #include <SFML/Graphics.hpp>
 
-typedef struct {
+struct MenuOptions {
     std::string text;
-    int size;
+    size_t size;
     sf::Vector2f position;
-} MenuOptions;
+};
