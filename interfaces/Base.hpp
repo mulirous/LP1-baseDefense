@@ -1,47 +1,36 @@
-#pragma once
+#ifndef BASE_HPP
+#define BASE_HPP
+
+#include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "../common.h"
 
+/// @brief Represents the base which hero must defend and enemies will attack
 class Base
 {
 private:
+    /// @brief Base's max life
     int maxLife;
+    /// @brief Base's current life
     int currentLife;
+    /// @brief Base's position on screen
     sf::Vector2f currentPosition;
-    sf::Sprite baseSprite;
-    sf::Texture baseTexture;
+    /// @brief Pointer to base's sprite
+    std::shared_ptr<sf::Sprite> baseSprite;
 
 public:
-    Base(float radius, int maxLife, int currentLife, float posX, float posY)
-        : maxLife(maxLife), currentLife(currentLife), currentPosition(posX, posY)
-    {
-        if (!baseTexture.loadFromFile(BASE_IMAGE))
-        {
-            throw std::runtime_error("Failed to load base texture");
-        }
-        baseSprite.setTexture(baseTexture);
-
-        // Escala a sprite para reduzir o tamanho
-        float scaleFactor = 0.6f; // diminui para 60% do tamanho original
-        baseSprite.setScale(scaleFactor, scaleFactor);
-
-        baseSprite.setPosition(posX - (baseSprite.getGlobalBounds().width / 2),
-                               posY - (baseSprite.getGlobalBounds().height / 2));
-    }
-    sf::Sprite getSprite() { return this->baseSprite; }
-    sf::Vector2f getPosition() { return this->currentPosition; }
-
-    void takeDamage(int damage)
-    {
-        if (damage <= 0)
-            return;
-        this->currentLife -= damage;
-    }
-
-    int getLife() const { return this->currentLife; }
-    bool isCollidingWith(const sf::FloatRect &other) const
-    {
-        return baseSprite.getGlobalBounds().intersects(other);
-    }
+    /// @brief Default constructor.
+    /// @param maxLife Base's max life
+    /// @param posX
+    /// @param posY
+    /// @param texture
+    Base(int maxLife, float posX, float posY);
+    virtual ~Base() = default;
+    std::shared_ptr<sf::Sprite> getSprite();
+    sf::Vector2f getPosition();
+    void takeDamage(int damage);
+    int getLife();
+    bool isCollidingWith(const sf::FloatRect &other);
 };
+#endif // ! BASE_HPP

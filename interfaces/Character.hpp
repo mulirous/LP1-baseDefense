@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <list>
+#include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include "Projectile.hpp"
 
 /// @brief An abstract class to serve as base to Hero and Enemy
@@ -21,27 +22,26 @@ protected:
     int currentLife;
     /// @brief Position of character on screen
     sf::Vector2f currentPosition;
+    std::shared_ptr<sf::Sprite> sprite;
 
 public:
-    Character(float width, float height, float speed, int maxLife, float posX, float posY) : width(width), height(height), speed(speed),
-                                                                                             maximumLife(maxLife), currentLife(maxLife), currentPosition(posX, posY) {};
-    Character(float width, float height, float speed, int maxLife, sf::Vector2f position) : Character(width, height, speed, maxLife, position.x, position.y) {};
+    Character(float width, float height, float speed, int maxLife, float posX, float posY, std::string filepath);
+    Character(float width, float height, float speed, int maxLife, sf::Vector2f position, std::string filepath);
     virtual ~Character() = default;
-    float getWidth() { return this->width; }
-    float getHeigth() { return this->height; }
-    float getSpeed() { return this->speed; }
-    int getMaxLife() { return this->maximumLife; }
-    int getLife() { return this->currentLife; }
-    sf::Vector2f getCurrentPosition() { return this->currentPosition; }
+    float getWidth();
+    float getHeigth();
+    float getSpeed();
+    int getMaxLife();
+    int getLife();
+    sf::Vector2f getCurrentPosition();
     /// @brief Get bounds for character
     /// @return A FloatRect object that represents bounds
-    sf::FloatRect getGlobalBounds() { return sf::FloatRect(this->currentPosition.x, this->currentPosition.y, this->width, this->height); }
-    void setCurrentPosition(sf::Vector2f &position) { this->currentPosition = position; }
-
+    sf::FloatRect getGlobalBounds();
+    void setCurrentPosition(sf::Vector2f &position);
     bool isCollidingWith(const sf::FloatRect &rect);
     bool isCollidingWith(std::shared_ptr<Character> other);
     void resolveCollision(std::shared_ptr<Character> other);
     virtual void doAttack(sf::Vector2f &target) = 0;
     virtual void move(float deltaTime = {}) = 0;
-    virtual sf::Sprite &getSprite() = 0;
+    std::shared_ptr<sf::Sprite> getSprite();
 };

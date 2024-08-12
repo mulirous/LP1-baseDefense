@@ -3,19 +3,16 @@
 #include <cmath>
 
 Hero::Hero(float width, float height, float speed, int maxLife, float posX, float posY)
-    : Character(width, height, speed, maxLife, posX, posY)
+    : Character(width, height, speed, maxLife, posX, posY, HERO_IMAGE)
 {
     currentFrame = 0;
     frameTime = 0.1f;
     timeSinceLastFrame = 0;
-    texture.loadFromFile(HERO_IMAGE);
-    sprite.setTexture(texture);
     frameSize = sf::Vector2i(width, height);
-    sprite.setTextureRect(sf::IntRect(0, 0, frameSize.x, frameSize.y));
-    sprite.setPosition(posX, posY);
-    weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
+    sprite->setTextureRect(sf::IntRect(0, 0, frameSize.x, frameSize.y));
+    sprite->setScale(1.5f, 1.5f);
 
-    sprite.setScale(1.5f, 1.5f);
+    weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
 };
 
 void Hero::takeDamage(int damage)
@@ -42,7 +39,7 @@ void Hero::move(float deltaTime)
         currentSpeed += 4;
     }
 
-    sf::Vector2f currentPosition = sprite.getPosition();
+    sf::Vector2f currentPosition = sprite->getPosition();
     sf::Vector2f direction = this->targetPosition - currentPosition;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -52,26 +49,22 @@ void Hero::move(float deltaTime)
     direction /= distance;
 
     deltaTime = 0.08f;
-    sprite.move(direction * currentSpeed * deltaTime);
+    sprite->move(direction * currentSpeed * deltaTime);
 
-    sf::Vector2f newPosition = sprite.getPosition();
+    sf::Vector2f newPosition = sprite->getPosition();
     this->setCurrentPosition(newPosition);
     updateAnimation(deltaTime);
 }
 
-sf::Vector2f Hero::getPosition()
-{
-    return sprite.getPosition();
-}
-
 void Hero::updateAnimation(float deltaTime)
 {
+    sf::Texture texture = *ResourceManager::getTexture(HERO_IMAGE); // urgently remove this
     timeSinceLastFrame += deltaTime;
     if (timeSinceLastFrame >= frameTime)
     {
         timeSinceLastFrame = 0.0f;
         currentFrame = (currentFrame + 1) % (texture.getSize().x / frameSize.x);
-        sprite.setTextureRect(sf::IntRect(currentFrame * frameSize.x, 0, frameSize.x, frameSize.y));
+        sprite->setTextureRect(sf::IntRect(currentFrame * frameSize.x, 0, frameSize.x, frameSize.y));
     }
 }
 

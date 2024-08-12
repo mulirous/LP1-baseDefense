@@ -14,8 +14,6 @@
 class Hero : public Character
 {
 protected:
-    sf::Sprite sprite;
-    sf::Texture texture;
     sf::Vector2i frameSize;
     int currentFrame;
     float frameTime;
@@ -36,9 +34,6 @@ public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY);
 
     void updateAnimation(float deltaTime);
-    sf::Sprite &getSprite() override { return sprite; } // Implement the pure virtual function
-    sf::Vector2f getPosition();
-
     std::shared_ptr<RangedWeapon> getRangedWeapon();
     void setTargetPosition(sf::Vector2f target);
     void takeDamage(int damage);

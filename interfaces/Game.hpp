@@ -81,16 +81,6 @@ protected:
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
-    /// @brief Textures for hero, enemy, and base
-    sf::Texture heroTexture;
-    sf::Texture enemyTexture;
-    sf::Texture baseTexture;
-
-    /// @brief Sprites for hero, enemy, and base
-    sf::Sprite heroSprite;
-    sf::Sprite enemySprite;
-    sf::Sprite baseSprite;
-
     /// @brief Adds a new enemy to game
     /// @note Internally, it adds a enemy to enemies's list
     void spawnEnemy();

@@ -6,9 +6,6 @@
 #include "../interfaces/Potion.hpp"
 #include "../interfaces/Quiver.hpp"
 
-using namespace sf;
-using namespace std;
-
 Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
 {
     srand(static_cast<unsigned>(time(0)));
@@ -17,9 +14,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     enemies = std::make_shared<std::list<std::shared_ptr<Enemy>>>();
     drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
     gameWindow = window;
-    float windowCenterX = gameWindow->getSize().x / 2.0f;
-    float windowCenterY = gameWindow->getSize().y / 2.0f;
-    base = std::make_shared<Base>(/*radius=*/50.f, /*maxLife=*/400, /*currentLife=*/400, windowCenterX, windowCenterY);
     animationManager = std::make_shared<AnimationManager>();
 };
 
@@ -81,17 +75,17 @@ void Game::renderStatus()
 
 void Game::render()
 {
-    Texture backgroundTexture;
+    sf::Texture backgroundTexture;
     if (!backgroundTexture.loadFromFile(BACKGROUND_GAME))
     {
         cout << "Background load failed." << endl;
         return;
     }
-    Sprite backgroundSprite;
+    sf::Sprite backgroundSprite;
     backgroundSprite.setTexture(backgroundTexture);
 
-    Vector2u textureSize = backgroundTexture.getSize();
-    Vector2u windowSize = gameWindow->getSize();
+    sf::Vector2u textureSize = backgroundTexture.getSize();
+    sf::Vector2u windowSize = gameWindow->getSize();
 
     float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
     float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
@@ -100,8 +94,13 @@ void Game::render()
 
     gameWindow->clear(Color::White);
     gameWindow->draw(backgroundSprite);
-    gameWindow->draw(base->getSprite());
-    gameWindow->draw(hero->getSprite());
+    if (base->getSprite() == nullptr)
+    {
+        std::cout << "sprite is null";
+        return;
+    }
+    gameWindow->draw(*base->getSprite());
+    gameWindow->draw(*hero->getSprite());
 
     for (const auto &enemy : *enemies)
     {
@@ -193,12 +192,12 @@ void Game::update(float deltaTime)
             {
                 if (randNum % 5 == 0)
                 {
-                    auto basePosition = sf::Vector2f(base->getSprite().getPosition());
+                    auto basePosition = sf::Vector2f(base->getSprite()->getPosition());
                     enemy->doAttack(basePosition);
                 }
                 else
                 {
-                    auto heroPosition = sf::Vector2f(hero->getSprite().getPosition());
+                    auto heroPosition = sf::Vector2f(hero->getSprite()->getPosition());
                     enemy->doAttack(heroPosition);
                 }
             }
@@ -260,7 +259,7 @@ void Game::update(float deltaTime)
         {
             auto item = drop->getItem();
             hero->useItem(item);
-            drop->setUsed(true);
+            drop->markAsUsed();
             continue;
         }
     }
