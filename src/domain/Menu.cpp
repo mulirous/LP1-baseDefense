@@ -58,169 +58,118 @@ void Menu::init()
     this->mousePosition = sf::Vector2f(0, 0);
     this->mouseCords = sf::Vector2f(0, 0);
 
-    this->menuOptions = {
+    this->menuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
         {"START", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
-        {"ABOUT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 282)},
-        {"EXIT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 370)}
-    };
+        {"ABOUT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
+        {"EXIT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)}});
 
-    if (this->menuOptions.size() == 0)
+    this->options = std::make_shared<std::vector<sf::Text>>(this->menuOptions->size());
+
+    for (int i = 0; i < this->menuOptions->size(); i++)
     {
-        std::cout << "Menu options is empty.\n";
-    }
-    else
-    {
-        std::cout << "Menu options initialized successfully.\n";
-    }
-
-    // RAPAZEADA, O ERRO TÁ NESSE TRECHO AQUI
-
-    this->options.clear();
-    this->options.resize(this->menuOptions.size());
-
-    for (int i = 0; i < this->menuOptions.size(); i++) {
         if (this->font)
         {
-            this->options[i].setFont(*font);
+            (*this->options)[i].setFont(*font);
         }
-        this->options[i].setString(this->menuOptions[i].text);
-        this->options[i].setCharacterSize(this->menuOptions[i].size);
-        this->options[i].setFillColor(sf::Color::White);
-        this->options[i].setPosition(this->menuOptions[i].position);
+        (*this->options)[i].setString(this->menuOptions->at(i).text);
+        (*this->options)[i].setCharacterSize(this->menuOptions->at(i).size);
+        (*this->options)[i].setFillColor(sf::Color::White);
+        (*this->options)[i].setPosition(this->menuOptions->at(i).position);
     }
 
-    if (options.empty()) {
-        std::cout << "Options vector is empty after initialization.\n";
-    } else {
-        std::cout << "Options vector initialized with " << options.size() << " elements.\n";
-    }
-
-    options[0].setOutlineThickness(2);
-
-    // FIM DO TRECHO DO ERRO
+    (*options)[0].setOutlineThickness(2);
 }
 
 bool Menu::run()
 {
     auto windowPtr = window.lock();
     if (!windowPtr)
-    {
-        std::cout << "Window pointer is null in run.\n";
         return true;
-    }
-
-    std::cout << "Entering main loop.\n";
 
     while (windowPtr->isOpen())
     {
-        std::cout << "Calling drawAll.\n";
         drawAll();
-        std::cout << "Calling handleActions.\n";
         MenuActions action = handleActions();
 
         switch (action)
         {
         case MenuActions::START:
-            std::cout << "Starting the game.\n";
             return false;
         case MenuActions::ABOUT:
-            std::cout << "Showing about screen.\n";
             showAbout();
             break;
         case MenuActions::EXIT:
-            std::cout << "Exiting the game.\n";
             windowPtr->close();
             break;
         default:
-            std::cout << "No action taken.\n";
             break;
         }
     }
 
-    std::cout << "Exiting main loop.\n";
     return true;
 }
 
 void Menu::drawAll()
 {
-    std::cout << "drawAll: Acquired window lock.\n";
     auto windowPtr = window.lock();
     if (!windowPtr)
-    {
-        std::cout << "Window pointer is null in drawAll.\n";
         return;
-    }
 
-    std::cout << "drawAll: Clearing window.\n";
     windowPtr->clear();
 
-    std::cout << "drawAll: Drawing background.\n";
     windowPtr->draw(*bg);
-
-    std::cout << "drawAll: Drawing menu options.\n";
-    for (const auto &t : this->options)
+    for (const auto &opt : *this->options)
     {
-        windowPtr->draw(t);
+        windowPtr->draw(opt);
     }
 
-    std::cout << "drawAll: Displaying window.\n";
     windowPtr->display();
 }
 
 MenuActions Menu::handleActions()
 {
-    std::cout << "handleActions: Acquired window lock.\n";
     sf::Event menuEvent;
     auto windowPtr = window.lock();
     if (!windowPtr)
-    {
-        std::cout << "Window pointer is null in handleActions.\n";
         return MenuActions::EXIT;
-    }
 
     while (windowPtr->pollEvent(menuEvent))
     {
-        std::cout << "handleActions: Polling event.\n";
         switch (menuEvent.type)
         {
         case sf::Event::Closed:
-            std::cout << "handleActions: Window closed event.\n";
             windowPtr->close();
             break;
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !pressed)
         {
-            std::cout << "handleActions: Down key pressed.\n";
-            if (this->current < this->options.size() - 1)
+            if (this->current < this->options->size() - 1)
             {
                 ++this->current;
                 this->pressed = true;
-                this->options[this->current].setOutlineThickness(2);
+                (*this->options)[this->current].setOutlineThickness(2);
                 if (this->current > 0)
                 {
-                    this->options[this->current - 1].setOutlineThickness(0);
+                    (*this->options)[this->current - 1].setOutlineThickness(0);
                 }
                 this->pressed = false;
                 this->selected = false;
-                std::cout << "handleActions: Current option set to " << this->current << ".\n";
             }
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !pressed)
         {
-            std::cout << "handleActions: Up key pressed.\n";
             if (this->current > 0)
             {
                 --this->current;
                 this->pressed = true;
-                this->options[this->current].setOutlineThickness(2);
-                if (this->current < this->options.size() - 1)
+                (*this->options)[this->current].setOutlineThickness(2);
+                if (this->current < this->options->size() - 1)
                 {
-                    this->options[this->current + 1].setOutlineThickness(0);
+                    (*this->options)[this->current + 1].setOutlineThickness(0);
                 }
                 this->pressed = false;
                 this->selected = false;
-                std::cout << "handleActions: Current option set to " << this->current << ".\n";
             }
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
@@ -236,7 +185,6 @@ MenuActions Menu::handleActions()
         }
     }
 
-    std::cout << "handleActions: Exiting.\n";
     return MenuActions::NONE;
 }
 
@@ -244,10 +192,7 @@ void Menu::showAbout()
 {
     auto windowPtr = window.lock();
     if (!windowPtr)
-    {
-        std::cout << "Window pointer is null in showAbout.\n";
         return;
-    }
 
     sf::Text infoText;
     if (!font)
@@ -288,9 +233,9 @@ void Menu::showAbout()
             sf::Event event;
             while (windowPtr->pollEvent(event))
             {
+                // Exiting 'about' screen
                 if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
                 {
-                    std::cout << "Exiting about screen.\n";
                     return;
                 }
             }

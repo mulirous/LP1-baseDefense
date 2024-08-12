@@ -21,9 +21,8 @@ private:
     sf::Vector2f mouseCords;
     sf::Vector2f mousePosition;
 
-    // IMPLEMENTÇÃO DOS VETORES QUE ESTÃO DANDO UM ERRO ENORME
-    std::vector<MenuOptions> menuOptions;
-    std::vector<sf::Text> options;
+    std::shared_ptr<std::vector<MenuOptions>> menuOptions;
+    std::shared_ptr<std::vector<sf::Text>> options;
 
     /// @brief Show the About Screen with the infos about Us, the developers
     void showAbout();
@@ -47,7 +46,6 @@ public:
         bg = std::make_unique<sf::Sprite>();
         init();
     }
-
 
     ~Menu() = default;
     bool run();
