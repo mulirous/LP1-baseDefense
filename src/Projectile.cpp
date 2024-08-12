@@ -20,3 +20,18 @@ bool Projectile::isOffScreen() const
     return (bounds.left + bounds.width < 0 || bounds.left > GAME_WINDOW_WIDTH ||
             bounds.top + bounds.height < 0 || bounds.top > GAME_WINDOW_HEIGHT);
 }
+
+const sf::CircleShape &Projectile::getShape()
+{
+    return this->shape;
+}
+
+sf::FloatRect Projectile::getBounds()
+{
+    return shape.getGlobalBounds();
+}
+
+int Projectile::getDamage()
+{
+    return this->damage;
+}

@@ -1,5 +1,4 @@
-#ifndef RANGED_WEAPON_HPP
-#define RANGED_WEAPON_HPP
+#pragma once
 #include "Weapon.hpp"
 #include "Projectile.hpp"
 #include <SFML/Graphics.hpp>
@@ -21,7 +20,6 @@ private:
     sf::Vector2f target;
     /// @brief Launched projectiles of weapon on screen
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> launchedProjectiles;
-
     /// @brief Makes an attack
     /// @note Only attack if there is remaining ammo and if the weapon's release time has passed
     /// @returns void
@@ -29,13 +27,11 @@ private:
 
 public:
     RangedWeapon(int range, float releaseTime, int ammo);
-
-    std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles() { return this->launchedProjectiles; }
-    int getAmmo() { return this->ammo; }
+    std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles();
+    int getAmmo();
     void addAmmo(int ammo);
-    void setCurrentPosition(const sf::Vector2f &position) { this->currentPosition = position; }
-    void setTarget(const sf::Vector2f &target) { this->target = target; }
-
+    void setCurrentPosition(const sf::Vector2f &position);
+    void setTarget(const sf::Vector2f &target);
     /// @brief Represents the ranged weapon's attack.
     /// @param target Target's position on Vector2f type
     /// @param currentPosition Character's current position on Vector2f type
@@ -43,4 +39,3 @@ public:
     void shoot(sf::Vector2f &target, sf::Vector2f &currentPosition);
     bool isReadyToAttack() override;
 };
-#endif

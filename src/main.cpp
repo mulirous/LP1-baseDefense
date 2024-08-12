@@ -17,7 +17,6 @@ int main()
     }
 
     auto newHero = std::make_shared<Hero>(50, 50, 15, 100, 600, 400);
-    // PROBLEM IS HERE!!!!!11
     auto newBase = std::make_shared<Base>(500, CENTER_X, CENTER_Y);
     auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window");
     Menu mainMenu(window);

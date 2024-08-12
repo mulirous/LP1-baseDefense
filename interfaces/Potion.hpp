@@ -11,6 +11,8 @@ private:
     int healAmount;
 
 public:
-    Potion() : healAmount(10), Item(POTION_IMAGE) {};
-    int getHealAmount() { return healAmount; }
+    Potion();
+    Potion(int healAmount);
+    ~Potion() = default;
+    int getHealAmount();
 };

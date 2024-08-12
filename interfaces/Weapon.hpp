@@ -17,7 +17,6 @@ public:
     Weapon(int range, float releaseTime);
     virtual ~Weapon() = default;
     float getReleaseTime();
-
     /// @brief Makes an attack
     virtual void doAttack() = 0;
     virtual bool isReadyToAttack() = 0;

@@ -47,3 +47,23 @@ bool RangedWeapon::isReadyToAttack()
 {
     return this->releaseTimeCounter.getElapsedTime().asSeconds() >= this->releaseTime;
 }
+
+std::shared_ptr<std::list<std::shared_ptr<Projectile>>> RangedWeapon::getLaunchedProjectiles()
+{
+    return this->launchedProjectiles;
+}
+
+int RangedWeapon::getAmmo()
+{
+    return this->ammo;
+}
+
+void RangedWeapon::setCurrentPosition(const sf::Vector2f &position)
+{
+    this->currentPosition = position;
+}
+
+void RangedWeapon::setTarget(const sf::Vector2f &target)
+{
+    this->target = target;
+}

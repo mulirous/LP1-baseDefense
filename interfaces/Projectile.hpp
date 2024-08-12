@@ -21,12 +21,9 @@ private:
 
 public:
     Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target);
-
-    const sf::CircleShape &getShape() { return this->shape; }
-    sf::FloatRect getBounds() { return shape.getGlobalBounds(); }
-    int getDamage() { return this->damage; }
-
+    const sf::CircleShape &getShape();
+    sf::FloatRect getBounds();
+    int getDamage();
     void update(float deltaTime);
-
     bool isOffScreen() const;
 };

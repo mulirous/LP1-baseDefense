@@ -9,6 +9,7 @@ private:
     int arrows;
 
 public:
-    Quiver(int arrows) : Item(QUIVER_IMAGE) { this->arrows = arrows; }
-    int getArrows() { return this->arrows; }
+    Quiver();
+    Quiver(int arrows);
+    int getArrows();
 };
