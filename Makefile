@@ -1,6 +1,7 @@
 TARGET = app.exe
 SRC_DIR = src
 MODULE_DIR = src/modules
+INTERFACE_DIR = src/interfaces
 BUILD_DIR = bin
 OBJ_DIR = $(BUILD_DIR)/src
 INCLUDE_DIR = sfml/include
@@ -8,12 +9,12 @@ LIB_DIR = sfml/lib
 
 CXX = g++
 CXXFLAGS = -std=c++17 -g3 -Wall -Wextra
-LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
-INC = -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(SRC_DIR)/domain -I$(SRC_DIR)/domain/interfaces -I$(MODULE_DIR)/animation/src -I$(MODULE_DIR)/texture_manager/src
+LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio 
+INC = -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(INTERFACE_DIR) -I$(MODULE_DIR)/animation/src -I$(MODULE_DIR)/texture_manager/src
 
 # Gets all .cpp files and transform them into .o files
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp) $(MODULE_DIR)/animation/src/AnimationManager.cpp $(MODULE_DIR)/texture_manager/src/ResourceManager.cpp
-OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp) $(MODULE_DIR)/animation/src/AnimationManager.cpp $(MODULE_DIR)/texture_manager/src/ResourceManager.cpp 
+OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES)) 
 
 # Instructions to compile any .cpp file into a .o file
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -22,7 +23,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 # Creates the .exe file
 compile: $(OBJECTS)
-	g++ -o $(BUILD_DIR)/$(TARGET) $^ $(LDFLAGS)
+	g++ -o $(BUILD_DIR)/$(TARGET) $^ $(LDFLAGS) 
 
 # Delete the .exe file and the generated .o files
 clean:

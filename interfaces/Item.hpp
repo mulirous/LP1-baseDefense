@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "../modules/texture_manager/src/ResourceManager.hpp"
+#include "../src/modules/texture_manager/src/ResourceManager.hpp"
 
 /// @brief Abstract class to represent an item
 class Item

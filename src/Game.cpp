@@ -1,10 +1,10 @@
-#include "interfaces/Game.hpp"
-#include "interfaces/Enemy.hpp"
+#include "../interfaces/Game.hpp"
+#include "../interfaces/Enemy.hpp"
 #include "../common.h"
 #include <iostream>
 #include <math.h>
-#include "interfaces/Potion.hpp"
-#include "Quiver.hpp"
+#include "../interfaces/Potion.hpp"
+#include "../interfaces/Quiver.hpp"
 
 using namespace sf;
 using namespace std;

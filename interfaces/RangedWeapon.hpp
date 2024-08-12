@@ -28,19 +28,11 @@ private:
     void doAttack() override;
 
 public:
-    RangedWeapon(int range, float releaseTime, int ammo) : Weapon(range, releaseTime), ammo(ammo)
-    {
-        launchedProjectiles = std::make_shared<std::list<std::shared_ptr<Projectile>>>();
-    }
+    RangedWeapon(int range, float releaseTime, int ammo);
 
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles() { return this->launchedProjectiles; }
     int getAmmo() { return this->ammo; }
-    void addAmmo(int ammo)
-    {
-        if (this->ammo + ammo > 100)
-            return;
-        this->ammo += ammo;
-    }
+    void addAmmo(int ammo);
     void setCurrentPosition(const sf::Vector2f &position) { this->currentPosition = position; }
     void setTarget(const sf::Vector2f &target) { this->target = target; }
 

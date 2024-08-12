@@ -1,5 +1,5 @@
-#ifndef HERO_HPP
-#define HERO_HPP
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include "Character.hpp"
 #include "Quiver.hpp"
@@ -74,5 +74,3 @@ public:
         }
     }
 };
-
-#endif

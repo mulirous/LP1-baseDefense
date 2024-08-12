@@ -1,5 +1,30 @@
-#include "interfaces/Enemy.hpp"
+#include "../interfaces/Enemy.hpp"
 #include <cmath>
+
+Enemy::Enemy(float width, float height, float speed, int maxLife, float x, float y, float cX, float cY)
+    : Character(width, height, speed, maxLife, x, y), centerX(cX), centerY(cY)
+{
+    shape.setFillColor(sf::Color::Red);
+    shape.setRadius(width / 2);
+    shape.setPosition(this->currentPosition);
+    weapon = std::make_shared<RangedWeapon>(5, 2, 50);
+    state = EnemyState::ALIVE;
+    int num = getRandomNumber(0, 100);
+
+    drop = num >= 60 ? true : false;
+};
+
+bool Enemy::isDead()
+{
+    return this->state == EnemyState::DEAD;
+}
+
+void Enemy::kill()
+{
+    this->state = EnemyState::DEAD;
+    clockDeath = sf::Clock();
+    clockDeath.restart();
+}
 
 void Enemy::move(float deltaTime)
 {

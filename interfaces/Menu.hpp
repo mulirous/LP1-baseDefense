@@ -1,7 +1,7 @@
-#pragma once // instead of ifndef and define
+#pragma once
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "enums/MenuActions.h"
+#include "../enums/MenuActions.h"
 #include <iostream>
 
 class Menu

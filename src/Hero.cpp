@@ -1,4 +1,4 @@
-#include "interfaces/Hero.hpp"
+#include "../interfaces/Hero.hpp"
 #include <SFML/Graphics.hpp>
 #include <cmath>
 

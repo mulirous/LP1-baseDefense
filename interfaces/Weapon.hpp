@@ -1,5 +1,5 @@
-#ifndef WEAPON_HPP
-#define WEAPON_HPP
+#pragma once
+
 #include <SFML/Graphics.hpp>
 
 /// @brief An abstract class that represents a generic weapon
@@ -10,18 +10,15 @@ protected:
     int range;
     /// @brief Time in seconds between attacks
     float releaseTime;
+    /// @brief
     sf::Clock releaseTimeCounter;
 
 public:
-    Weapon(int range, float releaseTime) : range(range), releaseTime(releaseTime)
-    {
-        sf::Clock newClock;
-        releaseTimeCounter = newClock;
-    }
+    Weapon(int range, float releaseTime);
     virtual ~Weapon() = default;
-    float getReleaseTime() { return this->releaseTime; }
+    float getReleaseTime();
+
     /// @brief Makes an attack
     virtual void doAttack() = 0;
     virtual bool isReadyToAttack() = 0;
 };
-#endif

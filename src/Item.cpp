@@ -1,4 +1,4 @@
-#include "interfaces/Item.hpp"
+#include "../interfaces/Item.hpp"
 
 Item::Item(const std::string &filepath)
 {

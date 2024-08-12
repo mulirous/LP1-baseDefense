@@ -1,10 +1,10 @@
 #pragma once
-#include "../interfaces/Item.hpp"
+#include "Item.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <iostream>
 #include <random>
-#include "../modules/texture_manager/src/ResourceManager.hpp"
+#include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <optional>
 
 /// @brief Enemy's drop

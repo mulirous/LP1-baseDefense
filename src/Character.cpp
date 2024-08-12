@@ -1,4 +1,4 @@
-#include "interfaces/Character.hpp"
+#include "../interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
 bool Character::isCollidingWith(const sf::FloatRect &rect)

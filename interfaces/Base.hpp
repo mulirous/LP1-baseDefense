@@ -1,7 +1,7 @@
-#ifndef BASE_HPP
-#define BASE_HPP
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include "../common.h"
 
 class Base
 {
@@ -45,5 +45,3 @@ public:
         return baseSprite.getGlobalBounds().intersects(other);
     }
 };
-
-#endif

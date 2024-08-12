@@ -1,8 +1,9 @@
 #pragma once
+
 #include "Item.hpp"
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "common.h"
+#include "../common.h"
 
 class Potion : public Item
 {

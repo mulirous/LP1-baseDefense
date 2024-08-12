@@ -1,7 +1,7 @@
-#include "domain/interfaces/Game.hpp"
-#include "domain/interfaces/Menu.hpp"
-#include "enums/GameState.h"
-#include "common.h"
+#include "../interfaces/Game.hpp"
+#include "../interfaces/Menu.hpp"
+#include "../enums/GameState.h"
+#include "../common.h"
 #include "modules/texture_manager/src/ResourceManager.hpp"
 
 const float CENTER_X = GAME_WINDOW_WIDTH / 2;

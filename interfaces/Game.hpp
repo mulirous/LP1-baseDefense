@@ -1,5 +1,4 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#pragma once
 #include "Enemy.hpp"
 #include "Hero.hpp"
 #include "Base.hpp"
@@ -9,7 +8,7 @@
 #include <memory>
 #include <type_traits>
 #include "Projectile.hpp"
-#include "../../modules/animation/src/AnimationManager.hpp"
+#include "../src/modules/animation/src/AnimationManager.hpp"
 
 /// @brief The central point of all game.
 class Game
@@ -95,6 +94,9 @@ protected:
     /// @brief Adds a new enemy to game
     /// @note Internally, it adds a enemy to enemies's list
     void spawnEnemy();
+    /// @brief Adds a new drop to game
+    /// @param enemyPosition Position on drop will spawn
+    /// @note Internally, adds drop to drops's list
     void spawnDrop(sf::Vector2f &enemyPosition);
 
     /// @brief Process events like inputs.
@@ -117,5 +119,3 @@ public:
     /// @brief Start point to run game.
     void run();
 };
-
-#endif
