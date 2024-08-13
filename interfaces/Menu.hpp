@@ -1,8 +1,7 @@
-#pragma once // instead of ifndef and define
+#pragma once
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "structs.h"
-#include "enums/MenuActions.h"
+#include "../enums/MenuActions.h"
 #include <iostream>
 
 class Menu
@@ -48,7 +47,6 @@ public:
         bg = std::make_unique<sf::Sprite>();
         init();
     }
-
 
     ~Menu() = default;
     bool run();
