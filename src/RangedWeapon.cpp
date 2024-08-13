@@ -1,7 +1,12 @@
-#include "interfaces/RangedWeapon.hpp"
+#include "../interfaces/RangedWeapon.hpp"
 #include <math.h>
-#include "common.h"
+#include "../common.h"
 #include <iostream>
+
+RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo) : Weapon(range, releaseTime), ammo(ammo)
+{
+    launchedProjectiles = std::make_shared<std::list<std::shared_ptr<Projectile>>>();
+}
 
 std::shared_ptr<Projectile> RangedWeapon::launchProjectile()
 {
@@ -10,6 +15,13 @@ std::shared_ptr<Projectile> RangedWeapon::launchProjectile()
     direction = sf::Vector2f(direction.x / length, direction.y / length);
 
     return std::make_shared<Projectile>(10, PROJECTILE_VELOCITY, this->currentPosition, direction);
+}
+
+void RangedWeapon::addAmmo(int ammo)
+{
+    if (this->ammo + ammo > 100)
+        return;
+    this->ammo += ammo;
 }
 
 void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition)
@@ -34,4 +46,24 @@ void RangedWeapon::doAttack()
 bool RangedWeapon::isReadyToAttack()
 {
     return this->releaseTimeCounter.getElapsedTime().asSeconds() >= this->releaseTime;
+}
+
+std::shared_ptr<std::list<std::shared_ptr<Projectile>>> RangedWeapon::getLaunchedProjectiles()
+{
+    return this->launchedProjectiles;
+}
+
+int RangedWeapon::getAmmo()
+{
+    return this->ammo;
+}
+
+void RangedWeapon::setCurrentPosition(const sf::Vector2f &position)
+{
+    this->currentPosition = position;
+}
+
+void RangedWeapon::setTarget(const sf::Vector2f &target)
+{
+    this->target = target;
 }

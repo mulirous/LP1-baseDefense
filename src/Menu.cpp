@@ -1,5 +1,5 @@
-#include "interfaces/Menu.hpp"
-#include "common.h"
+#include "../interfaces/Menu.hpp"
+#include "../common.h"
 #include <iostream>
 
 void Menu::init()
@@ -11,28 +11,15 @@ void Menu::init()
     {
         std::cout << "Can't load font :(\n";
     }
-    else
-    {
-        std::cout << "Font loaded successfully.\n";
-    }
 
     if (!(this->image->loadFromFile(MENU_IMAGE)))
     {
         std::cout << "Can't load menu image :(\n";
     }
-    else
-    {
-        std::cout << "Menu image loaded successfully.\n";
-    }
 
-    if (!this->bg)
-    {
-        std::cout << "Background sprite is null.\n";
-    }
-    else
+    if (this->bg)
     {
         this->bg->setTexture(*image);
-        std::cout << "Background texture set successfully.\n";
     }
 
     auto windowPtr = window.lock();
@@ -48,11 +35,6 @@ void Menu::init()
         float newHeight = imageSize.y * scaleX;
         float offsetY = (windowSize.y - newHeight) / 2;
         bg->setPosition(0, offsetY);
-        std::cout << "Window pointer valid, scale and position set.\n";
-    }
-    else
-    {
-        std::cout << "Window pointer is null.\n";
     }
 
     this->mousePosition = sf::Vector2f(0, 0);
@@ -174,7 +156,6 @@ MenuActions Menu::handleActions()
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
         {
-            std::cout << "handleActions: Enter key pressed.\n";
             this->selected = true;
             if (this->current == 0)
                 return MenuActions::START;
@@ -195,56 +176,49 @@ void Menu::showAbout()
         return;
 
     sf::Text infoText;
-    if (!font)
+    infoText.setFont(*font);
+    infoText.setCharacterSize(15);
+    infoText.setFillColor(sf::Color::White);
+
+    std::string aboutText =
+        "Game Version 1.0\n"
+        "Developed by\n\n\n"
+        "Andriel Vinicius\n\n"
+        "   Performance Optimizer, Modularizer, Game Designer, Sound Engineer\n"
+        "   & Developer\n"
+        "\n\n"
+        "Flawbert Lorran\n\n"
+        "   Game Designer, Sound Engineer & Developer\n"
+        "\n\n"
+        "Murilo Costa\n\n"
+        "   Performance Optimizer, Modularizer & Developer\n";
+
+    infoText.setString(aboutText);
+    infoText.setPosition(100.f, 200.f);
+
+    sf::Text exitText;
+    exitText.setFont(*font);
+    exitText.setCharacterSize(18);
+    exitText.setFillColor(sf::Color::White);
+    exitText.setString("Press `Q` to return");
+    exitText.setPosition(420.f, 600.f);
+
+    while (windowPtr->isOpen())
     {
-        std::cout << "Font is null in showAbout.\n";
-    }
-    else
-    {
-        infoText.setFont(*font);
-        infoText.setCharacterSize(15);
-        infoText.setFillColor(sf::Color::White);
-
-        std::string aboutText =
-            "Game Version 1.0\n"
-            "Developed by\n\n\n"
-            "Andriel Vinicius\n\n"
-            "   Performance Optimizer, Modularizer, Game Designer, Sound Engineer\n"
-            "   & Developer\n"
-            "\n\n"
-            "Flawbert Lorran\n\n"
-            "   Game Designer, Sound Engineer & Developer\n"
-            "\n\n"
-            "Murilo Costa\n\n"
-            "   Performance Optimizer, Modularizer & Developer\n";
-
-        infoText.setString(aboutText);
-        infoText.setPosition(100.f, 200.f);
-
-        sf::Text exitText;
-        exitText.setFont(*font);
-        exitText.setCharacterSize(18);
-        exitText.setFillColor(sf::Color::White);
-        exitText.setString("Press `Q` to return");
-        exitText.setPosition(420.f, 600.f);
-
-        while (windowPtr->isOpen())
+        sf::Event event;
+        while (windowPtr->pollEvent(event))
         {
-            sf::Event event;
-            while (windowPtr->pollEvent(event))
+            // Exiting 'about' screen
+            if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
             {
-                // Exiting 'about' screen
-                if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-                {
-                    return;
-                }
+                return;
             }
-
-            windowPtr->clear();
-            windowPtr->draw(*bg);
-            windowPtr->draw(infoText);
-            windowPtr->draw(exitText);
-            windowPtr->display();
         }
+
+        windowPtr->clear();
+        windowPtr->draw(*bg);
+        windowPtr->draw(infoText);
+        windowPtr->draw(exitText);
+        windowPtr->display();
     }
 }
