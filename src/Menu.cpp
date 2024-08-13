@@ -1,5 +1,5 @@
-#include "interfaces/Menu.hpp"
-#include "common.h"
+#include "../interfaces/Menu.hpp"
+#include "../common.h"
 #include <iostream>
 
 void Menu::init()
@@ -99,7 +99,7 @@ MenuActions Menu::handleActions()
             // If user enters on start option, it should start the game
             if (this->current == 0)
                 return MenuActions::START;
-            
+
             // If user enters on start option, it should show the about
             if (this->current == (int)this->optionsTexts->size() - 2)
                 return MenuActions::ABOUT;
@@ -168,8 +168,8 @@ void Menu::showAbout()
     infoText.setFont(*font);
     infoText.setCharacterSize(15);
     infoText.setFillColor(sf::Color::White);
-    
-    std::string aboutText = 
+
+    std::string aboutText =
         "Game Version 1.0\n"
         "Developed by\n\n\n"
         "Andriel Vinicius\n\n"

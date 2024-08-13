@@ -1,11 +1,21 @@
-#include "interfaces/Game.hpp"
-#include "interfaces/Enemy.hpp"
+#include "../interfaces/Game.hpp"
+#include "../interfaces/Enemy.hpp"
 #include "../common.h"
 #include <iostream>
 #include <math.h>
+#include "../interfaces/Potion.hpp"
+#include "../interfaces/Quiver.hpp"
 
-using namespace sf;
-using namespace std;
+Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
+{
+    srand(static_cast<unsigned>(time(0)));
+    centerX = x;
+    centerY = y;
+    enemies = std::make_shared<std::list<std::shared_ptr<Enemy>>>();
+    drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
+    gameWindow = window;
+    animationManager = std::make_shared<AnimationManager>();
+};
 
 void Game::run()
 {
@@ -30,6 +40,7 @@ void Game::run()
         }
     }
 }
+
 void Game::renderStatus()
 {
     Font font = Font();
@@ -64,17 +75,17 @@ void Game::renderStatus()
 
 void Game::render()
 {
-    Texture backgroundTexture;
+    sf::Texture backgroundTexture;
     if (!backgroundTexture.loadFromFile(BACKGROUND_GAME))
     {
         cout << "Background load failed." << endl;
         return;
     }
-    Sprite backgroundSprite;
+    sf::Sprite backgroundSprite;
     backgroundSprite.setTexture(backgroundTexture);
 
-    Vector2u textureSize = backgroundTexture.getSize();
-    Vector2u windowSize = gameWindow->getSize();
+    sf::Vector2u textureSize = backgroundTexture.getSize();
+    sf::Vector2u windowSize = gameWindow->getSize();
 
     float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
     float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
@@ -83,12 +94,19 @@ void Game::render()
 
     gameWindow->clear(Color::White);
     gameWindow->draw(backgroundSprite);
-    gameWindow->draw(base->getSprite());
-    gameWindow->draw(hero->getSprite());
+    if (base->getSprite() == nullptr)
+    {
+        std::cout << "sprite is null";
+        return;
+    }
+    gameWindow->draw(*base->getSprite());
+    gameWindow->draw(*hero->getSprite());
 
     for (const auto &enemy : *enemies)
     {
-        gameWindow->draw(enemy->getShape());
+        if (!enemy->isDead())
+            gameWindow->draw(enemy->getShape());
+
         auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
         if (!enemyProjectiles.empty())
         {
@@ -97,6 +115,11 @@ void Game::render()
                 gameWindow->draw(projectile->getShape());
             }
         }
+    }
+
+    for (const auto &drop : *drops)
+    {
+        gameWindow->draw(*drop->getItemSprite());
     }
 
     auto heroProjectiles = *hero->getRangedWeapon()->getLaunchedProjectiles();
@@ -152,21 +175,35 @@ void Game::update(float deltaTime)
     // Updates everything related to enemies
     for (const auto &enemy : *enemies)
     {
-        enemy->move(deltaTime);
-        int randNum = rand();
-        if (randNum % 2 == 0)
+        // Enemy is only erased if enough time has passed; meanwhile, it continues
+        if (enemy->isDead())
         {
-            if (randNum % 5 == 0)
+            if (enemy->getTimeSinceDeath() >= 5)
             {
-                auto basePosition = sf::Vector2f(base->getSprite().getPosition());
-                enemy->doAttack(basePosition);
-            }
-            else
-            {
-                auto heroPosition = sf::Vector2f(hero->getSprite().getPosition());
-                enemy->doAttack(heroPosition);
+                enemies->erase(remove(enemies->begin(), enemies->end(), enemy), enemies->end());
+                continue;
             }
         }
+        else
+        {
+            enemy->move(deltaTime);
+            int randNum = rand();
+            if (randNum % 2 == 0)
+            {
+                if (randNum % 5 == 0)
+                {
+                    auto basePosition = sf::Vector2f(base->getSprite()->getPosition());
+                    enemy->doAttack(basePosition);
+                }
+                else
+                {
+                    auto heroPosition = sf::Vector2f(hero->getSprite()->getPosition());
+                    enemy->doAttack(heroPosition);
+                }
+            }
+        }
+
+        // Handle enemy's projectiles that are on screen
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
         for (auto &projectile : *enemyProjectiles)
         {
@@ -184,8 +221,12 @@ void Game::update(float deltaTime)
         }
     }
 
+    // Resolve collisions
     for (const auto &enemy : *enemies)
     {
+        if (enemy->isDead())
+            continue;
+
         if (hero->isCollidingWith(enemy))
         {
             hero->resolveCollision(enemy);
@@ -195,6 +236,7 @@ void Game::update(float deltaTime)
         {
             base->takeDamage(50);
             enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
+            continue;
         }
 
         for (const auto &otherEnemy : *enemies)
@@ -205,20 +247,37 @@ void Game::update(float deltaTime)
             }
         }
     }
+
+    for (const auto &drop : *drops)
+    {
+        if (drop->hasExpired())
+        {
+            drops->erase(std::remove(drops->begin(), drops->end(), drop), drops->end());
+            continue;
+        }
+        if (hero->isCollidingWith(drop->getBounds()))
+        {
+            auto item = drop->getItem();
+            hero->useItem(item);
+            drop->markAsUsed();
+            continue;
+        }
+    }
+
     this->spawnTimer += deltaTime;
     if (this->spawnTimer >= this->spawnInterval)
     {
-        this->enemies->push_back(this->spawnEnemy());
+        spawnEnemy();
         this->spawnTimer = 0.f;
     }
 }
 
-std::shared_ptr<Enemy> Game::spawnEnemy()
+void Game::spawnEnemy()
 {
     float spawnX;
     float spawnY;
 
-    int side = rand() % 4;
+    int side = getRandomNumber(0, 3) % 4;
 
     switch (side)
     {
@@ -240,12 +299,35 @@ std::shared_ptr<Enemy> Game::spawnEnemy()
         break;
     }
 
-    return std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    enemies->push_back(enemy);
 }
 
 void Game::close()
 {
     gameWindow->close();
+}
+
+void Game::spawnDrop(sf::Vector2f &position)
+{
+    // Randomically selects item
+    int num = getRandomNumber(0, 100);
+
+    std::shared_ptr<Drop> drop;
+
+    if (num % 2)
+    {
+        auto item = std::make_shared<Potion>();
+        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
+    }
+    else
+    {
+        int arrows = getRandomNumber(5, 10);
+        auto item = std::make_shared<Quiver>(arrows);
+        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
+    }
+
+    drops->push_back(drop);
 }
 
 void Game::showGameOver()
