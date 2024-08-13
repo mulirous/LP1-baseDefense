@@ -49,7 +49,7 @@ void Game::renderStatus()
         std::cout << "Couldn't load font. Exiting.";
         return;
     }
-    Text heroLifeText, ammoText, baseLifeText;
+    Text heroLifeText, ammoText, baseLifeText, killCounterText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
@@ -67,10 +67,17 @@ void Game::renderStatus()
     baseLifeText.setCharacterSize(16);
     baseLifeText.setFillColor(sf::Color::White);
     baseLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 75);
+    
+    killCounterText.setFont(font);
+    killCounterText.setString("KILLS: " + to_string(this->killCounter));
+    killCounterText.setCharacterSize(16);
+    killCounterText.setFillColor(sf::Color::White);
+    killCounterText.setPosition(GAME_WINDOW_WIDTH - 200, 100);
 
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
     gameWindow->draw(baseLifeText);
+    gameWindow->draw(killCounterText);
 }
 
 void Game::render()

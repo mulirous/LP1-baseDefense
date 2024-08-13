@@ -14,6 +14,8 @@
 class Game
 {
 private:
+    int killCounter = 0;
+
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
     /// @param projectiles A shared pointer to a list of Projectiles pointers
@@ -47,6 +49,7 @@ private:
                 else if constexpr (std::is_same<Enemy, T>::value)
                 {
                     character->kill();
+                    this->killCounter++;
                     if (character->hasDrop())
                     {
                         sf::Vector2f pos = character->getCurrentPosition();
