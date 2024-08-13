@@ -69,5 +69,7 @@ void Enemy::move(float deltaTime)
 void Enemy::doAttack(sf::Vector2f &target)
 {
     auto current = sf::Vector2f(this->currentPosition);
-    this->weapon->shoot(target, current);
+    // Supondo que 'this' se refere ao inimigo, então o terceiro argumento deve ser false
+    this->weapon->shoot(target, current, false);
+
 }

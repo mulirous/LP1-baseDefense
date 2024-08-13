@@ -17,7 +17,8 @@ const std::string QUIVER_IMAGE = "resources/assets/items/quiver.png";
 const std::string MENU_MUSIC = "resources/assets/music/menu-soundtrack.ogg";
 const std::string GAMEOVER_MUSIC = "resources/assets/music/gameover-soundtrack.wav";
 const std::string BATTLE_MUSIC = "resources/assets/music/battle-soundtrack.ogg";
-
+const std::string SPELL_MUSIC = "resources/assets/music/spell.wav";
+const std::string ARROW_MUSIC = "resources/assets/music/arrowhit.wav";
 
 inline int getRandomNumber(int min, int max)
 {

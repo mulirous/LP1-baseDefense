@@ -4,6 +4,7 @@
 #include "../enums/MenuActions.h"
 #include <iostream>
 #include <SFML/Audio.hpp>
+#include "structs.hpp"
 
 class Menu
 {
@@ -23,11 +24,9 @@ private:
 
     std::unique_ptr<sf::Music> menumusic;
 
-    // TODO: improve this using structs or something
-    std::unique_ptr<std::vector<const char *>> options;
-    std::unique_ptr<std::vector<sf::Vector2f>> optionsCoords;
-    std::unique_ptr<std::vector<sf::Text>> optionsTexts;
-    std::unique_ptr<std::vector<std::size_t>> optionsSize;
+    std::shared_ptr<std::vector<MenuOptions>> menuOptions;
+    std::shared_ptr<std::vector<sf::Text>> options;
+
     /// @brief Show the About Screen with the infos about Us, the developers
     void showAbout();
 

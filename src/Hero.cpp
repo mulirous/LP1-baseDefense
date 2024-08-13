@@ -28,7 +28,7 @@ void Hero::doAttack(sf::Vector2f &target)
     auto heroPosition = sf::Vector2f(this->currentPosition);
 
     // Set mouse position as target on ranged weapon and do attack
-    this->weapon->shoot(target, heroPosition);
+    this->weapon->shoot(target, heroPosition, true);
 }
 
 void Hero::move(float deltaTime)
