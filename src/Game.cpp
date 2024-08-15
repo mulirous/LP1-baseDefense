@@ -5,6 +5,7 @@
 #include <math.h>
 #include "../interfaces/Potion.hpp"
 #include "../interfaces/Quiver.hpp"
+#include "modules/animation/src/Animation.hpp"
 
 Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
 {
@@ -15,6 +16,19 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
     gameWindow = window;
     animationManager = std::make_shared<AnimationManager>();
+    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
+    hero->initAnimations();
+    base = std::make_shared<Base>(500, x, y);
+    background = std::make_unique<sf::Sprite>();
+
+    auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
+    sf::Vector2u textureSize = bgTexture->getSize();
+    sf::Vector2u windowSize = gameWindow->getSize();
+    auto scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    auto scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+
+    background->setTexture(*bgTexture);
+    background->setScale(scaleX, scaleY);
 };
 
 void Game::run()
@@ -34,6 +48,12 @@ void Game::run()
         }
         else
         {
+            // hero->getSprite()->setTexture(*texture);
+            // hero->getSprite()->setScale(2.f, 2.f);
+            // hero->getSprite()->setTextureRect(animation.textureRect);
+            // gameWindow->clear(sf::Color::Black);
+            // gameWindow->draw(*hero->getSprite());
+            // gameWindow->display();
             render();
             handleEvents();
             update(deltaTime);
@@ -43,13 +63,9 @@ void Game::run()
 
 void Game::renderStatus()
 {
-    Font font = Font();
-    if (!font.loadFromFile(GAME_FONT))
-    {
-        std::cout << "Couldn't load font. Exiting.";
-        return;
-    }
-    Text heroLifeText, ammoText, baseLifeText;
+    auto font = *ResourceManager::getFont(GAME_FONT);
+
+    sf::Text heroLifeText, ammoText, baseLifeText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
@@ -75,30 +91,8 @@ void Game::renderStatus()
 
 void Game::render()
 {
-    sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile(BACKGROUND_GAME))
-    {
-        cout << "Background load failed." << endl;
-        return;
-    }
-    sf::Sprite backgroundSprite;
-    backgroundSprite.setTexture(backgroundTexture);
-
-    sf::Vector2u textureSize = backgroundTexture.getSize();
-    sf::Vector2u windowSize = gameWindow->getSize();
-
-    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
-    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
-
-    backgroundSprite.setScale(scaleX, scaleY);
-
-    gameWindow->clear(Color::White);
-    gameWindow->draw(backgroundSprite);
-    if (base->getSprite() == nullptr)
-    {
-        std::cout << "sprite is null";
-        return;
-    }
+    gameWindow->clear(sf::Color::White);
+    gameWindow->draw(*background);
     gameWindow->draw(*base->getSprite());
     gameWindow->draw(*hero->getSprite());
 
