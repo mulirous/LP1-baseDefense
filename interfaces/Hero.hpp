@@ -3,8 +3,11 @@
 #include <SFML/Graphics.hpp>
 #include "Character.hpp"
 #include "Quiver.hpp"
+#include "../src/modules/animation/src/AnimationManager.hpp"
+#include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <memory>
 #include "Item.hpp"
+#include "ManaPotion.hpp"
 #include "RangedWeapon.hpp"
 #include <iostream>
 #include "Potion.hpp"
@@ -14,30 +17,23 @@
 class Hero : public Character
 {
 protected:
-    sf::Vector2i frameSize;
-    int currentFrame;
-    float frameTime;
-    float timeSinceLastFrame;
     /// @brief Pointer to hero's ranged weapon
     std::shared_ptr<RangedWeapon> weapon;
     /// @brief Position that hero will move to
     sf::Vector2f targetPosition;
-
     /// @brief Hero's heal action
     /// @param healAmount Amount of health
     /// @note If the hero's life exceeds 100, no effect occurs
     void heal(int healAmount);
-
     void recharge(int ammo);
+    void updateAnimation(const std::string &action, float dt);
 
 public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY);
-
-    void updateAnimation(float deltaTime);
-    std::shared_ptr<RangedWeapon> getRangedWeapon();
     void setTargetPosition(sf::Vector2f target);
+    std::shared_ptr<RangedWeapon> getRangedWeapon();
     void takeDamage(int damage);
-
+    void initAnimations() override;
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target) override;
 
@@ -54,10 +50,16 @@ public:
                 this->heal(life);
                 return;
             }
+            auto manaPotion = std::dynamic_pointer_cast<ManaPotion>(item);
+            if (manaPotion)
+            {
+                int mana = manaPotion->getMana();
+                this->recharge(mana);
+                return;
+            }
             auto quiver = std::dynamic_pointer_cast<Quiver>(item);
             if (quiver)
             {
-                std::cout << "Hero is getting ammo from quiver\n";
                 int ammo = quiver->getArrows();
                 this->recharge(ammo);
                 return;

@@ -12,4 +12,5 @@ public:
     Quiver();
     Quiver(int arrows);
     int getArrows();
+    void animate(float dt) override;
 };

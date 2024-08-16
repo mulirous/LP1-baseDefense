@@ -11,3 +11,5 @@ Potion::Potion(int healAmount) : Item(POTION_IMAGE)
 }
 
 int Potion::getHealAmount() { return healAmount; }
+
+void Potion::animate(float dt) {}
