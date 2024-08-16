@@ -21,7 +21,13 @@ public:
     /// @brief Size of texture
     sf::IntRect textureRect;
 
-    /// @brief
+    /// @brief Default update function
+    /// @param dt
+    /// @note It will advances one frame at a time and set textureRect.left as it advances
+    void update(float dt);
+    /// @brief Specific update function to characters
     /// @param dt delta time
+    /// @param direction Direction which character is facing at time
+    /// @note Calls default update but modifies textureRect based on character's direction
     void update(float dt, CharacterDirection direction);
 };

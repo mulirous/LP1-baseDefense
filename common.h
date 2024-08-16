@@ -16,6 +16,7 @@ const std::string HERO_WALK_IMAGE = "resources/assets/sprites/hero/Wizard-Walk.p
 const std::string HERO_IDLE_IMAGE = "resources/assets/sprites/hero/Wizard-Idle.png";
 const std::string HERO_ATTACK_IMAGE = "resources/assets/sprites/hero/Wizard-Attack02.png";
 const std::string POTION_IMAGE = "resources/assets/items/red-potion.png";
+const std::string BLUE_POTION_IMAGE = "resources/assets/items/blue-potion.png";
 const std::string QUIVER_IMAGE = "resources/assets/items/quiver.png";
 
 inline int getRandomNumber(int min, int max)

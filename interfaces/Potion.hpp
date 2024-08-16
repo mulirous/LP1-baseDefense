@@ -15,4 +15,5 @@ public:
     Potion(int healAmount);
     ~Potion() = default;
     int getHealAmount();
+    void animate(float dt) override;
 };

@@ -14,7 +14,7 @@ Animation::Animation(sf::Texture *texture, sf::Vector2u imageCount, float switch
     textureRect.height = texture->getSize().y / float(imageCount.y);
 };
 
-void Animation::update(float dt, CharacterDirection direction)
+void Animation::update(float dt)
 {
     current.y = 1;
     totalTime += dt;
@@ -30,6 +30,12 @@ void Animation::update(float dt, CharacterDirection direction)
             current.x = 0;
         }
     }
+    textureRect.left = current.x * textureRect.width;
+}
+
+void Animation::update(float dt, CharacterDirection direction)
+{
+    update(dt);
 
     // Flip or not the character
     if (direction == CharacterDirection::RIGHT)

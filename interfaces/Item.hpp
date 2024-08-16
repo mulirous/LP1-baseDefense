@@ -21,4 +21,6 @@ public:
     /// @brief Get item's sprite
     /// @return Pointer to sprite
     std::shared_ptr<sf::Sprite> getSprite();
+
+    virtual void animate(float dt) = 0;
 };

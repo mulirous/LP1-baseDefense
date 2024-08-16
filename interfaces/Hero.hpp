@@ -7,6 +7,7 @@
 #include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <memory>
 #include "Item.hpp"
+#include "ManaPotion.hpp"
 #include "RangedWeapon.hpp"
 #include <iostream>
 #include "Potion.hpp"
@@ -49,10 +50,16 @@ public:
                 this->heal(life);
                 return;
             }
+            auto manaPotion = std::dynamic_pointer_cast<ManaPotion>(item);
+            if (manaPotion)
+            {
+                int mana = manaPotion->getMana();
+                this->recharge(mana);
+                return;
+            }
             auto quiver = std::dynamic_pointer_cast<Quiver>(item);
             if (quiver)
             {
-                std::cout << "Hero is getting ammo from quiver\n";
                 int ammo = quiver->getArrows();
                 this->recharge(ammo);
                 return;

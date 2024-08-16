@@ -48,12 +48,6 @@ void Game::run()
         }
         else
         {
-            // hero->getSprite()->setTexture(*texture);
-            // hero->getSprite()->setScale(2.f, 2.f);
-            // hero->getSprite()->setTextureRect(animation.textureRect);
-            // gameWindow->clear(sf::Color::Black);
-            // gameWindow->draw(*hero->getSprite());
-            // gameWindow->display();
             render();
             handleEvents();
             update(deltaTime);
@@ -73,7 +67,7 @@ void Game::renderStatus()
     heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
 
     ammoText.setFont(font);
-    ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
+    ammoText.setString("MANA: " + to_string(hero->getRangedWeapon()->getAmmo()));
     ammoText.setCharacterSize(16);
     ammoText.setFillColor(sf::Color::White);
     ammoText.setPosition(GAME_WINDOW_WIDTH - 200, 50);
@@ -249,6 +243,7 @@ void Game::update(float deltaTime)
             drops->erase(std::remove(drops->begin(), drops->end(), drop), drops->end());
             continue;
         }
+        drop->getItem()->animate(deltaTime);
         if (hero->isCollidingWith(drop->getBounds()))
         {
             auto item = drop->getItem();
@@ -316,8 +311,8 @@ void Game::spawnDrop(sf::Vector2f &position)
     }
     else
     {
-        int arrows = getRandomNumber(5, 10);
-        auto item = std::make_shared<Quiver>(arrows);
+        int mana = getRandomNumber(5, 10);
+        auto item = std::make_shared<ManaPotion>(mana);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
 

@@ -14,3 +14,5 @@ int Quiver::getArrows()
 {
     return this->arrows;
 }
+
+void Quiver::animate(float dt) {}
