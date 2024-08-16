@@ -22,7 +22,7 @@ void Animation::update(float dt, CharacterDirection direction)
     if (totalTime >= switchTime)
     {
         totalTime -= switchTime; // Has a smoother animation this way
-        current.x++;             // Switchs to next frame
+        current.x++;             // Switches to next frame
 
         // When reaches the end of row, go back to start
         if (current.x >= imageCount.x)
@@ -31,7 +31,6 @@ void Animation::update(float dt, CharacterDirection direction)
         }
     }
 
-    textureRect.top = current.y * textureRect.height;
     // Flip or not the character
     if (direction == CharacterDirection::RIGHT)
     {

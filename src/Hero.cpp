@@ -9,14 +9,14 @@ Hero::Hero(float width, float height, float speed, int maxLife, float posX, floa
     animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
     weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
     sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
-    sprite->setScale(3.f, 3.f);
+    sprite->setScale(2, 2);
     initAnimations();
 };
 
 void Hero::initAnimations()
 {
     std::cout << "inside initAnimation\n";
-    auto idle = std::make_shared<Animation>(ResourceManager::getTexture(HERO_IDLE_IMAGE), sf::Vector2u(6, 1), 0.05f);
+    auto idle = std::make_shared<Animation>(ResourceManager::getTexture(HERO_IDLE_IMAGE), sf::Vector2u(6, 1), 0.08f);
     auto walk = std::make_shared<Animation>(ResourceManager::getTexture(HERO_WALK_IMAGE), sf::Vector2u(8, 1), 0.05f);
 
     (*animations)["idle"] = idle;
@@ -40,27 +40,38 @@ void Hero::doAttack(sf::Vector2f &target)
 
 void Hero::move(float deltaTime)
 {
-    // Esses calculos estão seguindo exatamente o padrão do tutorial, por isso comentei o calculo antigo.
     sf::Vector2f movement(0, 0);
+
+    // Need this because target is integer and current is float, so comparing precisely these two won't work
+    float distanceX = currentPosition.x - targetPosition.x;
+    float distanceY = currentPosition.y - targetPosition.y;
 
     if (targetPosition.x < currentPosition.x)
     {
-        std::cout << "target is on left\n";
         movement.x -= this->speed * deltaTime;
     }
-    else
+    else if (targetPosition.x > currentPosition.x)
     {
-        std::cout << "target is on the right\n";
         movement.x += this->speed * deltaTime;
     }
-    if (movement.x == 0)
+
+    if (targetPosition.y < currentPosition.y)
     {
-        std::cout << "idle animation\n";
+        movement.y -= this->speed * deltaTime;
+    }
+    else if (targetPosition.y > currentPosition.y)
+    {
+        movement.y += this->speed * deltaTime;
+    }
+
+    if (distanceX < 1 && distanceY < 1 && distanceX > -1 && distanceY > -1)
+    {
+        // Hero is on target (or closely enough)
         updateAnimation("idle", deltaTime);
     }
     else
     {
-        std::cout << "walk animation\n";
+        // Hero isn't close to target, so it will move
         if (movement.x > 0)
         {
             this->direction = CharacterDirection::RIGHT;
@@ -73,6 +84,7 @@ void Hero::move(float deltaTime)
     }
     sprite->move(movement);
 
+    /// TODO: remove this
     // float currentSpeed = this->speed;
     // if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
     // {
@@ -97,23 +109,19 @@ void Hero::move(float deltaTime)
 
 void Hero::updateAnimation(const std::string &action, float dt)
 {
-    std::cout << "inside updateAnimation\n";
-    std::cout << "direction: " << (int)direction << "\n";
-
     // Avoid changing textures so often
     if (action == "idle" && sprite->getTexture() != ResourceManager::getTexture(HERO_IDLE_IMAGE))
     {
         sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
-        std::cout << "idle action on updateAnimation\n";
     }
     else if (action == "walk" && sprite->getTexture() != ResourceManager::getTexture(HERO_WALK_IMAGE))
     {
         sprite->setTexture(*ResourceManager::getTexture(HERO_WALK_IMAGE));
-        std::cout << "walk action on updateAnimation\n";
     }
-    std::cout << "will update animation\n";
+
     (*animations)[action]->update(dt, direction);
-    // Precisa setar a textureRect para renderizar o proximo sprite (após o update)
+
+    // Sets texture rect to render updated sprite
     sprite->setTextureRect((*animations)[action]->textureRect);
 }
 
