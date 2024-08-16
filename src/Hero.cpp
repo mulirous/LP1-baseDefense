@@ -15,7 +15,6 @@ Hero::Hero(float width, float height, float speed, int maxLife, float posX, floa
 
 void Hero::initAnimations()
 {
-    std::cout << "inside initAnimation\n";
     auto idle = std::make_shared<Animation>(ResourceManager::getTexture(HERO_IDLE_IMAGE), sf::Vector2u(6, 1), 0.08f);
     auto walk = std::make_shared<Animation>(ResourceManager::getTexture(HERO_WALK_IMAGE), sf::Vector2u(8, 1), 0.05f);
 
