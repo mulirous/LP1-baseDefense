@@ -9,7 +9,7 @@ Base::Base(int maxLife, float posX, float posY)
 
     baseSprite = std::make_shared<sf::Sprite>();
     baseSprite->setTexture(*ResourceManager::getTexture(BASE_IMAGE));
-    baseSprite->setScale(0.6, 0.6);
+    baseSprite->setScale(0.3, 0.3);
     baseSprite->setPosition(posX - (baseSprite->getGlobalBounds().width / 2),
                             posY - (baseSprite->getGlobalBounds().height / 2));
 }
