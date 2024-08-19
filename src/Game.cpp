@@ -20,6 +20,7 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     hero->initAnimations();
     base = std::make_shared<Base>(500, x, y);
     background = std::make_unique<sf::Sprite>();
+    menu = new Menu(gameWindow);
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
@@ -39,12 +40,19 @@ void Game::run()
     {
         float deltaTime = clock.restart().asSeconds();
 
+        this->gameTime -= deltaTime;
+
         setDeltaTime(deltaTime);
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
             showGameOver();
-            break;
+            menu->run();
+        }
+        else if (this->gameTime <= 0)
+        {
+            showGameWin();
+            menu->run();
         }
         else
         {
@@ -59,7 +67,7 @@ void Game::renderStatus()
 {
     auto font = *ResourceManager::getFont(GAME_FONT);
 
-    sf::Text heroLifeText, ammoText, baseLifeText, killCounterText;
+    sf::Text heroLifeText, ammoText, baseLifeText, killCounterText, timeText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
@@ -83,11 +91,20 @@ void Game::renderStatus()
     killCounterText.setCharacterSize(16);
     killCounterText.setFillColor(sf::Color::White);
     killCounterText.setPosition(GAME_WINDOW_WIDTH - 200, 100);
+    
+    int timeToDisplay = static_cast<int>(this->gameTime);
+
+    timeText.setFont(font);
+    timeText.setString("TIME: " + to_string(timeToDisplay) + "s");
+    timeText.setCharacterSize(16);
+    timeText.setFillColor(sf::Color::White);
+    timeText.setPosition(GAME_WINDOW_WIDTH - 200, 125);
 
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
     gameWindow->draw(baseLifeText);
     gameWindow->draw(killCounterText);
+    gameWindow->draw(timeText);
 }
 
 void Game::render()
@@ -362,6 +379,46 @@ void Game::showGameOver()
         gameWindow->clear();
         gameWindow->draw(gameOverText);
         gameWindow->draw(exitText);
+        gameWindow->display();
+    }
+}
+
+void Game::showGameWin()
+{
+    Font font;
+    if (!font.loadFromFile(GAME_FONT))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+
+    Text gameWinText, returnText;
+    gameWinText.setFont(font);
+    gameWinText.setString("You Win!");
+    gameWinText.setCharacterSize(48);
+    gameWinText.setFillColor(Color::Green);
+    gameWinText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
+
+    returnText.setFont(font);
+    returnText.setString("Press any key to return");
+    returnText.setCharacterSize(24);
+    returnText.setFillColor(Color::Black);
+    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+
+    while (gameWindow->isOpen())
+    {
+        Event event;
+        while (gameWindow->pollEvent(event))
+        {
+            if (event.type == Event::Closed || event.type == Event::KeyPressed)
+            {
+                return;
+            }
+        }
+
+        gameWindow->clear(sf::Color::White);
+        gameWindow->draw(gameWinText);
+        gameWindow->draw(returnText);
         gameWindow->display();
     }
 }

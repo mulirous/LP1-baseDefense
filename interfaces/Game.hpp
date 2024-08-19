@@ -3,6 +3,7 @@
 #include "Hero.hpp"
 #include "Base.hpp"
 #include "Drop.hpp"
+#include "Menu.hpp"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -14,7 +15,12 @@
 class Game
 {
 private:
+    /// @brief A varieable that show the count os killf the player have in the game
     int killCounter = 0;
+
+    float gameTime = 91.0f;
+
+    Menu* menu;
 
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
@@ -63,6 +69,9 @@ private:
 
     /// @brief Changes to game over screen
     void showGameOver();
+    
+    /// @brief Changes to game win screen
+    void showGameWin();
 
 protected:
     /// @brief The screen's center on x-axis
@@ -109,6 +118,13 @@ public:
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
 
+    /// @brief Menu Constructor
+    Game() : menu(nullptr) {}
+
     /// @brief Start point to run game.
     void run();
+
+    ~Game() {
+        delete menu;
+    }
 };
