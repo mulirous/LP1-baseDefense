@@ -20,7 +20,7 @@ private:
 
     float gameTime = 91.0f;
 
-    Menu* menu;
+    std::unique_ptr<Menu> menu;
 
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
@@ -123,8 +123,4 @@ public:
 
     /// @brief Start point to run game.
     void run();
-
-    ~Game() {
-        delete menu;
-    }
 };

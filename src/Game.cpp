@@ -7,20 +7,21 @@
 #include "../interfaces/Quiver.hpp"
 #include "modules/animation/src/Animation.hpp"
 
-Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
+Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) :
+    centerX(x),
+    centerY(y),
+    enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
+    drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
+    gameWindow(window),
+    animationManager(std::make_shared<AnimationManager>()),
+    hero(std::make_shared<Hero>(50, 50, 90, 100, 600, 400)),
+    base(std::make_shared<Base>(500, x, y)),
+    background(std::make_unique<sf::Sprite>()),
+    menu(std::make_unique<Menu>(window))
 {
     srand(static_cast<unsigned>(time(0)));
-    centerX = x;
-    centerY = y;
-    enemies = std::make_shared<std::list<std::shared_ptr<Enemy>>>();
-    drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
-    gameWindow = window;
-    animationManager = std::make_shared<AnimationManager>();
-    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
+    
     hero->initAnimations();
-    base = std::make_shared<Base>(500, x, y);
-    background = std::make_unique<sf::Sprite>();
-    menu = new Menu(gameWindow);
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
