@@ -42,5 +42,5 @@ public:
     sf::CircleShape getShape();
     std::shared_ptr<RangedWeapon> getRangedWeapon();
     void move(float deltaTime) override;
-    void doAttack(sf::Vector2f &target) override;
+    void doAttack(sf::Vector2f &target, float dt = {}) override;
 };

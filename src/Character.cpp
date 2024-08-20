@@ -1,7 +1,7 @@
 #include "../interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
-Character::Character(float width, float height, float speed, int maxLife, float posX, float posY) : width(width), height(height), speed(speed),
+Character::Character(float width, float height, float speed, int maxLife, float posX, float posY) : width(width), height(height), speed(speed), animationState(CharacterAnimation::IDLE),
                                                                                                     maximumLife(maxLife), currentLife(maxLife), currentPosition(posX, posY)
 {
     sprite = std::make_shared<sf::Sprite>();
@@ -45,6 +45,16 @@ sf::FloatRect Character::getGlobalBounds()
     return sf::FloatRect(this->currentPosition.x, this->currentPosition.y, this->width, this->height);
 }
 
+CharacterAnimation Character::getAnimationState() const
+{
+    return this->animationState;
+}
+
+void Character::setAnimationState(CharacterAnimation &animation)
+{
+    this->animationState = animation;
+}
+
 std::shared_ptr<sf::Sprite> Character::getSprite()
 {
     return this->sprite;
@@ -63,6 +73,11 @@ bool Character::isCollidingWith(const sf::FloatRect &rect)
 bool Character::isCollidingWith(std::shared_ptr<Character> other)
 {
     return this->getGlobalBounds().intersects(other->getGlobalBounds());
+}
+
+bool Character::isAnimationCompleted(const std::string &action)
+{
+    return (*animations)[action]->isCompleted();
 }
 
 void Character::resolveCollision(std::shared_ptr<Character> other)

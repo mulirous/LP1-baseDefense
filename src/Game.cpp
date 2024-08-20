@@ -139,7 +139,7 @@ void Game::handleEvents()
         else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
         {
             sf::Vector2f mousePosition = this->getMousePosition();
-            hero->doAttack(mousePosition);
+            hero->doAttack(mousePosition, this->deltaTime);
         }
     }
 
