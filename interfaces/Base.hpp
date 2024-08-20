@@ -31,6 +31,7 @@ public:
     sf::Vector2f getPosition();
     void takeDamage(int damage);
     int getLife();
+    int healLife(int addLife);
     bool isCollidingWith(const sf::FloatRect &other);
 };
 #endif // ! BASE_HPP

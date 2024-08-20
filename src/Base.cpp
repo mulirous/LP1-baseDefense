@@ -36,6 +36,11 @@ int Base::getLife()
     return this->currentLife;
 }
 
+int Base::healLife(int addLife)
+{
+    return this->currentLife += addLife;
+}
+
 bool Base::isCollidingWith(const sf::FloatRect &other)
 {
     return baseSprite->getGlobalBounds().intersects(other);

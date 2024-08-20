@@ -18,7 +18,8 @@ private:
     /// @brief A varieable that show the count os killf the player have in the game
     int killCounter = 0;
 
-    float gameTime = 91.0f;
+    float gameTime;
+    float healTime = 12.0f;
 
     std::unique_ptr<Menu> menu;
 
@@ -82,18 +83,21 @@ protected:
     float centerY;
     /// @brief A pointer to a list of enemies pointers
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
+    float enemySpd;
+    int enemyLife;
     std::unique_ptr<std::list<std::shared_ptr<Drop>>> drops;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
     /// @brief A pointer to the base
     std::shared_ptr<Base> base;
+    int addDefense;
     /// @brief An unique pointer to background sprite
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
     std::shared_ptr<AnimationManager> animationManager;
     float deltaTime;
-    float spawnInterval = 5;
+    float spawnInterval;
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();

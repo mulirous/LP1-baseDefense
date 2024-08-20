@@ -29,31 +29,37 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
 
     switch (difficulty) {
         case GameDifficulty::EASY:
-            heroSpeed = 100.0f;
-            heroHealth = 150;
+            heroHealth = 125;
             baseDefense = 1000.0f;
             spawnInterval = 5.0f;
             gameTime = 90.0f;
+            enemySpd = 30.0f;
+            enemyLife = 50;
+            addDefense = 15;
             break;
 
         case GameDifficulty::MEDIUM:
-            heroSpeed = 80.0f;
             heroHealth = 100;
             baseDefense = 800.0f;
             spawnInterval = 3.0f;
             gameTime = 120.0f;
+            enemySpd = 50.0f;
+            enemyLife = 80;
+            addDefense = 10;
             break;
 
         case GameDifficulty::HARD:
-            heroSpeed = 60.0f;
             heroHealth = 75;
             baseDefense = 600.0f;
             spawnInterval = 1.5f;
             gameTime = 180.0f;
+            enemySpd = 60.0f;
+            enemyLife = 100;
+            addDefense = 8;
             break;
     }
 
-    hero = std::make_shared<Hero>(heroHealth, 50, 90, heroSpeed, 600, 400);
+    hero = std::make_shared<Hero>(heroHealth, 50, 90, 80.0f, 600, 400);
     base = std::make_shared<Base>(baseDefense, x, y);
 
     hero->initAnimations();
@@ -81,6 +87,13 @@ void Game::run()
         float deltaTime = clock.restart().asSeconds();
 
         this->gameTime -= deltaTime;
+
+        this->healTime -= deltaTime;
+        if (this->healTime <= 0)
+        {
+            this->base->healLife(addDefense);
+            this->healTime = 12.0f;
+        }
 
         setDeltaTime(deltaTime);
 
@@ -352,7 +365,7 @@ void Game::spawnEnemy()
         break;
     }
 
-    auto enemy = std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, spawnX, spawnY, this->centerX, this->centerY);
     enemies->push_back(enemy);
 }
 
