@@ -50,6 +50,12 @@ void Hero::doAttack(sf::Vector2f &target, float dt)
     // Get hero position
     auto heroPosition = sf::Vector2f(this->currentPosition);
 
+    // Sets hero direction
+    if (target.x >= heroPosition.x)
+        direction = CharacterDirection::RIGHT;
+    else
+        direction = CharacterDirection::LEFT;
+
     this->animationState = CharacterAnimation::ATTACK;
     updateAnimation("attack", dt);
 
