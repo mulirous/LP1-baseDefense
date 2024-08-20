@@ -20,7 +20,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
 {
     srand(static_cast<unsigned>(time(0)));
 
-    // Ajustes de acordo com a dificuldade
     float heroSpeed;
     int heroHealth;
     float baseDefense;
@@ -32,30 +31,30 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
             heroHealth = 125;
             baseDefense = 1000.0f;
             spawnInterval = 5.0f;
-            gameTime = 90.0f;
+            gameTime = 91.0f;
             enemySpd = 30.0f;
             enemyLife = 50;
-            addDefense = 15;
+            addDefense = 30;
             break;
 
         case GameDifficulty::MEDIUM:
             heroHealth = 100;
             baseDefense = 800.0f;
             spawnInterval = 3.0f;
-            gameTime = 120.0f;
+            gameTime = 121.0f;
             enemySpd = 50.0f;
             enemyLife = 80;
-            addDefense = 10;
+            addDefense = 20;
             break;
 
         case GameDifficulty::HARD:
             heroHealth = 75;
             baseDefense = 600.0f;
             spawnInterval = 1.5f;
-            gameTime = 180.0f;
+            gameTime = 181.0f;
             enemySpd = 60.0f;
             enemyLife = 100;
-            addDefense = 8;
+            addDefense = 16;
             break;
     }
 
@@ -73,7 +72,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
     background->setTexture(*bgTexture);
     background->setScale(scaleX, scaleY);
     
-    // Outros ajustes conforme a dificuldade
     this->spawnInterval = spawnInterval;
     this->gameTime = gameTime;
 };

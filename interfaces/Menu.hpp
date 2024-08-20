@@ -23,8 +23,10 @@ private:
     sf::Vector2f mouseCords;
     sf::Vector2f mousePosition;
 
-    std::shared_ptr<std::vector<MenuOptions>> menuOptions;
-    std::shared_ptr<std::vector<sf::Text>> options;
+    std::shared_ptr<std::vector<MenuOptions>> mainMenuOptions;
+    std::shared_ptr<std::vector<MenuOptions>> difficultyMenuOptions;
+    std::shared_ptr<std::vector<sf::Text>> mainOptions;
+    std::shared_ptr<std::vector<sf::Text>> difficultyOptions;
 
     GameDifficulty selectedDifficulty = GameDifficulty::MEDIUM;
     MenuState currentState = MenuState::MAIN;
