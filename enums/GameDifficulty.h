@@ -1,6 +1,7 @@
 #pragma once 
 
-enum class GameDifficulty {
+enum class GameDifficulty
+{
     EASY,
     MEDIUM,
     HARD

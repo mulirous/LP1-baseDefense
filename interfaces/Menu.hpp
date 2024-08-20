@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "../enums/MenuActions.h"
 #include "../enums/GameDifficulty.h"
+#include "../enums/MenuState.h"
 #include <iostream>
 #include "structs.hpp"
 
@@ -24,6 +25,9 @@ private:
 
     std::shared_ptr<std::vector<MenuOptions>> menuOptions;
     std::shared_ptr<std::vector<sf::Text>> options;
+
+    GameDifficulty selectedDifficulty = GameDifficulty::MEDIUM;
+    MenuState currentState = MenuState::MAIN;
 
     /// @brief Show the About Screen with the infos about Us, the developers
     void showAbout();
@@ -50,6 +54,8 @@ public:
         bg = std::make_unique<sf::Sprite>();
         init();
     }
+
+    GameDifficulty getSelectedDifficulty() const { return selectedDifficulty; }
 
     ~Menu() = default;
     bool run();

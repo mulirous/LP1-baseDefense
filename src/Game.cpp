@@ -7,20 +7,55 @@
 #include "../interfaces/Quiver.hpp"
 #include "modules/animation/src/Animation.hpp"
 
-Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) :
+Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty) :
     centerX(x),
     centerY(y),
+    gameWindow(window),
+    difficulty(difficulty),
     enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
     drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
-    gameWindow(window),
     animationManager(std::make_shared<AnimationManager>()),
-    hero(std::make_shared<Hero>(50, 50, 90, 100, 600, 400)),
-    base(std::make_shared<Base>(500, x, y)),
     background(std::make_unique<sf::Sprite>()),
     menu(std::make_unique<Menu>(window))
 {
     srand(static_cast<unsigned>(time(0)));
-    
+
+    // Ajustes de acordo com a dificuldade
+    float heroSpeed;
+    int heroHealth;
+    float baseDefense;
+    float spawnInterval;
+    float gameTime;
+
+    switch (difficulty) {
+        case GameDifficulty::EASY:
+            heroSpeed = 100.0f;
+            heroHealth = 150;
+            baseDefense = 1000.0f;
+            spawnInterval = 5.0f;
+            gameTime = 90.0f;
+            break;
+
+        case GameDifficulty::MEDIUM:
+            heroSpeed = 80.0f;
+            heroHealth = 100;
+            baseDefense = 800.0f;
+            spawnInterval = 3.0f;
+            gameTime = 120.0f;
+            break;
+
+        case GameDifficulty::HARD:
+            heroSpeed = 60.0f;
+            heroHealth = 75;
+            baseDefense = 600.0f;
+            spawnInterval = 1.5f;
+            gameTime = 180.0f;
+            break;
+    }
+
+    hero = std::make_shared<Hero>(heroHealth, 50, 90, heroSpeed, 600, 400);
+    base = std::make_shared<Base>(baseDefense, x, y);
+
     hero->initAnimations();
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
@@ -31,6 +66,10 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window) :
 
     background->setTexture(*bgTexture);
     background->setScale(scaleX, scaleY);
+    
+    // Outros ajustes conforme a dificuldade
+    this->spawnInterval = spawnInterval;
+    this->gameTime = gameTime;
 };
 
 void Game::run()
@@ -361,7 +400,7 @@ void Game::showGameOver()
     gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
     exitText.setFont(font);
-    exitText.setString("Press any key to exit");
+    exitText.setString("Press any key to return");
     exitText.setCharacterSize(24);
     exitText.setFillColor(Color::White);
     exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
@@ -373,7 +412,7 @@ void Game::showGameOver()
         {
             if (event.type == Event::Closed || event.type == Event::KeyPressed)
             {
-                gameWindow->close();
+                return;
             }
         }
 

@@ -43,7 +43,12 @@ void Menu::init()
     this->menuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
         {"START", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
         {"ABOUT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
-        {"EXIT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)}});
+        {"EXIT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)},
+        {"EASY", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
+        {"MEDIUM", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
+        {"HARD", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)},
+        {"Press Enter Trhee Time", 14, sf::Vector2f((GAME_WINDOW_WIDTH - 250) / 2, 391)}
+    });
 
     this->options = std::make_shared<std::vector<sf::Text>>(this->menuOptions->size());
 
@@ -76,13 +81,20 @@ bool Menu::run()
         switch (action)
         {
         case MenuActions::START:
-            return false;
+            currentState = MenuState::DIFFICULTY;
+            // Reset the current selection to the first difficulty option
+            (*this->options)[this->current].setOutlineThickness(0); // Clear previous selection
+            this->current = 3; // Set to the first difficulty option
+            (*this->options)[this->current].setOutlineThickness(2);
+            break;
         case MenuActions::ABOUT:
             showAbout();
             break;
         case MenuActions::EXIT:
             windowPtr->close();
             break;
+        case MenuActions::CHOOSE_DIFFICULTY:
+            return false;  // Começa o jogo
         default:
             break;
         }
@@ -90,6 +102,7 @@ bool Menu::run()
 
     return true;
 }
+
 
 void Menu::drawAll()
 {
@@ -100,9 +113,20 @@ void Menu::drawAll()
     windowPtr->clear();
 
     windowPtr->draw(*bg);
-    for (const auto &opt : *this->options)
+
+    if (currentState == MenuState::MAIN)
     {
-        windowPtr->draw(opt);
+        for (size_t i = 0; i < 3; ++i)
+        {
+            windowPtr->draw((*this->options)[i]);
+        }
+    }
+    else if (currentState == MenuState::DIFFICULTY)
+    {
+        for (size_t i = 3; i < this->options->size(); ++i)
+        {
+            windowPtr->draw((*this->options)[i]);
+        }
     }
 
     windowPtr->display();
@@ -117,52 +141,65 @@ MenuActions Menu::handleActions()
 
     while (windowPtr->pollEvent(menuEvent))
     {
-        switch (menuEvent.type)
+        if (menuEvent.type == sf::Event::Closed)
         {
-        case sf::Event::Closed:
             windowPtr->close();
-            break;
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !pressed)
+        if (!pressed)
         {
-            if (this->current < this->options->size() - 1)
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
-                ++this->current;
-                this->pressed = true;
-                (*this->options)[this->current].setOutlineThickness(2);
-                if (this->current > 0)
-                {
-                    (*this->options)[this->current - 1].setOutlineThickness(0);
-                }
-                this->pressed = false;
-                this->selected = false;
-            }
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !pressed)
-        {
-            if (this->current > 0)
-            {
-                --this->current;
-                this->pressed = true;
-                (*this->options)[this->current].setOutlineThickness(2);
                 if (this->current < this->options->size() - 1)
                 {
-                    (*this->options)[this->current + 1].setOutlineThickness(0);
+                    (*this->options)[this->current].setOutlineThickness(0);
+                    ++this->current;
+                    (*this->options)[this->current].setOutlineThickness(2);
                 }
-                this->pressed = false;
-                this->selected = false;
+                this->pressed = true;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            {
+                if (this->current > 0)
+                {
+                    (*this->options)[this->current].setOutlineThickness(0);
+                    --this->current;
+                    (*this->options)[this->current].setOutlineThickness(2);
+                }
+                this->pressed = true;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
+            {
+                this->selected = true;
+                this->pressed = true;
+
+                if (currentState == MenuState::MAIN)
+                {
+                    if (this->current == 0) // START
+                        return MenuActions::START;
+                    if (this->current == 1) // ABOUT
+                        return MenuActions::ABOUT;
+                    if (this->current == 2) // EXIT
+                        return MenuActions::EXIT;
+                }
+                else if (currentState == MenuState::DIFFICULTY)
+                {
+                    if (this->current == 3)
+                        this->selectedDifficulty = GameDifficulty::EASY;
+                    if (this->current == 4)
+                        this->selectedDifficulty = GameDifficulty::MEDIUM;
+                    if (this->current == 5)
+                        this->selectedDifficulty = GameDifficulty::HARD;
+
+                    return MenuActions::CHOOSE_DIFFICULTY;
+                }
             }
         }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
+        
+        if (menuEvent.type == sf::Event::KeyReleased)
         {
-            this->selected = true;
-            if (this->current == 0)
-                return MenuActions::START;
-            if (this->current == 1)
-                return MenuActions::ABOUT;
-            if (this->current == 2)
-                return MenuActions::EXIT;
+            this->pressed = false;
+            this->selected = false; // Permitir nova seleção após a tecla ser liberada
         }
     }
 

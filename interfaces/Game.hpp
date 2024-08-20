@@ -22,6 +22,8 @@ private:
 
     std::unique_ptr<Menu> menu;
 
+    GameDifficulty difficulty;
+
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
     /// @param projectiles A shared pointer to a list of Projectiles pointers
@@ -114,7 +116,8 @@ protected:
     void close();
 
 public:
-    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window);
+    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty);
+
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
 

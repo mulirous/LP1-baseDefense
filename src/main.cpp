@@ -18,8 +18,10 @@ int main()
 
     auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window");
     Menu mainMenu(window);
-    Game game(CENTER_X, CENTER_Y, window);
-
+    mainMenu.run();
+    GameDifficulty difficulty = mainMenu.getSelectedDifficulty();
+    
+    Game game(CENTER_X, CENTER_Y, window, difficulty);
     // First state is always menu
     auto currentState = GameState::MENU;
 
