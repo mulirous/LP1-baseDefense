@@ -20,7 +20,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
 {
     srand(static_cast<unsigned>(time(0)));
 
-    float heroSpeed;
     int heroHealth;
     float baseDefense;
     float spawnInterval;
@@ -34,7 +33,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
             gameTime = 91.0f;
             enemySpd = 30.0f;
             enemyLife = 50;
-            addDefense = 30;
             break;
 
         case GameDifficulty::MEDIUM:
@@ -44,7 +42,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
             gameTime = 121.0f;
             enemySpd = 50.0f;
             enemyLife = 80;
-            addDefense = 20;
             break;
 
         case GameDifficulty::HARD:
@@ -54,7 +51,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
             gameTime = 181.0f;
             enemySpd = 60.0f;
             enemyLife = 100;
-            addDefense = 16;
             break;
     }
 
@@ -86,12 +82,7 @@ void Game::run()
 
         this->gameTime -= deltaTime;
 
-        this->healTime -= deltaTime;
-        if (this->healTime <= 0)
-        {
-            this->base->healLife(addDefense);
-            this->healTime = 12.0f;
-        }
+        this->base->heal(this->gameTime);
 
         setDeltaTime(deltaTime);
 

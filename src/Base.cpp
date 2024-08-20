@@ -1,4 +1,5 @@
 #include "../interfaces/Base.hpp"
+#include <cmath>
 #include <iostream>
 
 Base::Base(int maxLife, float posX, float posY)
@@ -36,9 +37,16 @@ int Base::getLife()
     return this->currentLife;
 }
 
-int Base::healLife(int addLife)
-{
-    return this->currentLife += addLife;
+int Base::heal(float time) {
+    if (fmod(time, 12.0f) == 0) {
+        if (this->currentLife < this->maxLife) {
+            this->currentLife += 50;
+            if (this->currentLife > this->maxLife) {
+                this->currentLife = this->maxLife;
+            }
+        }
+    }
+    return this->currentLife;
 }
 
 bool Base::isCollidingWith(const sf::FloatRect &other)
