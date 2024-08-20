@@ -15,7 +15,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     enemies = std::make_shared<std::list<std::shared_ptr<Enemy>>>();
     drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
     gameWindow = window;
-    animationManager = std::make_shared<AnimationManager>();
     hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
     hero->initAnimations();
     base = std::make_shared<Base>(500, x, y);
@@ -33,7 +32,18 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
 
 void Game::run()
 {
-    Clock clock;
+    sf::Clock clock;
+
+    this->battlemusic = std::make_unique<sf::Music>();
+    if (!this->battlemusic->openFromFile(BATTLE_MUSIC))
+    {
+        std::cout << "Unable to load the battle music. \n";
+    }
+    else
+    {
+        this->battlemusic->setLoop(true); // Loop a música
+        this->battlemusic->play();
+    }
 
     while (gameWindow->isOpen())
     {
@@ -43,6 +53,7 @@ void Game::run()
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
+            this->battlemusic->stop();
             showGameOver();
             break;
         }
@@ -61,19 +72,19 @@ void Game::renderStatus()
 
     sf::Text heroLifeText, ammoText, baseLifeText;
     heroLifeText.setFont(font);
-    heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
+    heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
     heroLifeText.setFillColor(sf::Color::White);
     heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
 
     ammoText.setFont(font);
-    ammoText.setString("MANA: " + to_string(hero->getRangedWeapon()->getAmmo()));
+    ammoText.setString("MANA: " + std::to_string(hero->getRangedWeapon()->getAmmo()));
     ammoText.setCharacterSize(16);
     ammoText.setFillColor(sf::Color::White);
     ammoText.setPosition(GAME_WINDOW_WIDTH - 200, 50);
 
     baseLifeText.setFont(font);
-    baseLifeText.setString("BASE: " + to_string(base->getLife()));
+    baseLifeText.setString("BASE: " + std::to_string(base->getLife()));
     baseLifeText.setCharacterSize(16);
     baseLifeText.setFillColor(sf::Color::White);
     baseLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 75);
@@ -93,7 +104,7 @@ void Game::render()
     for (const auto &enemy : *enemies)
     {
         if (!enemy->isDead())
-            gameWindow->draw(enemy->getShape());
+            gameWindow->draw(*enemy->getSprite());
 
         auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
         if (!enemyProjectiles.empty())
@@ -125,18 +136,18 @@ void Game::render()
 
 void Game::handleEvents()
 {
-    Event event;
+    sf::Event event;
     while (gameWindow->pollEvent(event))
     {
-        if (event.type == Event::Closed)
+        if (event.type == sf::Event::Closed)
         {
             gameWindow->close();
         }
-        else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+        else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
         {
             gameWindow->close();
         }
-        else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
+        else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q)
         {
             sf::Vector2f mousePosition = this->getMousePosition();
             hero->doAttack(mousePosition, this->deltaTime);
@@ -175,6 +186,7 @@ void Game::update(float deltaTime)
         else
         {
             enemy->move(deltaTime);
+            enemy->updateAnimation("walk", deltaTime); // Atualiza a animação de movimento
             int randNum = rand();
             if (randNum % 2 == 0)
             {
@@ -220,7 +232,7 @@ void Game::update(float deltaTime)
             hero->resolveCollision(enemy);
         }
 
-        if (base->isCollidingWith(enemy->getShape().getGlobalBounds()))
+        if (base->isCollidingWith(enemy->getSprite()->getGlobalBounds()))
         {
             base->takeDamage(50);
             enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
@@ -321,34 +333,46 @@ void Game::spawnDrop(sf::Vector2f &position)
 
 void Game::showGameOver()
 {
-    Font font;
+    this->gameovermusic = std::make_unique<sf::Music>();
+    if (!this->gameovermusic->openFromFile(GAMEOVER_MUSIC))
+    {
+        std::cout << "Unable to load the game over music. \n";
+    }
+    else
+    {
+        this->gameovermusic->setLoop(true); // Loop a música
+        this->gameovermusic->play();
+    }
+
+    sf::Font font;
     if (!font.loadFromFile(GAME_FONT))
     {
         std::cout << "Couldn't load font. Exiting.";
         return;
     }
 
-    Text gameOverText, exitText;
+    sf::Text gameOverText, exitText;
     gameOverText.setFont(font);
     gameOverText.setString("Game Over");
     gameOverText.setCharacterSize(48);
-    gameOverText.setFillColor(Color::Red);
+    gameOverText.setFillColor(sf::Color::Red);
     gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
     exitText.setFont(font);
     exitText.setString("Press any key to exit");
     exitText.setCharacterSize(24);
-    exitText.setFillColor(Color::White);
+    exitText.setFillColor(sf::Color::White);
     exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
 
     while (gameWindow->isOpen())
     {
-        Event event;
+        sf::Event event;
         while (gameWindow->pollEvent(event))
         {
-            if (event.type == Event::Closed || event.type == Event::KeyPressed)
+            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
             {
                 gameWindow->close();
+                this->gameovermusic->stop();
             }
         }
 

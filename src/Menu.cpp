@@ -1,6 +1,15 @@
 #include "../interfaces/Menu.hpp"
 #include "../common.h"
-#include <iostream>
+
+Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
+{
+    window = gameWindow;
+    font = std::make_unique<sf::Font>();
+    image = std::make_unique<sf::Texture>();
+    bg = std::make_unique<sf::Sprite>();
+    menumusic = std::make_unique<sf::Music>();
+    init();
+}
 
 void Menu::init()
 {
@@ -60,6 +69,17 @@ void Menu::init()
     }
 
     (*options)[0].setOutlineThickness(2);
+
+    this->menumusic = std::make_unique<sf::Music>();
+    if (!this->menumusic->openFromFile(MENU_MUSIC))
+    {
+        std::cout << "Unable to load the menu music. \n";
+    }
+    else
+    {
+        this->menumusic->setLoop(true); // Loop a música
+        this->menumusic->play();
+    }
 }
 
 bool Menu::run()
@@ -76,11 +96,13 @@ bool Menu::run()
         switch (action)
         {
         case MenuActions::START:
+            this->menumusic->stop();
             return false;
         case MenuActions::ABOUT:
             showAbout();
             break;
         case MenuActions::EXIT:
+            this->menumusic->stop();
             windowPtr->close();
             break;
         default:

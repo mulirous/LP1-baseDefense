@@ -59,7 +59,7 @@ void Hero::doAttack(sf::Vector2f &target, float dt)
     this->animationState = CharacterAnimation::ATTACK;
     updateAnimation("attack", dt);
 
-    this->weapon->shoot(target, heroPosition);
+    this->weapon->shoot(target, heroPosition, true);
 }
 
 void Hero::move(float deltaTime)

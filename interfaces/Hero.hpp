@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include "Character.hpp"
 #include "Quiver.hpp"
-#include "../src/modules/animation/src/AnimationManager.hpp"
 #include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <memory>
 #include "Item.hpp"

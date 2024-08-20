@@ -8,12 +8,15 @@
 #include <memory>
 #include <type_traits>
 #include "Projectile.hpp"
-#include "../src/modules/animation/src/AnimationManager.hpp"
+#include <SFML/Audio.hpp>
 
 /// @brief The central point of all game.
 class Game
 {
 private:
+    std::unique_ptr<sf::Music> gameovermusic;
+    std::unique_ptr<sf::Music> battlemusic;
+
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
     /// @param projectiles A shared pointer to a list of Projectiles pointers
@@ -77,7 +80,6 @@ protected:
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
-    std::shared_ptr<AnimationManager> animationManager;
     float deltaTime;
     float spawnInterval = 5;
     float spawnTimer = 0;
