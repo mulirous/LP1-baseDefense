@@ -3,17 +3,25 @@
 #include <cmath>
 
 Hero::Hero(float width, float height, float speed, int maxLife, float posX, float posY)
-    : Character(width, height, speed, maxLife, posX, posY, HERO_IMAGE)
+    : Character(width, height, speed, maxLife, posX, posY)
 {
-    currentFrame = 0;
-    frameTime = 0.1f;
-    timeSinceLastFrame = 0;
-    frameSize = sf::Vector2i(width, height);
-    sprite->setTextureRect(sf::IntRect(0, 0, frameSize.x, frameSize.y));
-    sprite->setScale(1.5f, 1.5f);
-
+    direction = CharacterDirection::RIGHT; // Starts facing right by default
+    animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
     weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
+    sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
+    sprite->setScale(2, 2);
+    initAnimations();
 };
+
+void Hero::initAnimations()
+{
+    std::cout << "inside initAnimation\n";
+    auto idle = std::make_shared<Animation>(ResourceManager::getTexture(HERO_IDLE_IMAGE), sf::Vector2u(6, 1), 0.08f);
+    auto walk = std::make_shared<Animation>(ResourceManager::getTexture(HERO_WALK_IMAGE), sf::Vector2u(8, 1), 0.05f);
+
+    (*animations)["idle"] = idle;
+    (*animations)["walk"] = walk;
+}
 
 void Hero::takeDamage(int damage)
 {
@@ -27,45 +35,94 @@ void Hero::doAttack(sf::Vector2f &target)
     // Get hero position
     auto heroPosition = sf::Vector2f(this->currentPosition);
 
-    // Set mouse position as target on ranged weapon and do attack
-    this->weapon->shoot(target, heroPosition, true);
+    this->weapon->shoot(target, heroPosition,true);
 }
 
 void Hero::move(float deltaTime)
 {
-    float currentSpeed = this->speed;
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+    sf::Vector2f movement(0, 0);
+
+    // Need this because target is integer and current is float, so comparing precisely these two won't work
+    float distanceX = currentPosition.x - targetPosition.x;
+    float distanceY = currentPosition.y - targetPosition.y;
+
+    if (targetPosition.x < currentPosition.x)
     {
-        currentSpeed += 4;
+        movement.x -= this->speed * deltaTime;
+    }
+    else if (targetPosition.x > currentPosition.x)
+    {
+        movement.x += this->speed * deltaTime;
     }
 
-    sf::Vector2f currentPosition = sprite->getPosition();
-    sf::Vector2f direction = this->targetPosition - currentPosition;
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (targetPosition.y < currentPosition.y)
+    {
+        movement.y -= this->speed * deltaTime;
+    }
+    else if (targetPosition.y > currentPosition.y)
+    {
+        movement.y += this->speed * deltaTime;
+    }
 
-    if (distance < 1.0f)
-        return;
+    if (distanceX < 1 && distanceY < 1 && distanceX > -1 && distanceY > -1)
+    {
+        // Hero is on target (or closely enough)
+        updateAnimation("idle", deltaTime);
+    }
+    else
+    {
+        // Hero isn't close to target, so it will move
+        if (movement.x > 0)
+        {
+            this->direction = CharacterDirection::RIGHT;
+        }
+        else
+        {
+            this->direction = CharacterDirection::LEFT;
+        }
+        updateAnimation("walk", deltaTime);
+    }
+    sprite->move(movement);
 
-    direction /= distance;
+    /// TODO: remove this
+    // float currentSpeed = this->speed;
+    // if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+    // {
+    //     currentSpeed += 4;
+    // }
 
-    deltaTime = 0.08f;
-    sprite->move(direction * currentSpeed * deltaTime);
+    // sf::Vector2f currentPosition = sprite->getPosition();
+    // sf::Vector2f direction = this->targetPosition - currentPosition;
+    // float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    // if (distance < 1.0f)
+    //     return;
+
+    // direction /= distance;
+
+    // deltaTime = 0.08f;
+    // sprite->move(direction * currentSpeed * deltaTime);
 
     sf::Vector2f newPosition = sprite->getPosition();
     this->setCurrentPosition(newPosition);
-    updateAnimation(deltaTime);
 }
 
-void Hero::updateAnimation(float deltaTime)
+void Hero::updateAnimation(const std::string &action, float dt)
 {
-    sf::Texture texture = *ResourceManager::getTexture(HERO_IMAGE); // urgently remove this
-    timeSinceLastFrame += deltaTime;
-    if (timeSinceLastFrame >= frameTime)
+    // Avoid changing textures so often
+    if (action == "idle" && sprite->getTexture() != ResourceManager::getTexture(HERO_IDLE_IMAGE))
     {
-        timeSinceLastFrame = 0.0f;
-        currentFrame = (currentFrame + 1) % (texture.getSize().x / frameSize.x);
-        sprite->setTextureRect(sf::IntRect(currentFrame * frameSize.x, 0, frameSize.x, frameSize.y));
+        sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
     }
+    else if (action == "walk" && sprite->getTexture() != ResourceManager::getTexture(HERO_WALK_IMAGE))
+    {
+        sprite->setTexture(*ResourceManager::getTexture(HERO_WALK_IMAGE));
+    }
+
+    (*animations)[action]->update(dt, direction);
+
+    // Sets texture rect to render updated sprite
+    sprite->setTextureRect((*animations)[action]->textureRect);
 }
 
 void Hero::heal(int healAmount)

@@ -2,8 +2,8 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include "../enums/MenuActions.h"
-#include <iostream>
 #include <SFML/Audio.hpp>
+#include <iostream>
 #include "structs.hpp"
 
 class Menu

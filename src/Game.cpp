@@ -5,6 +5,7 @@
 #include <math.h>
 #include "../interfaces/Potion.hpp"
 #include "../interfaces/Quiver.hpp"
+#include "modules/animation/src/Animation.hpp"
 
 Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
 {
@@ -15,8 +16,19 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
     gameWindow = window;
     animationManager = std::make_shared<AnimationManager>();
-    battlemusic = std::make_unique<sf::Music>();
-    gameovermusic = std::make_unique<sf::Music>();
+    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
+    hero->initAnimations();
+    base = std::make_shared<Base>(500, x, y);
+    background = std::make_unique<sf::Sprite>();
+
+    auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
+    sf::Vector2u textureSize = bgTexture->getSize();
+    sf::Vector2u windowSize = gameWindow->getSize();
+    auto scaleX = static_cast<float>(windowSize.x) / textureSize.x;
+    auto scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+
+    background->setTexture(*bgTexture);
+    background->setScale(scaleX, scaleY);
 };
 
 void Game::run()
@@ -26,13 +38,14 @@ void Game::run()
     this->battlemusic = std::make_unique<sf::Music>();
     if (!this->battlemusic->openFromFile(BATTLE_MUSIC))
     {
-        std::cout << "Unable to load the menu music. \n"; 
+        std::cout << "Unable to load the battle music. \n"; 
     }
     else
     {
         this->battlemusic->setLoop(true); // Loop a música
          this->battlemusic->play();
     }
+
 
     while (gameWindow->isOpen())
     {
@@ -57,13 +70,9 @@ void Game::run()
 
 void Game::renderStatus()
 {
-    Font font = Font();
-    if (!font.loadFromFile(GAME_FONT))
-    {
-        std::cout << "Couldn't load font. Exiting.";
-        return;
-    }
-    Text heroLifeText, ammoText, baseLifeText;
+    auto font = *ResourceManager::getFont(GAME_FONT);
+
+    sf::Text heroLifeText, ammoText, baseLifeText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
@@ -71,7 +80,7 @@ void Game::renderStatus()
     heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
 
     ammoText.setFont(font);
-    ammoText.setString("AMMO: " + to_string(hero->getRangedWeapon()->getAmmo()));
+    ammoText.setString("MANA: " + to_string(hero->getRangedWeapon()->getAmmo()));
     ammoText.setCharacterSize(16);
     ammoText.setFillColor(sf::Color::White);
     ammoText.setPosition(GAME_WINDOW_WIDTH - 200, 50);
@@ -89,37 +98,15 @@ void Game::renderStatus()
 
 void Game::render()
 {
-    sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile(BACKGROUND_GAME))
-    {
-        cout << "Background load failed." << endl;
-        return;
-    }
-    sf::Sprite backgroundSprite;
-    backgroundSprite.setTexture(backgroundTexture);
-
-    sf::Vector2u textureSize = backgroundTexture.getSize();
-    sf::Vector2u windowSize = gameWindow->getSize();
-
-    float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
-    float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
-
-    backgroundSprite.setScale(scaleX, scaleY);
-
-    gameWindow->clear(Color::White);
-    gameWindow->draw(backgroundSprite);
-    if (base->getSprite() == nullptr)
-    {
-        std::cout << "sprite is null";
-        return;
-    }
+    gameWindow->clear(sf::Color::White);
+    gameWindow->draw(*background);
     gameWindow->draw(*base->getSprite());
     gameWindow->draw(*hero->getSprite());
 
     for (const auto &enemy : *enemies)
     {
         if (!enemy->isDead())
-            gameWindow->draw(enemy->getShape());
+            gameWindow->draw(*enemy->getSprite());
 
         auto enemyProjectiles = *enemy->getRangedWeapon()->getLaunchedProjectiles();
         if (!enemyProjectiles.empty())
@@ -201,6 +188,7 @@ void Game::update(float deltaTime)
         else
         {
             enemy->move(deltaTime);
+            enemy->updateAnimation("walk", deltaTime); // Atualiza a animação de movimento
             int randNum = rand();
             if (randNum % 2 == 0)
             {
@@ -246,7 +234,7 @@ void Game::update(float deltaTime)
             hero->resolveCollision(enemy);
         }
 
-        if (base->isCollidingWith(enemy->getShape().getGlobalBounds()))
+        if (base->isCollidingWith(enemy->getSprite()->getGlobalBounds()))
         {
             base->takeDamage(50);
             enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
@@ -269,6 +257,7 @@ void Game::update(float deltaTime)
             drops->erase(std::remove(drops->begin(), drops->end(), drop), drops->end());
             continue;
         }
+        drop->getItem()->animate(deltaTime);
         if (hero->isCollidingWith(drop->getBounds()))
         {
             auto item = drop->getItem();
@@ -314,6 +303,7 @@ void Game::spawnEnemy()
     }
 
     auto enemy = std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    enemy->initAnimations(); // Inicializa as animações do inimigo
     enemies->push_back(enemy);
 }
 
@@ -336,8 +326,8 @@ void Game::spawnDrop(sf::Vector2f &position)
     }
     else
     {
-        int arrows = getRandomNumber(5, 10);
-        auto item = std::make_shared<Quiver>(arrows);
+        int mana = getRandomNumber(5, 10);
+        auto item = std::make_shared<ManaPotion>(mana);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
 
@@ -346,10 +336,11 @@ void Game::spawnDrop(sf::Vector2f &position)
 
 void Game::showGameOver()
 {
+
     this->gameovermusic = std::make_unique<sf::Music>();
     if (!this->gameovermusic->openFromFile(GAMEOVER_MUSIC))
     {
-        std::cout << "Unable to load the menu music. \n";
+        std::cout << "Unable to load the game over music. \n";
     }
     else
     {

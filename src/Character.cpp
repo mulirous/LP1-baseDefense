@@ -1,29 +1,30 @@
 #include "../interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
-Character::Character(float width, float height, float speed, int maxLife, float posX, float posY, std::string filepath) : width(width), height(height), speed(speed),
-                                                                                                                          maximumLife(maxLife), currentLife(maxLife), currentPosition(posX, posY)
+Character::Character(float width, float height, float speed, int maxLife, float posX, float posY) : width(width), height(height), speed(speed),
+                                                                                                    maximumLife(maxLife), currentLife(maxLife), currentPosition(posX, posY)
 {
     sprite = std::make_shared<sf::Sprite>();
-    if (!filepath.empty() || filepath != "")
-        sprite->setTexture(*ResourceManager::getTexture(filepath));
     sprite->setPosition(posX, posY);
 };
 
-Character::Character(float width, float height, float speed, int maxLife, sf::Vector2f position, std::string filepath) : Character(width, height, speed, maxLife, position.x, position.y, filepath) {};
+Character::Character(float width, float height, float speed, int maxLife, sf::Vector2f position) : Character(width, height, speed, maxLife, position.x, position.y) {};
 
 float Character::getWidth()
 {
     return this->width;
 }
+
 float Character::getHeigth()
 {
     return this->height;
 }
+
 float Character::getSpeed()
 {
     return this->speed;
 }
+
 int Character::getMaxLife()
 {
     return this->maximumLife;

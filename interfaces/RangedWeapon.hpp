@@ -1,4 +1,3 @@
-// RangedWeapon.hpp
 #pragma once
 #include "Weapon.hpp"
 #include "Projectile.hpp"
@@ -13,29 +12,24 @@ class RangedWeapon : public Weapon
 private:
     /// @brief Weapon's ammo
     int ammo;
-
+    /// @brief Creates a projectile when character shoot
+    /// @return A pointer to projectile
+    std::shared_ptr<Projectile> launchProjectile();
     /// @brief Current position
     sf::Vector2f currentPosition;
-
-    // @brief Target's position
+    /// @brief Target's position
     sf::Vector2f target;
-
     /// @brief Launched projectiles of weapon on screen
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> launchedProjectiles;
+    /// @brief Makes an attack
+    /// @note Only attack if there is remaining ammo and if the weapon's release time has passed
+    /// @returns void
+    void doAttack() override;
 
     sf::SoundBuffer arrowSoundBuffer;
     sf::SoundBuffer spellSoundBuffer;
     sf::Sound arrowSound;
     sf::Sound spellSound;
-
-    /// @brief Creates a projectile when character shoot
-    /// @return A pointer to projectile
-    std::shared_ptr<Projectile> launchProjectile();
-
-    /// @brief Makes an attack
-    /// @note Only attack if there is remaining ammo and if the weapon's release time has passed
-    /// @returns void
-    void doAttack() override; //Implements pure virtual function
 
 public:
     RangedWeapon(int range, float releaseTime, int ammo);

@@ -1,16 +1,12 @@
-// RangedWeapon.cpp
 #include "../interfaces/RangedWeapon.hpp"
-#include <cmath>
+#include <math.h>
 #include "../common.h"
 #include <iostream>
-#include <SFML/Audio.hpp>
 
-RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo)
-    : Weapon(range, releaseTime), ammo(ammo)
+RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo) : Weapon(range, releaseTime), ammo(ammo)
 {
     launchedProjectiles = std::make_shared<std::list<std::shared_ptr<Projectile>>>();
-
-    if (!arrowSoundBuffer.loadFromFile(ARROW_MUSIC) || !spellSoundBuffer.loadFromFile(SPELL_MUSIC))
+     if (!arrowSoundBuffer.loadFromFile(ARROW_MUSIC) || !spellSoundBuffer.loadFromFile(SPELL_MUSIC))
     {
         std::cerr << "Failed to load arrow and/or spell sound files!" << std::endl;
     }
@@ -35,24 +31,11 @@ void RangedWeapon::addAmmo(int ammo)
     this->ammo += ammo;
 }
 
-void RangedWeapon::doAttack()
-{
-    if (ammo == 0 || !this->isReadyToAttack())
-        return;
-
-    auto newProjectile = this->launchProjectile();
-    this->launchedProjectiles->push_back(newProjectile);
-    this->ammo--;
-    this->releaseTimeCounter.restart();
-
-    // Som de flecha tocado somente quando um projétil é lançado
-    arrowSound.play();
-}
-
 void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bool isHero)
 {
     setCurrentPosition(currentPosition);
     setTarget(target);
+    doAttack();
 
     if (isHero)
     {
@@ -65,6 +48,20 @@ void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bo
     }
 }
 
+void RangedWeapon::doAttack()
+{
+    if (ammo == 0 || !this->isReadyToAttack())
+        return;
+
+    // Creates a new projectile and shoot it
+    auto newProjectile = this->launchProjectile();
+    this->launchedProjectiles->push_back(newProjectile);
+    this->ammo--;
+    this->releaseTimeCounter.restart();
+
+    // Som de flecha tocado somente quando um projétil é lançado
+    arrowSound.play();
+}
 
 bool RangedWeapon::isReadyToAttack()
 {
