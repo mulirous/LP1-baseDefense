@@ -46,8 +46,7 @@ void Menu::init()
         {"EXIT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)},
         {"EASY", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
         {"MEDIUM", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
-        {"HARD", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)},
-        {"Press Enter Trhee Time", 14, sf::Vector2f((GAME_WINDOW_WIDTH - 250) / 2, 391)}
+        {"HARD", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)}
     });
 
     this->options = std::make_shared<std::vector<sf::Text>>(this->menuOptions->size());
@@ -103,7 +102,6 @@ bool Menu::run()
     return true;
 }
 
-
 void Menu::drawAll()
 {
     auto windowPtr = window.lock();
@@ -122,11 +120,37 @@ void Menu::drawAll()
         }
     }
     else if (currentState == MenuState::DIFFICULTY)
-    {
+    {   
+        sf::Text enterText, returnText;
+
+        // Certifique-se de que a fonte está carregada e atribuída corretamente
+        if (font) {
+            enterText.setFont(*font);
+            returnText.setFont(*font);
+        } else {
+            std::cerr << "Fonte não carregada corretamente!" << std::endl;
+            return;
+        }
+
+        enterText.setString("Press Enter Three Times");
+        enterText.setCharacterSize(16);
+        enterText.setFillColor(sf::Color::White);
+        // Centralizar o texto na tela
+        enterText.setPosition((GAME_WINDOW_WIDTH - enterText.getLocalBounds().width) / 2, 391);
+
+        returnText.setString("Press 'Q' to Return");
+        returnText.setCharacterSize(16);
+        returnText.setFillColor(sf::Color::White);
+        // Centralizar o texto na tela
+        returnText.setPosition((GAME_WINDOW_WIDTH - returnText.getLocalBounds().width) / 2, 491);
+
         for (size_t i = 3; i < this->options->size(); ++i)
         {
             windowPtr->draw((*this->options)[i]);
         }
+
+        windowPtr->draw(enterText);
+        windowPtr->draw(returnText);
     }
 
     windowPtr->display();
@@ -183,7 +207,7 @@ MenuActions Menu::handleActions()
                         return MenuActions::EXIT;
                 }
                 else if (currentState == MenuState::DIFFICULTY)
-                {
+                {   
                     if (this->current == 3)
                         this->selectedDifficulty = GameDifficulty::EASY;
                     if (this->current == 4)
@@ -193,6 +217,13 @@ MenuActions Menu::handleActions()
 
                     return MenuActions::CHOOSE_DIFFICULTY;
                 }
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && currentState == MenuState::DIFFICULTY)
+            {
+                currentState = MenuState::MAIN;
+                (*this->options)[this->current].setOutlineThickness(0);
+                this->current = 0; // Reset para o primeiro item do menu principal
+                (*this->options)[this->current].setOutlineThickness(2);
             }
         }
         
