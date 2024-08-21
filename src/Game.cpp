@@ -340,11 +340,11 @@ void Game::update()
         }
     }
 
-    this->spawnTimer += deltaTime;
-    if (this->spawnTimer >= this->spawnInterval)
+    spawnTimer += deltaTime;
+    if (spawnTimer >= spawnInterval)
     {
         spawnEnemy();
-        this->spawnTimer = 0.f;
+        spawnTimer = 0.f;
     }
 }
 
@@ -379,11 +379,6 @@ void Game::spawnEnemy()
     enemies->push_back(enemy);
 }
 
-void Game::close()
-{
-    gameWindow->close();
-}
-
 void Game::spawnDrop(sf::Vector2f &position)
 {
     // Randomically selects item
@@ -393,7 +388,8 @@ void Game::spawnDrop(sf::Vector2f &position)
 
     if (num % 2)
     {
-        auto item = std::make_shared<Potion>();
+        int life = getRandomNumber(10, 20);
+        auto item = std::make_shared<Potion>(life);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
     else
@@ -496,4 +492,9 @@ void Game::showGameWin()
         gameWindow->draw(returnText);
         gameWindow->display();
     }
+}
+
+void Game::close()
+{
+    gameWindow->close();
 }

@@ -140,8 +140,11 @@ void Hero::updateAnimation(const std::string &action, float dt)
 
 void Hero::heal(int healAmount)
 {
-    if (healAmount + currentLife > 100)
+    if (healAmount + currentLife > maximumLife)
+    {
+        this->currentLife = maximumLife;
         return;
+    }
 
     this->currentLife += healAmount;
 }
