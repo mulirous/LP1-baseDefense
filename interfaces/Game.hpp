@@ -29,7 +29,7 @@ private:
     GameDifficulty difficulty;
 
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
-    /// @tparam T A class derived from Character
+    /// @tparam T A class derived from Character or Base
     /// @param projectiles A shared pointer to a list of Projectiles pointers
     /// @param characters A shared pointer to a list of T pointers
     template <typename T>
@@ -49,9 +49,17 @@ private:
             }
             for (auto characterIt = characters->begin(); characterIt != characters->end(); characterIt++)
             {
+                // If projectile isn't colliding with enemy, or if it is but enemy is dead, projectile keeps on screen.
+
                 auto character = *characterIt;
                 if (!character->isCollidingWith(projectile->getBounds()))
                     continue;
+
+                if constexpr (std::is_same<Enemy, T>::value)
+                {
+                    if (character->isDead())
+                        continue;
+                }
 
                 projectileIt = projectiles->erase(projectileIt);
 
@@ -128,6 +136,5 @@ public:
     void setDifficulty(GameDifficulty diff);
 
     /// @brief Start point to run game.
-    void
-    run();
+    void run();
 };
