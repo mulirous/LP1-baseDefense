@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "RangedWeapon.hpp"
-#include "../src/modules/animation/src/AnimationManager.hpp"
 #include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include "../enums/EnemyState.h"
 #include "Character.hpp"
@@ -15,7 +14,6 @@
 class Enemy : public Character
 {
 protected:
-    std::shared_ptr<std::map<std::string, std::shared_ptr<Animation>>> animations;
     std::shared_ptr<RangedWeapon> weapon;
     /// @brief
     sf::Vector2f targetPosition;
@@ -42,10 +40,10 @@ public:
     float getTimeSinceDeath();
     bool hasDrop();
 
-    void initAnimations() override; // Sobrescrever para inicializar as animações
+    void initAnimations() override;                            // Sobrescrever para inicializar as animações
     void updateAnimation(const std::string &action, float dt); // Novo método para atualizar as animações
 
     std::shared_ptr<RangedWeapon> getRangedWeapon();
     void move(float deltaTime) override;
-    void doAttack(sf::Vector2f &target) override;
+    void doAttack(sf::Vector2f &target, float dt = {}) override;
 };

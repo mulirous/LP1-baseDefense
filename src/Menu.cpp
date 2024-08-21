@@ -1,6 +1,15 @@
 #include "../interfaces/Menu.hpp"
 #include "../common.h"
-#include <iostream>
+
+Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
+{
+    window = gameWindow;
+    font = std::make_unique<sf::Font>();
+    image = std::make_unique<sf::Texture>();
+    bg = std::make_unique<sf::Sprite>();
+    menumusic = std::make_unique<sf::Music>();
+    init();
+}
 
 void Menu::init()
 {

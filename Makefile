@@ -13,7 +13,7 @@ LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 INC = -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(INTERFACE_DIR) -I$(MODULE_DIR)/animation/src -I$(MODULE_DIR)/texture_manager/src
 
 # Gets all .cpp files and transform them into .o files
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp) $(MODULE_DIR)/animation/src/Animation.cpp $(MODULE_DIR)/animation/src/AnimationManager.cpp $(MODULE_DIR)/texture_manager/src/ResourceManager.cpp 
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp) $(MODULE_DIR)/animation/src/Animation.cpp $(MODULE_DIR)/texture_manager/src/ResourceManager.cpp 
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES)) 
 
 # Instructions to compile any .cpp file into a .o file

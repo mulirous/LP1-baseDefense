@@ -1,27 +1,34 @@
 #include "../interfaces/RangedWeapon.hpp"
-#include <math.h>
+#include <cmath>
 #include "../common.h"
 #include <iostream>
 
-RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo) : Weapon(range, releaseTime), ammo(ammo)
+RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo)
+    : Weapon(range, releaseTime), ammo(ammo)
 {
     launchedProjectiles = std::make_shared<std::list<std::shared_ptr<Projectile>>>();
-     if (!arrowSoundBuffer.loadFromFile(ARROW_MUSIC) || !spellSoundBuffer.loadFromFile(SPELL_MUSIC))
+
+    // Inicialize os buffers de som e sons
+    if (!arrowSoundBuffer.loadFromFile(ARROW_MUSIC))
     {
-        std::cerr << "Failed to load arrow and/or spell sound files!" << std::endl;
+        std::cerr << "Failed to load arrow sound file!" << std::endl;
+    }
+    if (!spellSoundBuffer.loadFromFile(SPELL_MUSIC))
+    {
+        std::cerr << "Failed to load spell sound file!" << std::endl;
     }
 
     arrowSound.setBuffer(arrowSoundBuffer);
     spellSound.setBuffer(spellSoundBuffer);
 }
 
-std::shared_ptr<Projectile> RangedWeapon::launchProjectile()
+std::shared_ptr<Projectile> RangedWeapon::launchProjectile(bool isHero)
 {
     sf::Vector2f direction = this->target - this->currentPosition;
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     direction = sf::Vector2f(direction.x / length, direction.y / length);
 
-    return std::make_shared<Projectile>(10, PROJECTILE_VELOCITY, this->currentPosition, direction);
+    return std::make_shared<Projectile>(10, PROJECTILE_VELOCITY, this->currentPosition, direction, isHero);
 }
 
 void RangedWeapon::addAmmo(int ammo)
@@ -35,32 +42,29 @@ void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bo
 {
     setCurrentPosition(currentPosition);
     setTarget(target);
-    doAttack();
-
-    if (isHero)
-    {
-        doAttack();  // Faz o herói atirar e tocar o som de magia
-        spellSound.play();  // Som de magia para o herói
-    }
-    else
-    {
-        doAttack();  // Faz o inimigo atirar e tocar o som de flecha
-    }
+    doAttack(isHero);
 }
 
-void RangedWeapon::doAttack()
+void RangedWeapon::doAttack(bool isHero)
 {
     if (ammo == 0 || !this->isReadyToAttack())
         return;
 
-    // Creates a new projectile and shoot it
-    auto newProjectile = this->launchProjectile();
+    auto newProjectile = this->launchProjectile(isHero);
     this->launchedProjectiles->push_back(newProjectile);
     this->ammo--;
     this->releaseTimeCounter.restart();
 
-    // Som de flecha tocado somente quando um projétil é lançado
-    arrowSound.play();
+    if (isHero)
+    {
+        spellSound.setVolume(100); // Ajuste o volume se necessário
+        spellSound.play();
+    }
+    else
+    {
+        arrowSound.setVolume(100); // Ajuste o volume se necessário
+        arrowSound.play();
+    }
 }
 
 bool RangedWeapon::isReadyToAttack()

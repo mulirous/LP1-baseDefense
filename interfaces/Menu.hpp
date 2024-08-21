@@ -41,16 +41,7 @@ protected:
     void drawAll();
 
 public:
-    Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
-    {
-        window = gameWindow;
-        font = std::make_unique<sf::Font>();
-        image = std::make_unique<sf::Texture>();
-        bg = std::make_unique<sf::Sprite>();
-        menumusic = std::make_unique<sf::Music>();
-        init();
-    }
-
-    ~Menu() = default;
+    Menu(std::shared_ptr<sf::RenderWindow> gameWindow);
+    virtual ~Menu() = default;
     bool run();
 };

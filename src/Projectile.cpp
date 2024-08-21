@@ -1,37 +1,65 @@
 #include "../interfaces/Projectile.hpp"
+#include "SFML/Graphics.hpp"
 
-Projectile::Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target)
-    : position(position), damage(damage), velocity(velocity), target(target)
+
+Projectile::Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target, bool isHero)
+    : damage(damage), velocity(velocity), position(position), target(target)
 {
-    shape.setRadius(5);
-    shape.setFillColor(sf::Color::Green);
-    shape.setPosition(this->position);
-    shape.setRotation(atan2(target.y, target.x) * 180 / 3.14159265);
+    sprite = std::make_shared<sf::Sprite>();
+    sprite->setPosition(position);
+
+    animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
+
+    if (isHero) {
+        sprite->setTexture(*ResourceManager::getTexture(WIZARD_SPELL));
+    } else {
+        sprite->setTexture(*ResourceManager::getTexture(ENEMY_ARROW));
+    }
+
+    initAnimations();
 }
 
-void Projectile::update(float deltaTime)
+
+void Projectile::initAnimations()
 {
-    shape.move(target * velocity * deltaTime);
+    // Initialize the projectile animation
+    auto attack = std::make_shared<Animation>(ResourceManager::getTexture(WIZARD_SPELL), sf::Vector2u(8, 1), 0.05f);
+    (*animations)["attack"] = attack;
 }
 
-bool Projectile::isOffScreen() const
+const sf::Sprite &Projectile::getSprite()
 {
-    sf::FloatRect bounds = shape.getGlobalBounds();
-    return (bounds.left + bounds.width < 0 || bounds.left > GAME_WINDOW_WIDTH ||
-            bounds.top + bounds.height < 0 || bounds.top > GAME_WINDOW_HEIGHT);
-}
-
-const sf::CircleShape &Projectile::getShape()
-{
-    return this->shape;
+    return *sprite;
 }
 
 sf::FloatRect Projectile::getBounds()
 {
-    return shape.getGlobalBounds();
+    return sprite->getGlobalBounds();
 }
 
 int Projectile::getDamage()
 {
-    return this->damage;
+    return damage;
+}
+
+void Projectile::update(float deltaTime)
+{
+    // Update the animation
+    (*animations)["attack"]->update(deltaTime);
+    sprite->setTextureRect((*animations)["attack"]->textureRect);
+
+    // Move the projectile
+    sf::Vector2f direction = target - position;
+    float magnitude = sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (magnitude != 0.0f)
+        direction /= magnitude;
+
+    position += direction * velocity * deltaTime;
+    sprite->setPosition(position);
+}
+
+bool Projectile::isOffScreen() const
+{
+    // Check if the projectile is off screen
+    return position.x < 0 || position.x > GAME_WINDOW_WIDTH || position.y < 0 || position.y > GAME_WINDOW_HEIGHT;
 }

@@ -9,9 +9,7 @@ Enemy::Enemy(float width, float height, float speed, int maxLife, float x, float
     weapon = std::make_shared<RangedWeapon>(5, 2, 50);
     state = EnemyState::ALIVE;
     int num = getRandomNumber(0, 100);
-
     drop = num >= 60 ? true : false;
-
     animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
     sprite->setTexture(*ResourceManager::getTexture(ENEMY_WALK_IMAGE));
     sprite->setScale(2.0f, 2.0f);
@@ -45,7 +43,6 @@ bool Enemy::hasDrop()
     return this->drop;
 }
 
-
 std::shared_ptr<RangedWeapon> Enemy::getRangedWeapon()
 {
     return this->weapon;
@@ -72,7 +69,6 @@ void Enemy::move(float deltaTime)
     float directionY = targetPosition.y - this->currentPosition.y;
     float magnitude = sqrt(pow(directionX, 2) + pow(directionY, 2));
 
-    
     if (targetPosition.x < currentPosition.x)
     {
         movement.x -= this->speed * deltaTime;
@@ -116,14 +112,14 @@ void Enemy::move(float deltaTime)
         this->currentPosition.x += (directionX / magnitude) * this->speed * deltaTime;
         this->currentPosition.y += (directionY / magnitude) * this->speed * deltaTime;
         sprite->setPosition(this->currentPosition);
-        
+
         // Atualizar a animação enquanto o inimigo se move
         updateAnimation("walk", deltaTime);
     }
 }
 
-void Enemy::doAttack(sf::Vector2f &target)
+void Enemy::doAttack(sf::Vector2f &target, float dt)
 {
     auto current = sf::Vector2f(this->currentPosition);
-    this->weapon->shoot(target, current,false);
+    this->weapon->shoot(target, current, false);
 }

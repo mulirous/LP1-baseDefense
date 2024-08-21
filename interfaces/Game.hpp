@@ -8,14 +8,12 @@
 #include <memory>
 #include <type_traits>
 #include "Projectile.hpp"
-#include "../src/modules/animation/src/AnimationManager.hpp"
 #include <SFML/Audio.hpp>
 
 /// @brief The central point of all game.
 class Game
 {
 private:
-
     std::unique_ptr<sf::Music> gameovermusic;
     std::unique_ptr<sf::Music> battlemusic;
 
@@ -82,7 +80,6 @@ protected:
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
-    std::shared_ptr<AnimationManager> animationManager;
     float deltaTime;
     float spawnInterval = 5;
     float spawnTimer = 0;
@@ -95,7 +92,6 @@ protected:
     /// @param enemyPosition Position on drop will spawn
     /// @note Internally, adds drop to drops's list
     void spawnDrop(sf::Vector2f &enemyPosition);
-
 
     /// @brief Process events like inputs.
     void handleEvents();

@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include "Character.hpp"
 #include "Quiver.hpp"
-#include "../src/modules/animation/src/AnimationManager.hpp"
 #include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <memory>
 #include "Item.hpp"
@@ -35,7 +34,7 @@ public:
     void takeDamage(int damage);
     void initAnimations() override;
     void move(float deltaTime) override;
-    void doAttack(sf::Vector2f &target) override;
+    void doAttack(sf::Vector2f &target, float dt = {}) override;
 
     template <typename T>
     void useItem(std::shared_ptr<T> item)
