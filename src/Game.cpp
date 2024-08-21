@@ -14,14 +14,12 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
                                                                                                     enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
                                                                                                     drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
                                                                                                     background(std::make_unique<sf::Sprite>())
-// menu(std::make_unique<Menu>(window))
 {
     srand(static_cast<unsigned>(time(0)));
 
+    // Will only be used here
     int heroHealth;
     float baseDefense;
-    float spawnInterval;
-    float gameTime;
 
     switch (difficulty)
     {
@@ -32,6 +30,7 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
         gameTime = 91.0f;
         enemySpd = 30.0f;
         enemyLife = 50;
+        enemyDamage = 5;
         break;
 
     case GameDifficulty::MEDIUM:
@@ -41,6 +40,7 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
         gameTime = 121.0f;
         enemySpd = 50.0f;
         enemyLife = 80;
+        enemyDamage = 10;
         break;
 
     case GameDifficulty::HARD:
@@ -50,10 +50,11 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
         gameTime = 181.0f;
         enemySpd = 60.0f;
         enemyLife = 100;
+        enemyDamage = 15;
         break;
     }
 
-    hero = std::make_shared<Hero>(heroHealth, 50, 90, 80.0f, 600, 400);
+    hero = std::make_shared<Hero>(50, 50, 90, heroHealth, 600, 400);
     base = std::make_shared<Base>(baseDefense, x, y);
 
     hero->initAnimations();
@@ -66,9 +67,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
 
     background->setTexture(*bgTexture);
     background->setScale(scaleX, scaleY);
-
-    this->spawnInterval = spawnInterval;
-    this->gameTime = gameTime;
 };
 
 sf::Vector2f Game::getMousePosition()
@@ -97,30 +95,27 @@ void Game::run()
     }
     else
     {
-        this->battlemusic->setLoop(true); // Loop a música
+        this->battlemusic->setLoop(true);
         this->battlemusic->play();
     }
 
     while (gameWindow->isOpen())
     {
-        float deltaTime = clock.restart().asSeconds();
+        float dt = clock.restart().asSeconds();
+        setDeltaTime(dt);
 
-        this->gameTime -= deltaTime;
+        gameTime -= deltaTime;
 
-        this->base->heal(this->gameTime);
-
-        setDeltaTime(deltaTime);
+        base->heal(this->gameTime);
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
             this->battlemusic->stop();
             showGameOver();
-            // menu->run();
         }
         else if (this->gameTime <= 0)
         {
             showGameWin();
-            // menu->run();
         }
         else
         {
@@ -160,7 +155,7 @@ void Game::renderStatus()
     killCounterText.setFillColor(sf::Color::White);
     killCounterText.setPosition(GAME_WINDOW_WIDTH - 200, 100);
 
-    int timeToDisplay = static_cast<int>(this->gameTime);
+    int timeToDisplay = static_cast<int>(gameTime);
 
     timeText.setFont(font);
     timeText.setString("TIME: " + std::to_string(timeToDisplay) + "s");
@@ -211,7 +206,7 @@ void Game::render()
         }
     }
 
-    this->renderStatus();
+    renderStatus();
     gameWindow->display();
 }
 
@@ -380,7 +375,7 @@ void Game::spawnEnemy()
         break;
     }
 
-    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, enemyDamage, spawnX, spawnY, this->centerX, this->centerY);
     enemies->push_back(enemy);
 }
 

@@ -17,6 +17,12 @@ class Game
 private:
     std::unique_ptr<sf::Music> gameovermusic;
     std::unique_ptr<sf::Music> battlemusic;
+    float deltaTime;
+    float spawnInterval;
+    float spawnTimer = 0;
+    float enemySpd;
+    int enemyLife;
+    int enemyDamage;
 
     /// @brief A varieable that show the count os killf the player have in the game
     int killCounter = 0;
@@ -94,8 +100,6 @@ protected:
     float centerY;
     /// @brief A pointer to a list of enemies pointers
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
-    float enemySpd;
-    int enemyLife;
     std::unique_ptr<std::list<std::shared_ptr<Drop>>> drops;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
@@ -106,9 +110,6 @@ protected:
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
-    float deltaTime;
-    float spawnInterval;
-    float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
     /// @brief Adds a new enemy to game

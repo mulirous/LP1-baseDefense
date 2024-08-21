@@ -1,6 +1,6 @@
 #include "../interfaces/Weapon.hpp"
 
-Weapon::Weapon(int range, float releaseTime) : range(range), releaseTime(releaseTime)
+Weapon::Weapon(int range, float releaseTime, int damage) : range(range), releaseTime(releaseTime), damage(damage)
 {
     sf::Clock newClock;
     releaseTimeCounter = newClock;
@@ -8,5 +8,10 @@ Weapon::Weapon(int range, float releaseTime) : range(range), releaseTime(release
 
 float Weapon::getReleaseTime()
 {
-    return this->releaseTime;
+    return releaseTime;
+}
+
+int Weapon::getDamage()
+{
+    return damage;
 }

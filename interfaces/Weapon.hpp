@@ -12,11 +12,14 @@ protected:
     float releaseTime;
     /// @brief
     sf::Clock releaseTimeCounter;
+    /// @brief
+    int damage;
 
 public:
-    Weapon(int range, float releaseTime);
+    Weapon(int range, float releaseTime, int damage);
     virtual ~Weapon() = default;
     float getReleaseTime();
+    int getDamage();
     /// @brief Makes an attack
     virtual void doAttack() = 0;
     virtual bool isReadyToAttack() = 0;

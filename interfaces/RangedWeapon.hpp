@@ -12,6 +12,7 @@ class RangedWeapon : public Weapon
 private:
     /// @brief Weapon's ammo
     int ammo;
+    int maxAmmo;
     /// @brief Creates a projectile when character shoot
     /// @return A pointer to projectile
     std::shared_ptr<Projectile> launchProjectile();
@@ -32,7 +33,7 @@ private:
     sf::Sound spellSound;
 
 public:
-    RangedWeapon(int range, float releaseTime, int ammo);
+    RangedWeapon(int range, float releaseTime, int ammo, int damage);
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles();
     int getAmmo();
     void addAmmo(int ammo);

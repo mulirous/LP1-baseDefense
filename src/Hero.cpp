@@ -7,7 +7,7 @@ Hero::Hero(float width, float height, float speed, int maxLife, float posX, floa
 {
     direction = CharacterDirection::RIGHT; // Starts facing right by default
     animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
-    weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
+    weapon = std::make_shared<RangedWeapon>(10, 0.5, 50, 25);
     sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
     sprite->setScale(2, 2);
     initAnimations();
@@ -42,7 +42,7 @@ void Hero::takeDamage(int damage)
 void Hero::doAttack(sf::Vector2f &target, float dt)
 {
     // Hero can't attack again if it's still on animation
-    if (this->animationState == CharacterAnimation::ATTACK || !weapon->isReadyToAttack())
+    if (animationState == CharacterAnimation::ATTACK || !weapon->isReadyToAttack())
         return;
 
     (*animations)["attack"]->reset();
@@ -56,10 +56,10 @@ void Hero::doAttack(sf::Vector2f &target, float dt)
     else
         direction = CharacterDirection::LEFT;
 
-    this->animationState = CharacterAnimation::ATTACK;
+    animationState = CharacterAnimation::ATTACK;
     updateAnimation("attack", dt);
 
-    this->weapon->shoot(target, heroPosition, true);
+    weapon->shoot(target, heroPosition, true);
 }
 
 void Hero::move(float deltaTime)

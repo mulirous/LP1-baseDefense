@@ -2,25 +2,24 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-Enemy::Enemy(float width, float height, float speed, int maxLife, float x, float y, float cX, float cY)
+Enemy::Enemy(float width, float height, float speed, int maxLife, int weaponDamage, float x, float y, float cX, float cY)
     : Character(width, height, speed, maxLife, x, y)
 {
     targetPosition = {cX, cY};
-    weapon = std::make_shared<RangedWeapon>(5, 2, 50);
+    weapon = std::make_shared<RangedWeapon>(5, 2, 50, weaponDamage);
     animationState = CharacterAnimation::WALK;
     state = EnemyState::ALIVE;
-    int num = getRandomNumber(0, 100);
-    drop = num >= 60 ? true : false;
+    drop = getRandomNumber(0, 100) >= 60 ? true : false;
     animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
     sprite->setTexture(*ResourceManager::getTexture(ENEMY_WALK_IMAGE));
     sprite->setScale(2.0f, 2.0f);
     initAnimations();
 };
 
-Enemy::Enemy(float width, float height, float speed, int maxLife, sf::Vector2f position, float cX, float cY)
-    : Enemy(width, height, speed, maxLife, position.x, position.y, cX, cY) {};
-Enemy::Enemy(float width, float height, float speed, int maxLife, sf::Vector2f position, sf::Vector2f target)
-    : Enemy(width, height, speed, maxLife, position.x, position.y, target.x, target.y) {};
+Enemy::Enemy(float width, float height, float speed, int maxLife, int weaponDamage, sf::Vector2f position, float cX, float cY)
+    : Enemy(width, height, speed, maxLife, weaponDamage, position.x, position.y, cX, cY) {};
+Enemy::Enemy(float width, float height, float speed, int maxLife, int weaponDamage, sf::Vector2f position, sf::Vector2f target)
+    : Enemy(width, height, speed, maxLife, weaponDamage, position.x, position.y, target.x, target.y) {};
 
 bool Enemy::isDead()
 {
@@ -152,6 +151,6 @@ void Enemy::doAttack(sf::Vector2f &target, float dt)
     animationState = CharacterAnimation::ATTACK;
     updateAnimation("attack", dt);
 
-    auto current = sf::Vector2f(this->currentPosition);
+    sf::Vector2f current = sf::Vector2f(this->currentPosition);
     weapon->shoot(target, current, false);
 }
