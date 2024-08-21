@@ -4,7 +4,7 @@
 
 const int GAME_WINDOW_HEIGHT = 800;
 const int GAME_WINDOW_WIDTH = 1200;
-const int PROJECTILE_VELOCITY = 150;
+const int PROJECTILE_VELOCITY = 250;
 const float DROP_EXPIRATION_SECONDS = 7;
 const std::string ASSETS_FOLDER = "resources/assets";
 const std::string GAME_FONT = "resources/fonts/AGoblinAppears-o2aV.ttf";
