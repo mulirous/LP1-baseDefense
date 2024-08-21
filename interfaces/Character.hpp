@@ -55,6 +55,7 @@ public:
     bool isCollidingWith(const sf::FloatRect &rect);
     bool isCollidingWith(std::shared_ptr<Character> other);
     void resolveCollision(std::shared_ptr<Character> other);
+    virtual void takeDamage(int damage) = 0;
     virtual void doAttack(sf::Vector2f &target, float dt = {}) = 0;
     virtual void move(float deltaTime = {}) = 0;
 };

@@ -31,7 +31,7 @@ public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY);
     void setTargetPosition(sf::Vector2f target);
     std::shared_ptr<RangedWeapon> getRangedWeapon();
-    void takeDamage(int damage);
+    void takeDamage(int damage) override;
     void initAnimations() override;
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target, float dt = {}) override;

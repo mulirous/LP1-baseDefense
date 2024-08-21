@@ -20,7 +20,7 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     base = std::make_shared<Base>(500, x, y);
     background = std::make_unique<sf::Sprite>();
 
-    auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
+    sf::Texture *bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
     sf::Vector2u windowSize = gameWindow->getSize();
     auto scaleX = static_cast<float>(windowSize.x) / textureSize.x;
@@ -28,6 +28,16 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     background->setTexture(*bgTexture);
     background->setScale(scaleX, scaleY);
 };
+
+sf::Vector2f Game::getMousePosition()
+{
+    return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+};
+
+void Game::setDeltaTime(float dt)
+{
+    this->deltaTime = dt;
+}
 
 void Game::run()
 {
@@ -60,7 +70,7 @@ void Game::run()
         {
             render();
             handleEvents();
-            update(deltaTime);
+            update();
         }
     }
 }
@@ -159,7 +169,7 @@ void Game::handleEvents()
     }
 }
 
-void Game::update(float deltaTime)
+void Game::update()
 {
     hero->move(deltaTime);
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
@@ -298,7 +308,7 @@ void Game::spawnEnemy()
         break;
     }
 
-    auto enemy = std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, 50, 20, spawnX, spawnY, this->centerX, this->centerY);
     enemies->push_back(enemy);
 }
 

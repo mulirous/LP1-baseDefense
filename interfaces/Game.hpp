@@ -43,14 +43,12 @@ private:
                     continue;
 
                 projectileIt = projectiles->erase(projectileIt);
-                if constexpr (std::is_same<Hero, T>::value || std::is_same<Base, T>::value)
+
+                character->takeDamage(projectile->getDamage());
+
+                if constexpr (std::is_same<Enemy, T>::value)
                 {
-                    character->takeDamage(projectile->getDamage());
-                }
-                else if constexpr (std::is_same<Enemy, T>::value)
-                {
-                    character->kill();
-                    if (character->hasDrop())
+                    if (character->isDead() && character->hasDrop())
                     {
                         sf::Vector2f pos = character->getCurrentPosition();
                         spawnDrop(pos);
@@ -63,6 +61,8 @@ private:
 
     /// @brief Changes to game over screen
     void showGameOver();
+    sf::Vector2f getMousePosition();
+    void setDeltaTime(float time);
 
 protected:
     /// @brief The screen's center on x-axis
@@ -97,7 +97,7 @@ protected:
     void handleEvents();
     /// @brief Changes the state of objects.
     /// @param time
-    void update(float time);
+    void update();
     /// @brief Renders the actual state of objects on screen.
     void render();
     /// @brief Closes the window and ends the game.
@@ -105,9 +105,6 @@ protected:
 
 public:
     Game(float x, float y, std::shared_ptr<sf::RenderWindow> window);
-    sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
-    void setDeltaTime(float time) { this->deltaTime = time; }
-
     /// @brief Start point to run game.
     void run();
 };

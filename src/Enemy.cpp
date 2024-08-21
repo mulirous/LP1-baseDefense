@@ -27,6 +27,17 @@ bool Enemy::isDead()
     return this->state == EnemyState::DEAD;
 }
 
+void Enemy::takeDamage(int damage)
+{
+    if (damage <= 0)
+        return;
+
+    currentLife -= damage;
+
+    if (currentLife <= 0)
+        kill();
+}
+
 void Enemy::kill()
 {
     this->state = EnemyState::DEAD;

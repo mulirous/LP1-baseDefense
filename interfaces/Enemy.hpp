@@ -24,26 +24,21 @@ protected:
     sf::Clock clockDeath;
     /// @brief Determines if enemy has drop after its death
     bool drop;
+    void kill();
 
 public:
     Enemy(float width, float height, float speed, int maxLife, float x, float y, float cX, float cY);
     Enemy(float width, float height, float speed, int maxLife, sf::Vector2f position, float cX, float cY);
     Enemy(float width, float height, float speed, int maxLife, sf::Vector2f position, sf::Vector2f target);
-
+    std::shared_ptr<RangedWeapon> getRangedWeapon();
     /// @brief Check if enemy's state is DEAD
     bool isDead();
-
     /// @brief Sets enemy's state to DEAD
-    void kill();
-
-    // No implementation yet
     float getTimeSinceDeath();
     bool hasDrop();
-
+    void takeDamage(int damage) override;
     void initAnimations() override;
     void updateAnimation(const std::string &action, float dt);
-
-    std::shared_ptr<RangedWeapon> getRangedWeapon();
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target, float dt = {}) override;
 };
