@@ -1,35 +1,31 @@
 #include "../interfaces/Menu.hpp"
+#include "modules/texture_manager/src/ResourceManager.hpp"
 #include "../common.h"
 
 Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
 {
     window = gameWindow;
     font = std::make_unique<sf::Font>();
-    image = std::make_unique<sf::Texture>();
+    image = std::make_unique<sf::Texture>(*ResourceManager::getTexture(MENU_IMAGE));
     bg = std::make_unique<sf::Sprite>();
     menumusic = std::make_unique<sf::Music>();
     init();
 }
 
+GameDifficulty Menu::getSelectedDifficulty() const
+{
+    return selectedDifficulty;
+}
+
 void Menu::init()
 {
-    this->current = 0;
-    this->pressed = this->selected = false;
+    current = 0;
+    pressed = selected = false;
+    mousePosition = sf::Vector2f(0, 0);
+    mouseCords = sf::Vector2f(0, 0);
 
-    if (!(this->font->loadFromFile(GAME_FONT)))
-    {
-        std::cout << "Can't load font :(\n";
-    }
-
-    if (!(this->image->loadFromFile(MENU_IMAGE)))
-    {
-        std::cout << "Can't load menu image :(\n";
-    }
-
-    if (this->bg)
-    {
-        this->bg->setTexture(*image);
-    }
+    font = std::make_unique<sf::Font>(*ResourceManager::getFont(GAME_FONT));
+    bg->setTexture(*image);
 
     auto windowPtr = window.lock();
     if (windowPtr)
@@ -46,40 +42,59 @@ void Menu::init()
         bg->setPosition(0, offsetY);
     }
 
-    this->mousePosition = sf::Vector2f(0, 0);
-    this->mouseCords = sf::Vector2f(0, 0);
-
-    this->menuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
+    // Creates the menu's main section options
+    mainMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
         {"START", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
         {"ABOUT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
         {"EXIT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)}});
 
-    this->options = std::make_shared<std::vector<sf::Text>>(this->menuOptions->size());
+    mainOptions = std::make_shared<std::vector<sf::Text>>(mainMenuOptions->size());
 
-    for (int i = 0; i < this->menuOptions->size(); i++)
+    for (int i = 0; i < mainMenuOptions->size(); i++)
     {
-        if (this->font)
+        if (font)
         {
-            (*this->options)[i].setFont(*font);
+            (*mainOptions)[i].setFont(*font);
         }
-        (*this->options)[i].setString(this->menuOptions->at(i).text);
-        (*this->options)[i].setCharacterSize(this->menuOptions->at(i).size);
-        (*this->options)[i].setFillColor(sf::Color::White);
-        (*this->options)[i].setPosition(this->menuOptions->at(i).position);
+        (*mainOptions)[i].setString(mainMenuOptions->at(i).text);
+        (*mainOptions)[i].setCharacterSize(mainMenuOptions->at(i).size);
+        (*mainOptions)[i].setFillColor(sf::Color::White);
+        (*mainOptions)[i].setPosition(mainMenuOptions->at(i).position);
     }
+    (*mainOptions)[0].setOutlineThickness(2);
 
-    (*options)[0].setOutlineThickness(2);
-
-    this->menumusic = std::make_unique<sf::Music>();
-    if (!this->menumusic->openFromFile(MENU_MUSIC))
+    menumusic = std::make_unique<sf::Music>();
+    if (!menumusic->openFromFile(MENU_MUSIC))
     {
         std::cout << "Unable to load the menu music. \n";
     }
     else
     {
-        this->menumusic->setLoop(true); // Loop a música
-        this->menumusic->play();
+        menumusic->setLoop(true);
+        menumusic->play();
     }
+
+    // Creates menu's choose difficult section
+    difficultyMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
+        {"EASY", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
+        {"MEDIUM", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
+        {"HARD", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)}});
+
+    difficultyOptions = std::make_shared<std::vector<sf::Text>>(difficultyMenuOptions->size());
+
+    for (int i = 0; i < difficultyMenuOptions->size(); i++)
+    {
+        if (font)
+        {
+            (*difficultyOptions)[i].setFont(*font);
+        }
+        (*difficultyOptions)[i].setString(difficultyMenuOptions->at(i).text);
+        (*difficultyOptions)[i].setCharacterSize(difficultyMenuOptions->at(i).size);
+        (*difficultyOptions)[i].setFillColor(sf::Color::White);
+        (*difficultyOptions)[i].setPosition(difficultyMenuOptions->at(i).position);
+    }
+
+    (*difficultyOptions)[0].setOutlineThickness(2);
 }
 
 bool Menu::run()
@@ -95,14 +110,20 @@ bool Menu::run()
 
         switch (action)
         {
-        case MenuActions::START:
-            this->menumusic->stop();
-            return false;
+        case MenuActions::START: // After start, player has to select difficulty
+            currentState = MenuState::DIFFICULTY;
+            (*mainOptions)[current].setOutlineThickness(0);
+            current = 0;
+            (*difficultyOptions)[current].setOutlineThickness(2);
+            break;
+        case MenuActions::CHOOSE_DIFFICULTY:
+            menumusic->stop();
+            return false; // After difficulty section, game starts
         case MenuActions::ABOUT:
             showAbout();
             break;
         case MenuActions::EXIT:
-            this->menumusic->stop();
+            menumusic->stop();
             windowPtr->close();
             break;
         default:
@@ -120,11 +141,42 @@ void Menu::drawAll()
         return;
 
     windowPtr->clear();
-
     windowPtr->draw(*bg);
-    for (const auto &opt : *this->options)
+
+    if (currentState == MenuState::MAIN)
     {
-        windowPtr->draw(opt);
+        for (size_t i = 0; i < mainOptions->size(); i++)
+        {
+            windowPtr->draw((*mainOptions)[i]);
+        }
+    }
+    else if (currentState == MenuState::DIFFICULTY)
+    {
+        sf::Text enterText, returnText;
+
+        if (font)
+        {
+            enterText.setFont(*font);
+            returnText.setFont(*font);
+        }
+
+        enterText.setString("Press Enter Three Times");
+        enterText.setCharacterSize(16);
+        enterText.setFillColor(sf::Color::White);
+        enterText.setPosition((GAME_WINDOW_WIDTH - enterText.getLocalBounds().width) / 2, 391);
+
+        returnText.setString("Press 'Q' to Return");
+        returnText.setCharacterSize(16);
+        returnText.setFillColor(sf::Color::White);
+        returnText.setPosition((GAME_WINDOW_WIDTH - returnText.getLocalBounds().width) / 2, 491);
+
+        for (size_t i = 0; i < difficultyOptions->size(); i++)
+        {
+            windowPtr->draw((*difficultyOptions)[i]);
+        }
+
+        windowPtr->draw(enterText);
+        windowPtr->draw(returnText);
     }
 
     windowPtr->display();
@@ -139,52 +191,84 @@ MenuActions Menu::handleActions()
 
     while (windowPtr->pollEvent(menuEvent))
     {
-        switch (menuEvent.type)
+        if (menuEvent.type == sf::Event::Closed)
         {
-        case sf::Event::Closed:
             windowPtr->close();
-            break;
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !pressed)
+        if (!pressed)
         {
-            if (this->current < this->options->size() - 1)
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
-                ++this->current;
-                this->pressed = true;
-                (*this->options)[this->current].setOutlineThickness(2);
-                if (this->current > 0)
+                if (currentState == MenuState::MAIN && current < mainOptions->size() - 1)
                 {
-                    (*this->options)[this->current - 1].setOutlineThickness(0);
+                    (*mainOptions)[current].setOutlineThickness(0);
+                    ++current;
+                    (*mainOptions)[current].setOutlineThickness(2);
                 }
-                this->pressed = false;
-                this->selected = false;
+                else if (currentState == MenuState::DIFFICULTY && current < difficultyOptions->size() - 1)
+                {
+                    (*difficultyOptions)[current].setOutlineThickness(0);
+                    ++current;
+                    (*difficultyOptions)[current].setOutlineThickness(2);
+                }
+                pressed = true;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            {
+                if (currentState == MenuState::MAIN && current > 0)
+                {
+                    (*mainOptions)[current].setOutlineThickness(0);
+                    --current;
+                    (*mainOptions)[current].setOutlineThickness(2);
+                }
+                else if (currentState == MenuState::DIFFICULTY && current > 0)
+                {
+                    (*difficultyOptions)[current].setOutlineThickness(0);
+                    --current;
+                    (*difficultyOptions)[current].setOutlineThickness(2);
+                }
+                pressed = true;
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
+            {
+                selected = true;
+                pressed = true;
+
+                if (currentState == MenuState::MAIN)
+                {
+                    if (current == 0)
+                        return MenuActions::START;
+                    if (current == 1)
+                        return MenuActions::ABOUT;
+                    if (current == 2)
+                        return MenuActions::EXIT;
+                }
+                else if (currentState == MenuState::DIFFICULTY)
+                {
+                    if (current == 0)
+                        selectedDifficulty = GameDifficulty::EASY;
+                    if (current == 1)
+                        selectedDifficulty = GameDifficulty::MEDIUM;
+                    if (current == 2)
+                        selectedDifficulty = GameDifficulty::HARD;
+
+                    return MenuActions::CHOOSE_DIFFICULTY;
+                }
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && currentState == MenuState::DIFFICULTY)
+            {
+                currentState = MenuState::MAIN;
+                (*difficultyOptions)[current].setOutlineThickness(0);
+                current = 0;
+                (*mainOptions)[current].setOutlineThickness(2);
             }
         }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !pressed)
+
+        if (menuEvent.type == sf::Event::KeyReleased)
         {
-            if (this->current > 0)
-            {
-                --this->current;
-                this->pressed = true;
-                (*this->options)[this->current].setOutlineThickness(2);
-                if (this->current < this->options->size() - 1)
-                {
-                    (*this->options)[this->current + 1].setOutlineThickness(0);
-                }
-                this->pressed = false;
-                this->selected = false;
-            }
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !selected)
-        {
-            this->selected = true;
-            if (this->current == 0)
-                return MenuActions::START;
-            if (this->current == 1)
-                return MenuActions::ABOUT;
-            if (this->current == 2)
-                return MenuActions::EXIT;
+            pressed = false;
+            selected = false;
         }
     }
 
@@ -230,7 +314,6 @@ void Menu::showAbout()
         sf::Event event;
         while (windowPtr->pollEvent(event))
         {
-            // Exiting 'about' screen
             if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
             {
                 return;

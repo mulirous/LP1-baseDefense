@@ -7,26 +7,68 @@
 #include "../interfaces/Quiver.hpp"
 #include "modules/animation/src/Animation.hpp"
 
-Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
+Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty) : centerX(x),
+                                                                                                    centerY(y),
+                                                                                                    gameWindow(window),
+                                                                                                    difficulty(difficulty),
+                                                                                                    enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
+                                                                                                    drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
+                                                                                                    background(std::make_unique<sf::Sprite>())
+// menu(std::make_unique<Menu>(window))
 {
     srand(static_cast<unsigned>(time(0)));
-    centerX = x;
-    centerY = y;
-    enemies = std::make_shared<std::list<std::shared_ptr<Enemy>>>();
-    drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
-    gameWindow = window;
-    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
-    hero->initAnimations();
-    base = std::make_shared<Base>(500, x, y);
-    background = std::make_unique<sf::Sprite>();
 
-    sf::Texture *bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
+    int heroHealth;
+    float baseDefense;
+    float spawnInterval;
+    float gameTime;
+
+    switch (difficulty)
+    {
+    case GameDifficulty::EASY:
+        heroHealth = 125;
+        baseDefense = 1000.0f;
+        spawnInterval = 5.0f;
+        gameTime = 91.0f;
+        enemySpd = 30.0f;
+        enemyLife = 50;
+        break;
+
+    case GameDifficulty::MEDIUM:
+        heroHealth = 100;
+        baseDefense = 800.0f;
+        spawnInterval = 3.0f;
+        gameTime = 121.0f;
+        enemySpd = 50.0f;
+        enemyLife = 80;
+        break;
+
+    case GameDifficulty::HARD:
+        heroHealth = 75;
+        baseDefense = 600.0f;
+        spawnInterval = 1.5f;
+        gameTime = 181.0f;
+        enemySpd = 60.0f;
+        enemyLife = 100;
+        break;
+    }
+
+    hero = std::make_shared<Hero>(heroHealth, 50, 90, 80.0f, 600, 400);
+    base = std::make_shared<Base>(baseDefense, x, y);
+
+    hero->initAnimations();
+
+    auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
     sf::Vector2u windowSize = gameWindow->getSize();
     auto scaleX = static_cast<float>(windowSize.x) / textureSize.x;
     auto scaleY = static_cast<float>(windowSize.y) / textureSize.y;
+
     background->setTexture(*bgTexture);
     background->setScale(scaleX, scaleY);
+
+    this->spawnInterval = spawnInterval;
+    this->gameTime = gameTime;
 };
 
 sf::Vector2f Game::getMousePosition()
@@ -36,7 +78,12 @@ sf::Vector2f Game::getMousePosition()
 
 void Game::setDeltaTime(float dt)
 {
-    this->deltaTime = dt;
+    deltaTime = dt;
+}
+
+void Game::setDifficulty(GameDifficulty diff)
+{
+    difficulty = diff;
 }
 
 void Game::run()
@@ -58,13 +105,22 @@ void Game::run()
     {
         float deltaTime = clock.restart().asSeconds();
 
+        this->gameTime -= deltaTime;
+
+        this->base->heal(this->gameTime);
+
         setDeltaTime(deltaTime);
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
             this->battlemusic->stop();
             showGameOver();
-            break;
+            // menu->run();
+        }
+        else if (this->gameTime <= 0)
+        {
+            showGameWin();
+            // menu->run();
         }
         else
         {
@@ -79,7 +135,7 @@ void Game::renderStatus()
 {
     auto font = *ResourceManager::getFont(GAME_FONT);
 
-    sf::Text heroLifeText, ammoText, baseLifeText;
+    sf::Text heroLifeText, ammoText, baseLifeText, killCounterText, timeText;
     heroLifeText.setFont(font);
     heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()));
     heroLifeText.setCharacterSize(16);
@@ -98,9 +154,25 @@ void Game::renderStatus()
     baseLifeText.setFillColor(sf::Color::White);
     baseLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 75);
 
+    killCounterText.setFont(font);
+    killCounterText.setString("KILLS: " + std::to_string(this->killCounter));
+    killCounterText.setCharacterSize(16);
+    killCounterText.setFillColor(sf::Color::White);
+    killCounterText.setPosition(GAME_WINDOW_WIDTH - 200, 100);
+
+    int timeToDisplay = static_cast<int>(this->gameTime);
+
+    timeText.setFont(font);
+    timeText.setString("TIME: " + std::to_string(timeToDisplay) + "s");
+    timeText.setCharacterSize(16);
+    timeText.setFillColor(sf::Color::White);
+    timeText.setPosition(GAME_WINDOW_WIDTH - 200, 125);
+
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
     gameWindow->draw(baseLifeText);
+    gameWindow->draw(killCounterText);
+    gameWindow->draw(timeText);
 }
 
 void Game::render()
@@ -308,7 +380,7 @@ void Game::spawnEnemy()
         break;
     }
 
-    auto enemy = std::make_shared<Enemy>(40, 40, 50, 20, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, spawnX, spawnY, this->centerX, this->centerY);
     enemies->push_back(enemy);
 }
 
@@ -367,7 +439,7 @@ void Game::showGameOver()
     gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
     exitText.setFont(font);
-    exitText.setString("Press any key to exit");
+    exitText.setString("Press any key to return");
     exitText.setCharacterSize(24);
     exitText.setFillColor(sf::Color::White);
     exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
@@ -387,6 +459,46 @@ void Game::showGameOver()
         gameWindow->clear();
         gameWindow->draw(gameOverText);
         gameWindow->draw(exitText);
+        gameWindow->display();
+    }
+}
+
+void Game::showGameWin()
+{
+    sf::Font font;
+    if (!font.loadFromFile(GAME_FONT))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+
+    sf::Text gameWinText, returnText;
+    gameWinText.setFont(font);
+    gameWinText.setString("You Win!");
+    gameWinText.setCharacterSize(48);
+    gameWinText.setFillColor(sf::Color::Green);
+    gameWinText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
+
+    returnText.setFont(font);
+    returnText.setString("Press any key to return");
+    returnText.setCharacterSize(24);
+    returnText.setFillColor(sf::Color::Black);
+    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+
+    while (gameWindow->isOpen())
+    {
+        sf::Event event;
+        while (gameWindow->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
+            {
+                return;
+            }
+        }
+
+        gameWindow->clear(sf::Color::White);
+        gameWindow->draw(gameWinText);
+        gameWindow->draw(returnText);
         gameWindow->display();
     }
 }

@@ -3,6 +3,7 @@
 #include "Hero.hpp"
 #include "Base.hpp"
 #include "Drop.hpp"
+#include "Menu.hpp"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -16,6 +17,16 @@ class Game
 private:
     std::unique_ptr<sf::Music> gameovermusic;
     std::unique_ptr<sf::Music> battlemusic;
+
+    /// @brief A varieable that show the count os killf the player have in the game
+    int killCounter = 0;
+
+    float gameTime;
+    float healTime = 12.0f;
+
+    std::unique_ptr<Menu> menu;
+
+    GameDifficulty difficulty;
 
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
@@ -50,6 +61,7 @@ private:
                 {
                     if (character->isDead() && character->hasDrop())
                     {
+                        this->killCounter++;
                         sf::Vector2f pos = character->getCurrentPosition();
                         spawnDrop(pos);
                     }
@@ -64,6 +76,9 @@ private:
     sf::Vector2f getMousePosition();
     void setDeltaTime(float time);
 
+    /// @brief Changes to game win screen
+    void showGameWin();
+
 protected:
     /// @brief The screen's center on x-axis
     float centerX;
@@ -71,17 +86,20 @@ protected:
     float centerY;
     /// @brief A pointer to a list of enemies pointers
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
+    float enemySpd;
+    int enemyLife;
     std::unique_ptr<std::list<std::shared_ptr<Drop>>> drops;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
     /// @brief A pointer to the base
     std::shared_ptr<Base> base;
+    int addDefense;
     /// @brief An unique pointer to background sprite
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
     float deltaTime;
-    float spawnInterval = 5;
+    float spawnInterval;
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
@@ -96,7 +114,6 @@ protected:
     /// @brief Process events like inputs.
     void handleEvents();
     /// @brief Changes the state of objects.
-    /// @param time
     void update();
     /// @brief Renders the actual state of objects on screen.
     void render();
@@ -104,7 +121,13 @@ protected:
     void close();
 
 public:
-    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window);
+    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty);
+    /// @brief Menu Constructor
+    Game() : menu(nullptr) {}
+
+    void setDifficulty(GameDifficulty diff);
+
     /// @brief Start point to run game.
-    void run();
+    void
+    run();
 };

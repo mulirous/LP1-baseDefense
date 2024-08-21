@@ -8,20 +8,17 @@
 const float CENTER_X = GAME_WINDOW_WIDTH / 2;
 const float CENTER_Y = GAME_WINDOW_HEIGHT / 2;
 
+void loadResources();
+
 int main()
 {
-    ResourceManager::preLoadTextures(ASSETS_FOLDER, true);
-    if (ResourceManager::getNumberOfTextures() <= 0)
-    {
-        throw std::runtime_error("Assets aren't ready.. \n");
-    }
-
+    loadResources();
     auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode(1200, 800), "Game Window");
+
     Menu mainMenu(window);
-    Game game(CENTER_X, CENTER_Y, window);
 
     // First state is always menu
-    auto currentState = GameState::MENU;
+    GameState currentState = GameState::MENU;
 
     while (window->isOpen())
     {
@@ -33,9 +30,13 @@ int main()
             break;
 
         case GameState::PLAY:
+        {
+            GameDifficulty difficulty = mainMenu.getSelectedDifficulty();
+            Game game(CENTER_X, CENTER_Y, window, difficulty);
             game.run();
             currentState = GameState::EXIT; // After game was finished, set state as exit
             break;
+        }
 
         case GameState::EXIT:
             window->close();
@@ -45,3 +46,12 @@ int main()
 
     return EXIT_SUCCESS;
 }
+
+void loadResources()
+{
+    ResourceManager::preLoadTextures(ASSETS_FOLDER, true);
+    if (ResourceManager::getNumberOfTextures() <= 0)
+    {
+        throw std::runtime_error("Assets aren't ready.. \n");
+    }
+};

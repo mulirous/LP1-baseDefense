@@ -129,7 +129,6 @@ void Hero::updateAnimation(const std::string &action, float dt)
     }
     else if (action == "attack" && sprite->getTexture() != ResourceManager::getTexture(HERO_ATTACK_IMAGE) && animationState == CharacterAnimation::ATTACK)
     {
-        std::cout << "attack action!\n";
         sprite->setTexture(*ResourceManager::getTexture(HERO_ATTACK_IMAGE));
     }
 

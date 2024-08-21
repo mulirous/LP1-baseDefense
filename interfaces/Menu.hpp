@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include "../enums/MenuActions.h"
 #include <SFML/Audio.hpp>
+#include "../enums/GameDifficulty.h"
+#include "../enums/MenuState.h"
 #include <iostream>
 #include "structs.hpp"
 
@@ -24,8 +26,14 @@ private:
 
     std::unique_ptr<sf::Music> menumusic;
 
-    std::shared_ptr<std::vector<MenuOptions>> menuOptions;
     std::shared_ptr<std::vector<sf::Text>> options;
+    std::shared_ptr<std::vector<MenuOptions>> mainMenuOptions;
+    std::shared_ptr<std::vector<MenuOptions>> difficultyMenuOptions;
+    std::shared_ptr<std::vector<sf::Text>> mainOptions;
+    std::shared_ptr<std::vector<sf::Text>> difficultyOptions;
+
+    GameDifficulty selectedDifficulty = GameDifficulty::MEDIUM;
+    MenuState currentState = MenuState::MAIN;
 
     /// @brief Show the About Screen with the infos about Us, the developers
     void showAbout();
@@ -35,6 +43,9 @@ protected:
     /// @return The action user selected
     /// @note This also handle interactions such as navigating through options (although this doesn't return any MenuAction object, just modifies the menu state)
     MenuActions handleActions();
+
+    GameDifficulty handleDifficult();
+
     /// @brief Initialize many objects. Required on constructor
     void init();
     /// @brief Draws options and images on screen
@@ -43,5 +54,6 @@ protected:
 public:
     Menu(std::shared_ptr<sf::RenderWindow> gameWindow);
     virtual ~Menu() = default;
+    GameDifficulty getSelectedDifficulty() const;
     bool run();
 };
