@@ -28,7 +28,6 @@ void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bo
 {
     setCurrentPosition(currentPosition);
     setTarget(target);
-    doAttack();
 
     if (isHero)
     {

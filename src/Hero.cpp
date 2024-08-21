@@ -42,7 +42,7 @@ void Hero::takeDamage(int damage)
 void Hero::doAttack(sf::Vector2f &target, float dt)
 {
     // Hero can't attack again if it's still on animation
-    if (this->animationState == CharacterAnimation::ATTACK)
+    if (this->animationState == CharacterAnimation::ATTACK || !weapon->isReadyToAttack())
         return;
 
     (*animations)["attack"]->reset();
@@ -114,7 +114,7 @@ void Hero::move(float deltaTime)
     sprite->move(movement);
 
     sf::Vector2f newPosition = sprite->getPosition();
-    this->setCurrentPosition(newPosition);
+    setCurrentPosition(newPosition);
 }
 
 void Hero::updateAnimation(const std::string &action, float dt)

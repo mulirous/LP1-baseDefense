@@ -40,8 +40,8 @@ public:
     float getTimeSinceDeath();
     bool hasDrop();
 
-    void initAnimations() override;                            // Sobrescrever para inicializar as animações
-    void updateAnimation(const std::string &action, float dt); // Novo método para atualizar as animações
+    void initAnimations() override;
+    void updateAnimation(const std::string &action, float dt);
 
     std::shared_ptr<RangedWeapon> getRangedWeapon();
     void move(float deltaTime) override;

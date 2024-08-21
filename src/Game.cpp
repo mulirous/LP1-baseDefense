@@ -25,7 +25,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     sf::Vector2u windowSize = gameWindow->getSize();
     auto scaleX = static_cast<float>(windowSize.x) / textureSize.x;
     auto scaleY = static_cast<float>(windowSize.y) / textureSize.y;
-
     background->setTexture(*bgTexture);
     background->setScale(scaleX, scaleY);
 };
@@ -186,7 +185,6 @@ void Game::update(float deltaTime)
         else
         {
             enemy->move(deltaTime);
-            enemy->updateAnimation("walk", deltaTime); // Atualiza a animação de movimento
             int randNum = rand();
             if (randNum % 2 == 0)
             {
