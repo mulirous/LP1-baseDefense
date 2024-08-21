@@ -34,6 +34,8 @@ public:
     /// @brief Sets enemy's state to DEAD
     void kill();
 
+    // No implementation yet
+    void initAnimations() override {}
     float getTimeSinceDeath();
     bool hasDrop();
 

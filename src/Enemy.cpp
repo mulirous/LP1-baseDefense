@@ -2,7 +2,7 @@
 #include <cmath>
 
 Enemy::Enemy(float width, float height, float speed, int maxLife, float x, float y, float cX, float cY)
-    : Character(width, height, speed, maxLife, x, y, "") // later it will be a correct string
+    : Character(width, height, speed, maxLife, x, y)
 {
     targetPosition = {cX, cY};
     shape.setFillColor(sf::Color::Red);

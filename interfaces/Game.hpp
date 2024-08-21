@@ -3,6 +3,7 @@
 #include "Hero.hpp"
 #include "Base.hpp"
 #include "Drop.hpp"
+#include "Menu.hpp"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -14,7 +15,15 @@
 class Game
 {
 private:
+    /// @brief A varieable that show the count os killf the player have in the game
     int killCounter = 0;
+
+    float gameTime;
+    float healTime = 12.0f;
+
+    std::unique_ptr<Menu> menu;
+
+    GameDifficulty difficulty;
 
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character
@@ -63,6 +72,9 @@ private:
 
     /// @brief Changes to game over screen
     void showGameOver();
+    
+    /// @brief Changes to game win screen
+    void showGameWin();
 
 protected:
     /// @brief The screen's center on x-axis
@@ -71,16 +83,21 @@ protected:
     float centerY;
     /// @brief A pointer to a list of enemies pointers
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
+    float enemySpd;
+    int enemyLife;
     std::unique_ptr<std::list<std::shared_ptr<Drop>>> drops;
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
     /// @brief A pointer to the base
     std::shared_ptr<Base> base;
+    int addDefense;
+    /// @brief An unique pointer to background sprite
+    std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
     std::shared_ptr<AnimationManager> animationManager;
     float deltaTime;
-    float spawnInterval = 5;
+    float spawnInterval;
     float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
@@ -103,11 +120,13 @@ protected:
     void close();
 
 public:
-    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window);
+    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty);
+
     sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
     void setDeltaTime(float time) { this->deltaTime = time; }
-    void setHero(std::shared_ptr<Hero> hero) { this->hero = hero; }
-    void setBase(std::shared_ptr<Base> base) { this->base = base; }
+
+    /// @brief Menu Constructor
+    Game() : menu(nullptr) {}
 
     /// @brief Start point to run game.
     void run();

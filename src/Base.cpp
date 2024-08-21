@@ -1,4 +1,5 @@
 #include "../interfaces/Base.hpp"
+#include <cmath>
 #include <iostream>
 
 Base::Base(int maxLife, float posX, float posY)
@@ -9,7 +10,7 @@ Base::Base(int maxLife, float posX, float posY)
 
     baseSprite = std::make_shared<sf::Sprite>();
     baseSprite->setTexture(*ResourceManager::getTexture(BASE_IMAGE));
-    baseSprite->setScale(0.6, 0.6);
+    baseSprite->setScale(0.3, 0.3);
     baseSprite->setPosition(posX - (baseSprite->getGlobalBounds().width / 2),
                             posY - (baseSprite->getGlobalBounds().height / 2));
 }
@@ -33,6 +34,18 @@ void Base::takeDamage(int damage)
 
 int Base::getLife()
 {
+    return this->currentLife;
+}
+
+int Base::heal(float time) {
+    if (fmod(time, 12.0f) == 0) {
+        if (this->currentLife < this->maxLife) {
+            this->currentLife += 50;
+            if (this->currentLife > this->maxLife) {
+                this->currentLife = this->maxLife;
+            }
+        }
+    }
     return this->currentLife;
 }
 
