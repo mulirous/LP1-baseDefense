@@ -19,13 +19,14 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
 
     // Will only be used here
     int heroHealth;
-    float baseDefense;
+    float baseDefense, baseRegenerationSeconds;
 
     switch (difficulty)
     {
     case GameDifficulty::EASY:
         heroHealth = 125;
         baseDefense = 1000.0f;
+        baseRegenerationSeconds = 10;
         spawnInterval = 5.0f;
         gameTime = 91.0f;
         enemySpd = 30.0f;
@@ -36,26 +37,28 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
     case GameDifficulty::MEDIUM:
         heroHealth = 100;
         baseDefense = 800.0f;
+        baseRegenerationSeconds = 15;
         spawnInterval = 3.0f;
         gameTime = 121.0f;
-        enemySpd = 50.0f;
-        enemyLife = 80;
+        enemySpd = 40.0f;
+        enemyLife = 70;
         enemyDamage = 10;
         break;
 
     case GameDifficulty::HARD:
         heroHealth = 75;
         baseDefense = 600.0f;
+        baseRegenerationSeconds = 25;
         spawnInterval = 1.5f;
         gameTime = 181.0f;
-        enemySpd = 60.0f;
-        enemyLife = 100;
+        enemySpd = 50.0f;
+        enemyLife = 90;
         enemyDamage = 15;
         break;
     }
 
     hero = std::make_shared<Hero>(50, 50, 90, heroHealth, 600, 400);
-    base = std::make_shared<Base>(baseDefense, x, y);
+    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds, x, y);
 
     hero->initAnimations();
 
@@ -238,6 +241,7 @@ void Game::handleEvents()
 
 void Game::update()
 {
+    base->heal();
     hero->move(deltaTime);
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
     if (!heroProjectiles->empty())

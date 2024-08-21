@@ -2,12 +2,11 @@
 #include <cmath>
 #include <iostream>
 
-Base::Base(int maxLife, float posX, float posY)
+Base::Base(int maxLife, float regenerationSeconds, float posX, float posY)
+    : maxLife(maxLife), currentLife(maxLife), regenerationSeconds(regenerationSeconds), currentPosition({posX, posY})
 {
-    this->maxLife = maxLife;
-    this->currentLife = maxLife;
-    this->currentPosition = {posX, posY};
-
+    regenerationClock = sf::Clock();
+    regenerationClock.restart();
     baseSprite = std::make_shared<sf::Sprite>();
     baseSprite->setTexture(*ResourceManager::getTexture(BASE_IMAGE));
     baseSprite->setScale(0.3, 0.3);
@@ -29,24 +28,27 @@ void Base::takeDamage(int damage)
 {
     if (damage <= 0)
         return;
-    this->currentLife -= damage;
+    currentLife -= damage;
 }
 
 int Base::getLife()
 {
-    return this->currentLife;
+    return currentLife;
 }
 
-int Base::heal(float time) {
-    if (fmod(time, 12.0f) == 0) {
-        if (this->currentLife < this->maxLife) {
-            this->currentLife += 50;
-            if (this->currentLife > this->maxLife) {
-                this->currentLife = this->maxLife;
+void Base::heal()
+{
+    if (regenerationClock.getElapsedTime().asSeconds() >= regenerationSeconds)
+    {
+        if (currentLife < maxLife)
+        {
+            currentLife += 50;
+            if (currentLife > maxLife)
+            {
+                currentLife = maxLife;
             }
         }
     }
-    return this->currentLife;
 }
 
 bool Base::isCollidingWith(const sf::FloatRect &other)

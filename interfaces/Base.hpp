@@ -14,6 +14,9 @@ private:
     int maxLife;
     /// @brief Base's current life
     int currentLife;
+    /// @brief
+    float regenerationSeconds;
+    sf::Clock regenerationClock;
     /// @brief Base's position on screen
     sf::Vector2f currentPosition;
     /// @brief Pointer to base's sprite
@@ -25,13 +28,13 @@ public:
     /// @param posX
     /// @param posY
     /// @param texture
-    Base(int maxLife, float posX, float posY);
+    Base(int maxLife, float regenerationSeconds, float posX, float posY);
     virtual ~Base() = default;
     std::shared_ptr<sf::Sprite> getSprite();
     sf::Vector2f getPosition();
     void takeDamage(int damage);
     int getLife();
-    int heal(float time);
+    void heal();
     bool isCollidingWith(const sf::FloatRect &other);
 };
 #endif // ! BASE_HPP
