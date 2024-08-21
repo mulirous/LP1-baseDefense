@@ -19,7 +19,8 @@ private:
     int killCounter = 0;
 
     float gameTime;
-    float healTime = 12.0f;
+
+    bool isPaused = false;
 
     std::unique_ptr<Menu> menu;
 
@@ -75,6 +76,9 @@ private:
     
     /// @brief Changes to game win screen
     void showGameWin();
+
+    /// @brief Game Pause Screen render
+    void renderPauseScreen(sf::RenderWindow* gameWindow);
 
 protected:
     /// @brief The screen's center on x-axis

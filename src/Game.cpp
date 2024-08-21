@@ -80,27 +80,35 @@ void Game::run()
     {
         float deltaTime = clock.restart().asSeconds();
 
-        this->gameTime -= deltaTime;
+        handleEvents();
 
-        this->base->heal(this->gameTime);
-
-        setDeltaTime(deltaTime);
-
-        if (base->getLife() <= 0 || hero->getLife() <= 0)
+        if (!isPaused)
         {
-            showGameOver();
-            menu->run();
-        }
-        else if (this->gameTime <= 0)
-        {
-            showGameWin();
-            menu->run();
+            this->gameTime -= deltaTime;
+
+            this->base->heal(this->gameTime);
+
+            setDeltaTime(deltaTime);
+
+            if (base->getLife() <= 0 || hero->getLife() <= 0)
+            {
+                showGameOver();
+                menu->run()
+            }
+            else if (this->gameTime <= 0)
+            {
+                showGameWin();
+                menu->run()
+            }
+            else
+            {
+                render();
+                update(deltaTime);
+            }
         }
         else
         {
-            render();
-            handleEvents();
-            update(deltaTime);
+            renderPauseScreen(gameWindow.get());
         }
     }
 }
@@ -200,7 +208,7 @@ void Game::handleEvents()
         }
         else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
         {
-            gameWindow->close();
+            isPaused = !isPaused;
         }
         else if (event.type == Event::KeyPressed && event.key.code == Keyboard::Q)
         {
@@ -463,4 +471,26 @@ void Game::showGameWin()
         gameWindow->draw(returnText);
         gameWindow->display();
     }
+}
+
+void Game::renderPauseScreen(sf::RenderWindow* gameWindow) {
+    render();
+
+    sf::Text pauseText;
+    pauseText.setFont(*ResourceManager::getFont(GAME_FONT));
+    pauseText.setString("PAUSED");
+    pauseText.setCharacterSize(50);
+    pauseText.setFillColor(sf::Color::White);
+    pauseText.setPosition(100, 80);
+    gameWindow->draw(pauseText);
+
+    sf::Text escText;
+    escText.setFont(*ResourceManager::getFont(GAME_FONT));
+    escText.setString("Press ESC to continue");
+    escText.setCharacterSize(20);
+    escText.setFillColor(sf::Color::White);
+    escText.setPosition(100, 280);
+    gameWindow->draw(escText);
+
+    gameWindow->display();
 }
