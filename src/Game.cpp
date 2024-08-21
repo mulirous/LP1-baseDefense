@@ -109,8 +109,6 @@ void Game::run()
 
         gameTime -= deltaTime;
 
-        base->heal(this->gameTime);
-
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
             this->battlemusic->stop();
@@ -249,7 +247,7 @@ void Game::update()
         for (auto &projectile : *heroProjectiles)
             projectile->update(deltaTime);
 
-        this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
+        calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
     // Updates everything related to enemies
     for (const auto &enemy : *enemies)
@@ -327,6 +325,18 @@ void Game::update()
         }
     }
 
+    updateDrops();
+
+    spawnTimer += deltaTime;
+    if (spawnTimer >= spawnInterval)
+    {
+        spawnEnemy();
+        spawnTimer = 0.f;
+    }
+}
+
+void Game::updateDrops()
+{
     for (const auto &drop : *drops)
     {
         if (drop->hasExpired())
@@ -342,13 +352,6 @@ void Game::update()
             drop->markAsUsed();
             continue;
         }
-    }
-
-    spawnTimer += deltaTime;
-    if (spawnTimer >= spawnInterval)
-    {
-        spawnEnemy();
-        spawnTimer = 0.f;
     }
 }
 

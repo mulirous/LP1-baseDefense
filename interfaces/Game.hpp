@@ -89,7 +89,6 @@ private:
     void showGameOver();
     sf::Vector2f getMousePosition();
     void setDeltaTime(float time);
-
     /// @brief Changes to game win screen
     void showGameWin();
 
@@ -119,6 +118,8 @@ protected:
     /// @param enemyPosition Position on drop will spawn
     /// @note Internally, adds drop to drops's list
     void spawnDrop(sf::Vector2f &enemyPosition);
+
+    void updateDrops();
 
     /// @brief Process events like inputs.
     void handleEvents();
