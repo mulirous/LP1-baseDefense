@@ -32,5 +32,6 @@ void Base::heal()
                 currentLife = maximumLife;
             }
         }
+        regenerationClock.restart();
     }
 }
