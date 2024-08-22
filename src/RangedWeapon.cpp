@@ -27,8 +27,10 @@ std::shared_ptr<Projectile> RangedWeapon::launchProjectile(bool isHero)
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     direction = sf::Vector2f(direction.x / length, direction.y / length);
 
-    return std::make_shared<Projectile>(10, PROJECTILE_VELOCITY, this->currentPosition, direction, isHero);
+    // Usar direction ao invés de target para mover o projétil
+    return std::make_shared<Projectile>(10, PROJECTILE_VELOCITY, this->currentPosition, this->currentPosition + direction * 1000.0f, isHero);
 }
+
 
 void RangedWeapon::addAmmo(int ammo)
 {
