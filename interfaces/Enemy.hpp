@@ -14,7 +14,6 @@
 class Enemy : public Character
 {
 protected:
-    std::shared_ptr<RangedWeapon> weapon;
     /// @brief
     sf::Vector2f targetPosition;
     /// @brief Flag indicating enemy's state.
@@ -25,12 +24,12 @@ protected:
     /// @brief Determines if enemy has drop after its death
     bool drop;
     void kill();
+    void updateAnimation(const std::string &action, float dt) override;
 
 public:
     Enemy(float width, float height, float speed, int maxLife, int weaponDamage, float x, float y, float cX, float cY);
     Enemy(float width, float height, float speed, int maxLife, int weaponDamage, sf::Vector2f position, float cX, float cY);
     Enemy(float width, float height, float speed, int maxLife, int weaponDamage, sf::Vector2f position, sf::Vector2f target);
-    std::shared_ptr<RangedWeapon> getRangedWeapon();
     /// @brief Check if enemy's state is DEAD
     bool isDead();
     /// @brief Sets enemy's state to DEAD
@@ -38,7 +37,6 @@ public:
     bool hasDrop();
     void takeDamage(int damage) override;
     void initAnimations() override;
-    void updateAnimation(const std::string &action, float dt);
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target, float dt = {}) override;
 };

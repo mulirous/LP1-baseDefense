@@ -1,12 +1,10 @@
 #include "../interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
-Character::Character(float width, float height, float speed, int maxLife, float posX, float posY) : width(width), height(height), speed(speed), animationState(CharacterAnimation::IDLE),
-                                                                                                    maximumLife(maxLife), currentLife(maxLife), currentPosition(posX, posY)
+Character::Character(float width, float height, float speed, int maxLife, float posX, float posY) : Entity(maxLife, {posX, posY}), width(width), height(height), speed(speed), animationState(CharacterAnimation::IDLE)
 {
-    sprite = std::make_shared<sf::Sprite>();
     sprite->setPosition(posX, posY);
-};
+}
 
 Character::Character(float width, float height, float speed, int maxLife, sf::Vector2f position) : Character(width, height, speed, maxLife, position.x, position.y) {};
 
@@ -25,26 +23,6 @@ float Character::getSpeed()
     return this->speed;
 }
 
-int Character::getMaxLife()
-{
-    return this->maximumLife;
-}
-
-int Character::getLife()
-{
-    return this->currentLife;
-}
-
-sf::Vector2f Character::getCurrentPosition()
-{
-    return this->currentPosition;
-}
-
-sf::FloatRect Character::getGlobalBounds()
-{
-    return sf::FloatRect(this->currentPosition.x, this->currentPosition.y, this->width, this->height);
-}
-
 CharacterAnimation Character::getAnimationState() const
 {
     return this->animationState;
@@ -55,24 +33,14 @@ void Character::setAnimationState(CharacterAnimation &animation)
     this->animationState = animation;
 }
 
-std::shared_ptr<sf::Sprite> Character::getSprite()
+std::shared_ptr<RangedWeapon> Character::getRangedWeapon()
 {
-    return this->sprite;
-}
-
-void Character::setCurrentPosition(sf::Vector2f &position)
-{
-    this->currentPosition = position;
-}
-
-bool Character::isCollidingWith(const sf::FloatRect &rect)
-{
-    return this->getGlobalBounds().intersects(rect);
+    return weapon;
 }
 
 bool Character::isCollidingWith(std::shared_ptr<Character> other)
 {
-    return this->getGlobalBounds().intersects(other->getGlobalBounds());
+    return this->getBounds().intersects(other->getBounds());
 }
 
 bool Character::isAnimationCompleted(const std::string &action)

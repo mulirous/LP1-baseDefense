@@ -154,11 +154,6 @@ void Hero::recharge(int ammo)
     this->weapon->addAmmo(ammo);
 };
 
-std::shared_ptr<RangedWeapon> Hero::getRangedWeapon()
-{
-    return this->weapon;
-}
-
 void Hero::setTargetPosition(sf::Vector2f target)
 {
     this->targetPosition = target;

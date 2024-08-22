@@ -54,11 +54,6 @@ bool Enemy::hasDrop()
     return this->drop;
 }
 
-std::shared_ptr<RangedWeapon> Enemy::getRangedWeapon()
-{
-    return this->weapon;
-}
-
 void Enemy::initAnimations()
 {
     auto attackFrames = std::make_unique<std::vector<sf::IntRect>>(std::initializer_list<sf::IntRect>({sf::IntRect(0, 0, 20, 21),
