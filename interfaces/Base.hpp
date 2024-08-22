@@ -1,26 +1,18 @@
-#ifndef BASE_HPP
-#define BASE_HPP
+#pragma once
 
 #include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "../common.h"
+#include "Entity.hpp"
 
 /// @brief Represents the base which hero must defend and enemies will attack
-class Base
+class Base : public Entity
 {
 private:
-    /// @brief Base's max life
-    int maxLife;
-    /// @brief Base's current life
-    int currentLife;
     /// @brief
     float regenerationSeconds;
     sf::Clock regenerationClock;
-    /// @brief Base's position on screen
-    sf::Vector2f currentPosition;
-    /// @brief Pointer to base's sprite
-    std::shared_ptr<sf::Sprite> baseSprite;
 
 public:
     /// @brief Default constructor.
@@ -30,11 +22,6 @@ public:
     /// @param texture
     Base(int maxLife, float regenerationSeconds, float posX, float posY);
     virtual ~Base() = default;
-    std::shared_ptr<sf::Sprite> getSprite();
-    sf::Vector2f getPosition();
-    void takeDamage(int damage);
-    int getLife();
+    void takeDamage(int damage) override;
     void heal();
-    bool isCollidingWith(const sf::FloatRect &other);
 };
-#endif // ! BASE_HPP

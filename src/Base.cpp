@@ -3,25 +3,14 @@
 #include <iostream>
 
 Base::Base(int maxLife, float regenerationSeconds, float posX, float posY)
-    : maxLife(maxLife), currentLife(maxLife), regenerationSeconds(regenerationSeconds), currentPosition({posX, posY})
+    : Entity(maxLife, {posX, posY}), regenerationSeconds(regenerationSeconds)
 {
     regenerationClock = sf::Clock();
     regenerationClock.restart();
-    baseSprite = std::make_shared<sf::Sprite>();
-    baseSprite->setTexture(*ResourceManager::getTexture(BASE_IMAGE));
-    baseSprite->setScale(0.3, 0.3);
-    baseSprite->setPosition(posX - (baseSprite->getGlobalBounds().width / 2),
-                            posY - (baseSprite->getGlobalBounds().height / 2));
-}
-
-std::shared_ptr<sf::Sprite> Base::getSprite()
-{
-    return this->baseSprite;
-}
-
-sf::Vector2f Base::getPosition()
-{
-    return this->currentPosition;
+    sprite->setTexture(*ResourceManager::getTexture(BASE_IMAGE));
+    sprite->setScale(0.3, 0.3);
+    sprite->setPosition(posX - (sprite->getGlobalBounds().width / 2),
+                        posY - (sprite->getGlobalBounds().height / 2));
 }
 
 void Base::takeDamage(int damage)
@@ -31,27 +20,17 @@ void Base::takeDamage(int damage)
     currentLife -= damage;
 }
 
-int Base::getLife()
-{
-    return currentLife;
-}
-
 void Base::heal()
 {
     if (regenerationClock.getElapsedTime().asSeconds() >= regenerationSeconds)
     {
-        if (currentLife < maxLife)
+        if (currentLife < maximumLife)
         {
             currentLife += 50;
-            if (currentLife > maxLife)
+            if (currentLife > maximumLife)
             {
-                currentLife = maxLife;
+                currentLife = maximumLife;
             }
         }
     }
-}
-
-bool Base::isCollidingWith(const sf::FloatRect &other)
-{
-    return baseSprite->getGlobalBounds().intersects(other);
 }

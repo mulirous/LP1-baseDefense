@@ -28,10 +28,7 @@ bool Enemy::isDead()
 
 void Enemy::takeDamage(int damage)
 {
-    if (damage <= 0)
-        return;
-
-    currentLife -= damage;
+    Character::takeDamage(damage);
 
     if (currentLife <= 0)
         kill();

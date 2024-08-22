@@ -33,4 +33,6 @@ public:
     /// @param rect A FloatRect representing the bounding box to check against.
     /// @return True if the character's bounding box intersects with the provided rectangle.
     bool isCollidingWith(const sf::FloatRect &rect);
+
+    virtual void takeDamage(int damage) = 0;
 };

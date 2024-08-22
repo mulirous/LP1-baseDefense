@@ -32,13 +32,6 @@ void Hero::initAnimations()
     (*animations)["attack"] = attack;
 }
 
-void Hero::takeDamage(int damage)
-{
-    if (damage <= 0)
-        return;
-    this->currentLife -= damage;
-}
-
 void Hero::doAttack(sf::Vector2f &target, float dt)
 {
     // Hero can't attack again if it's still on animation

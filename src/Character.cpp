@@ -38,6 +38,17 @@ std::shared_ptr<RangedWeapon> Character::getRangedWeapon()
     return weapon;
 }
 
+void Character::takeDamage(int damage)
+{
+    if (damage <= 0)
+        return;
+
+    if (currentLife - damage < 0)
+        currentLife = 0;
+    else
+        currentLife -= damage;
+}
+
 bool Character::isCollidingWith(std::shared_ptr<Character> other)
 {
     return this->getBounds().intersects(other->getBounds());

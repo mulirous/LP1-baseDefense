@@ -106,9 +106,7 @@ public:
     /// @param other A shared pointer to the other character involved in the collision.
     void resolveCollision(std::shared_ptr<Character> other);
 
-    /// @brief Pure virtual function for handling damage taken by the character.
-    /// @param damage The amount of damage to apply to the character's current life.
-    virtual void takeDamage(int damage) = 0;
+    virtual void takeDamage(int damage) override;
 
     /// @brief Pure virtual function for performing an attack by the character.
     /// @param target The target position to attack towards.
