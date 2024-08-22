@@ -16,7 +16,6 @@ RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo)
     {
         std::cerr << "Failed to load spell sound file!" << std::endl;
     }
-
     arrowSound.setBuffer(arrowSoundBuffer);
     spellSound.setBuffer(spellSoundBuffer);
 }
@@ -27,10 +26,8 @@ std::shared_ptr<Projectile> RangedWeapon::launchProjectile(bool isHero)
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     direction = sf::Vector2f(direction.x / length, direction.y / length);
 
-    // Usar direction ao invés de target para mover o projétil
     return std::make_shared<Projectile>(10, PROJECTILE_VELOCITY, this->currentPosition, this->currentPosition + direction * 1000.0f, isHero);
 }
-
 
 void RangedWeapon::addAmmo(int ammo)
 {
@@ -58,12 +55,12 @@ void RangedWeapon::doAttack(bool isHero)
 
     if (isHero)
     {
-        spellSound.setVolume(100); // Ajuste o volume se necessário
+        spellSound.setVolume(100);
         spellSound.play();
     }
     else
     {
-        arrowSound.setVolume(100); // Ajuste o volume se necessário
+        arrowSound.setVolume(100);
         arrowSound.play();
     }
 }

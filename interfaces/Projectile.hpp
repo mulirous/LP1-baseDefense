@@ -12,6 +12,7 @@
 class Projectile
 {
 private:
+
     /// @brief Projectile's current position
     sf::Vector2f position;
     /// @brief Projectile's target
@@ -20,13 +21,10 @@ private:
     float velocity;
     /// @brief Projectile's damage
     int damage;
-
     /// @brief The sprite used to render the projectile
     std::shared_ptr<sf::Sprite> sprite;
-
     /// @brief Animation Manager
     std::shared_ptr<std::map<std::string, std::shared_ptr<Animation>>> animations;
-
     /// @brief Initializes projectile animations
     void initAnimations();
 

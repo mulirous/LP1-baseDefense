@@ -10,6 +10,7 @@
 class RangedWeapon : public Weapon
 {
 private:
+
     /// @brief Weapon's ammo
     int ammo;
     /// @brief Creates a projectile when character shoot
@@ -33,6 +34,7 @@ private:
     sf::Sound spellSound;
 
 public:
+
     RangedWeapon(int range, float releaseTime, int ammo);
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles();
     int getAmmo();
@@ -46,4 +48,5 @@ public:
     /// @note Internally calls Weapon->doAttack method
     void shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bool isHero);
     bool isReadyToAttack() override;
+
 };
