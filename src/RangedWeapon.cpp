@@ -7,8 +7,7 @@ RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo)
     : Weapon(range, releaseTime), ammo(ammo)
 {
     launchedProjectiles = std::make_shared<std::list<std::shared_ptr<Projectile>>>();
-
-    // Inicialize os buffers de som e sons
+    
     if (!arrowSoundBuffer.loadFromFile(ARROW_MUSIC))
     {
         std::cerr << "Failed to load arrow sound file!" << std::endl;
