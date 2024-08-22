@@ -24,11 +24,20 @@ void RangedWeapon::addAmmo(int ammo)
     this->ammo += ammo;
 }
 
-void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition)
+void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bool isHero)
 {
     setCurrentPosition(currentPosition);
     setTarget(target);
-    doAttack();
+
+    if (isHero)
+    {
+        doAttack();        // Faz o herói atirar e tocar o som de magia
+        spellSound.play(); // Som de magia para o herói
+    }
+    else
+    {
+        doAttack(); // Faz o inimigo atirar e tocar o som de flecha
+    }
 }
 
 void RangedWeapon::doAttack()
@@ -41,6 +50,9 @@ void RangedWeapon::doAttack()
     this->launchedProjectiles->push_back(newProjectile);
     this->ammo--;
     this->releaseTimeCounter.restart();
+
+    // Som de flecha tocado somente quando um projétil é lançado
+    arrowSound.play();
 }
 
 bool RangedWeapon::isReadyToAttack()

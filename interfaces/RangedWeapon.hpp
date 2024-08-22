@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <list>
+#include <SFML/Audio.hpp>
 
 /// @brief A class that represents all ranged weapons, like bows.
 class RangedWeapon : public Weapon
@@ -25,6 +26,11 @@ private:
     /// @returns void
     void doAttack() override;
 
+    sf::SoundBuffer arrowSoundBuffer;
+    sf::SoundBuffer spellSoundBuffer;
+    sf::Sound arrowSound;
+    sf::Sound spellSound;
+
 public:
     RangedWeapon(int range, float releaseTime, int ammo);
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles();
@@ -36,6 +42,6 @@ public:
     /// @param target Target's position on Vector2f type
     /// @param currentPosition Character's current position on Vector2f type
     /// @note Internally calls Weapon->doAttack method
-    void shoot(sf::Vector2f &target, sf::Vector2f &currentPosition);
+    void shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bool isHero);
     bool isReadyToAttack() override;
 };

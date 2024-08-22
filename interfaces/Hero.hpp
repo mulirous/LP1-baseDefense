@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include "Character.hpp"
 #include "Quiver.hpp"
-#include "../src/modules/animation/src/AnimationManager.hpp"
 #include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <memory>
 #include "Item.hpp"
@@ -32,10 +31,10 @@ public:
     Hero(float width, float height, float speed, int maxLife, float posX, float posY);
     void setTargetPosition(sf::Vector2f target);
     std::shared_ptr<RangedWeapon> getRangedWeapon();
-    void takeDamage(int damage);
+    void takeDamage(int damage) override;
     void initAnimations() override;
     void move(float deltaTime) override;
-    void doAttack(sf::Vector2f &target) override;
+    void doAttack(sf::Vector2f &target, float dt = {}) override;
 
     template <typename T>
     void useItem(std::shared_ptr<T> item)

@@ -9,12 +9,15 @@
 #include <memory>
 #include <type_traits>
 #include "Projectile.hpp"
-#include "../src/modules/animation/src/AnimationManager.hpp"
+#include <SFML/Audio.hpp>
 
 /// @brief The central point of all game.
 class Game
 {
 private:
+    std::unique_ptr<sf::Music> gameovermusic;
+    std::unique_ptr<sf::Music> battlemusic;
+
     /// @brief A varieable that show the count os killf the player have in the game
     int killCounter = 0;
 
@@ -51,16 +54,14 @@ private:
                     continue;
 
                 projectileIt = projectiles->erase(projectileIt);
-                if constexpr (std::is_same<Hero, T>::value || std::is_same<Base, T>::value)
+
+                character->takeDamage(projectile->getDamage());
+
+                if constexpr (std::is_same<Enemy, T>::value)
                 {
-                    character->takeDamage(projectile->getDamage());
-                }
-                else if constexpr (std::is_same<Enemy, T>::value)
-                {
-                    character->kill();
-                    this->killCounter++;
-                    if (character->hasDrop())
+                    if (character->isDead() && character->hasDrop())
                     {
+                        this->killCounter++;
                         sf::Vector2f pos = character->getCurrentPosition();
                         spawnDrop(pos);
                     }
@@ -72,7 +73,9 @@ private:
 
     /// @brief Changes to game over screen
     void showGameOver();
-    
+    sf::Vector2f getMousePosition();
+    void setDeltaTime(float time);
+
     /// @brief Changes to game win screen
     void showGameWin();
 
@@ -95,7 +98,6 @@ protected:
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
-    std::shared_ptr<AnimationManager> animationManager;
     float deltaTime;
     float spawnInterval;
     float spawnTimer = 0;
@@ -112,8 +114,7 @@ protected:
     /// @brief Process events like inputs.
     void handleEvents();
     /// @brief Changes the state of objects.
-    /// @param time
-    void update(float time);
+    void update();
     /// @brief Renders the actual state of objects on screen.
     void render();
     /// @brief Closes the window and ends the game.
@@ -121,13 +122,12 @@ protected:
 
 public:
     Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty);
-
-    sf::Vector2f getMousePosition() { return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow)); };
-    void setDeltaTime(float time) { this->deltaTime = time; }
-
     /// @brief Menu Constructor
     Game() : menu(nullptr) {}
 
+    void setDifficulty(GameDifficulty diff);
+
     /// @brief Start point to run game.
-    void run();
+    void
+    run();
 };

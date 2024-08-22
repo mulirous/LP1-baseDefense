@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <memory>
+#include <vector>
 #include "../../../../enums/CharacterDirection.h"
 
 class Animation
@@ -14,9 +16,16 @@ private:
     float totalTime;
     /// @brief Time between images
     float switchTime;
+    /// @brief
+    std::unique_ptr<std::vector<sf::IntRect>> framesSizes;
 
 public:
-    Animation(sf::Texture *texture, sf::Vector2u imageCount, float switchTime);
+    /// @brief
+    /// @param texture
+    /// @param imageCount
+    /// @param switchTime
+    /// @param framesSizes
+    Animation(sf::Texture *texture, sf::Vector2u imageCount, float switchTime, std::unique_ptr<std::vector<sf::IntRect>> framesSizes = nullptr);
     virtual ~Animation() = default;
     /// @brief Size of texture
     sf::IntRect textureRect;
@@ -30,4 +39,6 @@ public:
     /// @param direction Direction which character is facing at time
     /// @note Calls default update but modifies textureRect based on character's direction
     void update(float dt, CharacterDirection direction);
+    bool isCompleted() const;
+    void reset();
 };

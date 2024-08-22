@@ -2,6 +2,7 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include "../enums/MenuActions.h"
+#include <SFML/Audio.hpp>
 #include "../enums/GameDifficulty.h"
 #include "../enums/MenuState.h"
 #include <iostream>
@@ -23,6 +24,9 @@ private:
     sf::Vector2f mouseCords;
     sf::Vector2f mousePosition;
 
+    std::unique_ptr<sf::Music> menumusic;
+
+    std::shared_ptr<std::vector<sf::Text>> options;
     std::shared_ptr<std::vector<MenuOptions>> mainMenuOptions;
     std::shared_ptr<std::vector<MenuOptions>> difficultyMenuOptions;
     std::shared_ptr<std::vector<sf::Text>> mainOptions;
@@ -48,17 +52,8 @@ protected:
     void drawAll();
 
 public:
-    Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
-    {
-        window = gameWindow;
-        font = std::make_unique<sf::Font>();
-        image = std::make_unique<sf::Texture>();
-        bg = std::make_unique<sf::Sprite>();
-        init();
-    }
-
-    GameDifficulty getSelectedDifficulty() const { return selectedDifficulty; }
-
-    ~Menu() = default;
+    Menu(std::shared_ptr<sf::RenderWindow> gameWindow);
+    virtual ~Menu() = default;
+    GameDifficulty getSelectedDifficulty() const;
     bool run();
 };
