@@ -96,6 +96,11 @@ private:
     void setDeltaTime(float time);
     /// @brief Changes to game win screen
     void showGameWin();
+    void updateBase();
+    void updateHero();
+    void updateEnemies();
+    void updateDrops();
+    void dealCollisions();
 
 protected:
     /// @brief The screen's center on x-axis
@@ -124,8 +129,6 @@ protected:
     /// @note Internally, adds drop to drops's list
     void spawnDrop(sf::Vector2f &enemyPosition);
 
-    void updateDrops();
-
     /// @brief Process events like inputs.
     void handleEvents();
     /// @brief Changes the state of objects.
@@ -137,8 +140,6 @@ protected:
 
 public:
     Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty);
-    /// @brief Menu Constructor
-    Game() : menu(nullptr) {}
 
     void setDifficulty(GameDifficulty diff);
 

@@ -236,88 +236,13 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    base->heal();
-    hero->move(deltaTime);
-    auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
-    if (!heroProjectiles->empty())
-    {
-        for (auto &projectile : *heroProjectiles)
-            projectile->update(deltaTime);
+    updateBase();
 
-        calculateCollisionsWithProjectiles(heroProjectiles, enemies);
-    }
+    updateHero();
 
-    for (const auto &enemy : *enemies)
-    {
-        if (enemy->isDead())
-        {
-            if (enemy->getTimeSinceDeath() >= 5)
-            {
-                enemies->erase(remove(enemies->begin(), enemies->end(), enemy), enemies->end());
-                continue;
-            }
-        }
-        else
-        {
-            enemy->move(deltaTime);
-            int randNum = rand();
-            if (randNum % 2 == 0)
-            {
-                if (randNum % 5 == 0)
-                {
-                    auto basePosition = sf::Vector2f(base->getSprite()->getPosition());
-                    enemy->doAttack(basePosition);
-                }
-                else
-                {
-                    auto heroPosition = sf::Vector2f(hero->getSprite()->getPosition());
-                    enemy->doAttack(heroPosition);
-                }
-            }
-        }
+    updateEnemies();
 
-        auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
-        for (auto &projectile : *enemyProjectiles)
-        {
-            projectile->update(deltaTime);
-            if (base->isCollidingWith(projectile->getBounds()))
-            {
-                base->takeDamage(projectile->getDamage());
-                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
-            }
-            if (hero->isCollidingWith(projectile->getBounds()))
-            {
-                hero->takeDamage(projectile->getDamage());
-                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
-            }
-        }
-    }
-    // Resolve collisions
-    for (const auto &enemy : *enemies)
-    {
-        if (enemy->isDead())
-            continue;
-
-        if (hero->isCollidingWith(enemy))
-        {
-            hero->resolveCollision(enemy);
-        }
-
-        if (base->isCollidingWith(enemy->getSprite()->getGlobalBounds()))
-        {
-            base->takeDamage(50);
-            enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
-            continue;
-        }
-
-        for (const auto &otherEnemy : *enemies)
-        {
-            if (&enemy != &otherEnemy && enemy->isCollidingWith(otherEnemy))
-            {
-                enemy->resolveCollision(otherEnemy);
-            }
-        }
-    }
+    dealCollisions();
 
     updateDrops();
 
@@ -326,26 +251,6 @@ void Game::update()
     {
         spawnEnemy();
         spawnTimer = 0.f;
-    }
-}
-
-void Game::updateDrops()
-{
-    for (const auto &drop : *drops)
-    {
-        if (drop->hasExpired())
-        {
-            drops->erase(std::remove(drops->begin(), drops->end(), drop), drops->end());
-            continue;
-        }
-        drop->getItem()->animate(deltaTime);
-        if (hero->isCollidingWith(drop->getBounds()))
-        {
-            auto item = drop->getItem();
-            hero->useItem(item);
-            drop->markAsUsed();
-            continue;
-        }
     }
 }
 
@@ -497,3 +402,122 @@ void Game::close()
 {
     gameWindow->close();
 }
+
+#pragma region Private update methods
+void Game::updateHero()
+{
+    hero->move(deltaTime);
+    auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
+    if (!heroProjectiles->empty())
+    {
+        for (auto &projectile : *heroProjectiles)
+            projectile->update(deltaTime);
+
+        calculateCollisionsWithProjectiles(heroProjectiles, enemies);
+    }
+}
+
+void Game::updateEnemies()
+{
+    for (const auto &enemy : *enemies)
+    {
+        if (enemy->isDead())
+        {
+            if (enemy->getTimeSinceDeath() >= 5)
+            {
+                enemies->erase(remove(enemies->begin(), enemies->end(), enemy), enemies->end());
+                continue;
+            }
+        }
+        else
+        {
+            enemy->move(deltaTime);
+            int randNum = rand();
+            if (randNum % 2 == 0)
+            {
+                if (randNum % 5 == 0)
+                {
+                    auto basePosition = sf::Vector2f(base->getSprite()->getPosition());
+                    enemy->doAttack(basePosition);
+                }
+                else
+                {
+                    auto heroPosition = sf::Vector2f(hero->getSprite()->getPosition());
+                    enemy->doAttack(heroPosition);
+                }
+            }
+        }
+
+        auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
+        for (auto &projectile : *enemyProjectiles)
+        {
+            projectile->update(deltaTime);
+            if (base->isCollidingWith(projectile->getBounds()))
+            {
+                base->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
+            if (hero->isCollidingWith(projectile->getBounds()))
+            {
+                hero->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
+        }
+    }
+}
+
+void Game::dealCollisions()
+{
+    for (const auto &enemy : *enemies)
+    {
+        if (enemy->isDead())
+            continue;
+
+        if (hero->isCollidingWith(enemy))
+        {
+            hero->resolveCollision(enemy);
+        }
+
+        if (base->isCollidingWith(enemy->getSprite()->getGlobalBounds()))
+        {
+            base->takeDamage(50);
+            enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
+            continue;
+        }
+
+        for (const auto &otherEnemy : *enemies)
+        {
+            if (&enemy != &otherEnemy && enemy->isCollidingWith(otherEnemy))
+            {
+                enemy->resolveCollision(otherEnemy);
+            }
+        }
+    }
+}
+
+void Game::updateBase()
+{
+    base->heal();
+}
+
+void Game::updateDrops()
+{
+    for (const auto &drop : *drops)
+    {
+        if (drop->hasExpired())
+        {
+            drops->erase(std::remove(drops->begin(), drops->end(), drop), drops->end());
+            continue;
+        }
+        drop->getItem()->animate(deltaTime);
+        if (hero->isCollidingWith(drop->getBounds()))
+        {
+            auto item = drop->getItem();
+            hero->useItem(item);
+            drop->markAsUsed();
+            continue;
+        }
+    }
+}
+
+#pragma endregion
