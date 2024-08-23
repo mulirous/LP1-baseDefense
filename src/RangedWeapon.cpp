@@ -46,7 +46,6 @@ void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bo
 
 void RangedWeapon::doAttack()
 {
-    std::cout << "shooting causes " << damage << " damage!" << std::endl;
     if (ammo == 0 || !isReadyToAttack())
         return;
 
