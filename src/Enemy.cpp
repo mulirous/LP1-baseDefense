@@ -140,6 +140,11 @@ void Enemy::doAttack(sf::Vector2f &target, float dt)
 
     (*animations)["attack"]->reset();
 
+    if (target.x >= currentPosition.x)
+        direction = CharacterDirection::RIGHT;
+    else
+        direction = CharacterDirection::LEFT;
+
     animationState = CharacterAnimation::ATTACK;
     updateAnimation("attack", dt);
 
