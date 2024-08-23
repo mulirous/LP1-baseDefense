@@ -106,8 +106,7 @@ void Hero::move(float deltaTime)
     }
     sprite->move(movement);
 
-    sf::Vector2f newPosition = sprite->getPosition();
-    setCurrentPosition(newPosition);
+    currentPosition = sprite->getPosition();
 }
 
 void Hero::updateAnimation(const std::string &action, float dt)
@@ -149,5 +148,8 @@ void Hero::recharge(int ammo)
 
 void Hero::setTargetPosition(sf::Vector2f target)
 {
-    this->targetPosition = target;
+    if (target.x < 0 || target.x >= GAME_WINDOW_WIDTH - 35 || target.y < 0 || target.y >= GAME_WINDOW_HEIGHT - 35)
+        return;
+
+    targetPosition = target;
 }
