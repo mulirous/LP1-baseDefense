@@ -1,20 +1,31 @@
 #include "../interfaces/RangedWeapon.hpp"
-#include <math.h>
+#include <cmath>
 #include "../common.h"
 #include <iostream>
 
 RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo, int damage) : Weapon(range, releaseTime, damage), ammo(ammo), maxAmmo(ammo)
 {
     launchedProjectiles = std::make_shared<std::list<std::shared_ptr<Projectile>>>();
+
+    if (!arrowSoundBuffer.loadFromFile(ARROW_MUSIC))
+    {
+        std::cerr << "Failed to load arrow sound file!" << std::endl;
+    }
+    if (!spellSoundBuffer.loadFromFile(SPELL_MUSIC))
+    {
+        std::cerr << "Failed to load spell sound file!" << std::endl;
+    }
+    arrowSound.setBuffer(arrowSoundBuffer);
+    spellSound.setBuffer(spellSoundBuffer);
 }
 
-std::shared_ptr<Projectile> RangedWeapon::launchProjectile()
+std::shared_ptr<Projectile> RangedWeapon::launchProjectile(bool isHero)
 {
-    sf::Vector2f direction = this->target - this->currentPosition;
+    sf::Vector2f direction = target - currentPosition;
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     direction = sf::Vector2f(direction.x / length, direction.y / length);
 
-    return std::make_shared<Projectile>(damage, PROJECTILE_VELOCITY, this->currentPosition, direction);
+    return std::make_shared<Projectile>(damage, PROJECTILE_VELOCITY, currentPosition, currentPosition + direction * 1000.f, isHero);
 }
 
 void RangedWeapon::addAmmo(int ammo)
@@ -31,31 +42,29 @@ void RangedWeapon::shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bo
 {
     setCurrentPosition(currentPosition);
     setTarget(target);
-
-    if (isHero)
-    {
-        doAttack();
-        spellSound.play();
-    }
-    else
-    {
-        doAttack();
-        arrowSound.play();
-    }
+    doAttack(isHero);
 }
 
-void RangedWeapon::doAttack()
+void RangedWeapon::doAttack(bool isHero)
 {
     if (ammo == 0 || !isReadyToAttack())
         return;
 
-    // Creates a new projectile and shoot it
-    std::shared_ptr<Projectile> newProjectile = launchProjectile();
+    auto newProjectile = this->launchProjectile(isHero);
+    this->launchedProjectiles->push_back(newProjectile);
+    this->ammo--;
+    this->releaseTimeCounter.restart();
 
-    launchedProjectiles->push_back(newProjectile);
-
-    ammo--;
-    releaseTimeCounter.restart();
+    if (isHero)
+    {
+        spellSound.setVolume(100);
+        spellSound.play();
+    }
+    else
+    {
+        arrowSound.setVolume(100);
+        arrowSound.play();
+    }
 }
 
 bool RangedWeapon::isReadyToAttack()

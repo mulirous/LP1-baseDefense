@@ -9,8 +9,8 @@ const float DROP_EXPIRATION_SECONDS = 7;
 const std::string ASSETS_FOLDER = "resources/assets";
 const std::string GAME_FONT = "resources/fonts/AGoblinAppears-o2aV.ttf";
 const std::string MENU_IMAGE = "resources/assets/menubg.png";
-const std::string BACKGROUND_GAME = "resources/assets/grassbg3.png";
-const std::string BASE_IMAGE = "resources/assets/sprites/base-escura.png";
+const std::string BACKGROUND_GAME = "resources/assets/darkforestbg.png";
+const std::string BASE_IMAGE = "resources/assets/sprites/darkcircle.png";
 const std::string HERO_WALK_IMAGE = "resources/assets/sprites/hero/Wizard-Walk.png";
 const std::string HERO_IDLE_IMAGE = "resources/assets/sprites/hero/Wizard-Idle.png";
 const std::string HERO_ATTACK_IMAGE = "resources/assets/sprites/hero/Wizard-Attack02.png";
@@ -24,6 +24,9 @@ const std::string GAMEOVER_MUSIC = "resources/assets/music/gameover-soundtrack.w
 const std::string BATTLE_MUSIC = "resources/assets/music/battle-soundtrack.ogg";
 const std::string SPELL_MUSIC = "resources/assets/music/spell.wav";
 const std::string ARROW_MUSIC = "resources/assets/music/arrowhit.wav";
+const std::string WIZARD_SPELL = "resources/assets/attacks/wizard_spell.png";
+const std::string ENEMY_ARROW = "resources/assets/attacks/enemy_arrow.png";
+const std::string DRINKING_SOUND = "resources/assets/music/drinking_potion.ogg";
 
 inline int getRandomNumber(int min, int max)
 {

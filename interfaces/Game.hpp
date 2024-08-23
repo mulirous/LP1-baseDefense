@@ -73,11 +73,15 @@ private:
 
                 if constexpr (std::is_same<Enemy, T>::value)
                 {
-                    if (character->isDead() && character->hasDrop())
+                    if (character->isDead())
                     {
-                        this->killCounter++;
-                        sf::Vector2f pos = character->getCurrentPosition();
-                        spawnDrop(pos);
+                        killCounter++;
+
+                        if (character->hasDrop())
+                        {
+                            sf::Vector2f pos = character->getCurrentPosition();
+                            spawnDrop(pos);
+                        }
                     }
                 }
             }

@@ -42,8 +42,9 @@ public:
     int getDamage() const;
 
     /// @brief Makes an attack.
+    /// @param isHero Boolean indicating if who's attacking is hero or not. Default is `false`.
     /// @note This is a pure virtual function and must be implemented by derived classes to define specific attack behavior.
-    virtual void doAttack() = 0;
+    virtual void doAttack(bool isHero = false) = 0;
 
     /// @brief Checks if the weapon is ready to attack based on the release time.
     /// @return True if the weapon is ready to attack, false otherwise.

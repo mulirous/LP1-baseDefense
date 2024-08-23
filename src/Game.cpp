@@ -133,7 +133,7 @@ void Game::renderStatus()
 
     sf::Text heroLifeText, ammoText, baseLifeText, killCounterText, timeText;
     heroLifeText.setFont(font);
-    heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()));
+    heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()) + "/" + std::to_string(hero->getMaxLife()));
     heroLifeText.setCharacterSize(16);
     heroLifeText.setFillColor(sf::Color::White);
     heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
@@ -188,7 +188,7 @@ void Game::render()
         {
             for (const auto &projectile : enemyProjectiles)
             {
-                gameWindow->draw(projectile->getShape());
+                gameWindow->draw(projectile->getSprite());
             }
         }
     }
@@ -203,7 +203,7 @@ void Game::render()
     {
         for (const auto &projectile : heroProjectiles)
         {
-            gameWindow->draw(projectile->getShape());
+            gameWindow->draw(projectile->getSprite());
         }
     }
 
@@ -249,10 +249,9 @@ void Game::update()
 
         calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
-    // Updates everything related to enemies
+
     for (const auto &enemy : *enemies)
     {
-        // Enemy is only erased if enough time has passed; meanwhile, it continues
         if (enemy->isDead())
         {
             if (enemy->getTimeSinceDeath() >= 5)
@@ -280,7 +279,6 @@ void Game::update()
             }
         }
 
-        // Handle enemy's projectiles that are on screen
         auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
         for (auto &projectile : *enemyProjectiles)
         {
@@ -297,7 +295,6 @@ void Game::update()
             }
         }
     }
-
     // Resolve collisions
     for (const auto &enemy : *enemies)
     {

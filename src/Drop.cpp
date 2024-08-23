@@ -3,6 +3,7 @@
 Drop::Drop(std::shared_ptr<Item> item, sf::Vector2f position, float expirationSeconds)
     : position(position), item(item), expirationTime(expirationSeconds), used(false)
 {
+    this->item->getSprite()->setPosition(position);
     expiredCounter.restart();
 }
 
