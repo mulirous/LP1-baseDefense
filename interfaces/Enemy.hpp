@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "RangedWeapon.hpp"
-#include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include "../enums/EnemyState.h"
 #include "Character.hpp"
 #include "Drop.hpp"

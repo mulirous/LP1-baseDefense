@@ -27,10 +27,8 @@ private:
     /// @note Only attack if there is remaining ammo and if the weapon's release time has passed
     void doAttack(bool isHero) override;
 
-    sf::SoundBuffer arrowSoundBuffer;
-    sf::SoundBuffer spellSoundBuffer;
-    sf::Sound arrowSound;
-    sf::Sound spellSound;
+    std::unique_ptr<sf::Sound> arrowSound;
+    std::unique_ptr<sf::Sound> spellSound;
 
 public:
     RangedWeapon(int range, float releaseTime, int ammo, int damage);

@@ -54,4 +54,9 @@ void loadResources()
     {
         throw std::runtime_error("Assets aren't ready.. \n");
     }
+    ResourceManager::preLoadSoundBuffers(AUDIO_FOLDER, true);
+    if (ResourceManager::getNumberOfSoundBuffers() <= 0)
+    {
+        throw std::runtime_error("Audio isn't ready.. \n");
+    }
 };

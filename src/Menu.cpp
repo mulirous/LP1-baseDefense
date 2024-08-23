@@ -8,7 +8,9 @@ Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
     font = std::make_unique<sf::Font>();
     image = std::make_unique<sf::Texture>(*ResourceManager::getTexture(MENU_IMAGE));
     bg = std::make_unique<sf::Sprite>();
+
     menumusic = std::make_unique<sf::Music>();
+
     init();
 }
 
@@ -95,6 +97,10 @@ void Menu::init()
     }
 
     (*difficultyOptions)[0].setOutlineThickness(2);
+
+    menumusic->openFromFile(MENU_MUSIC);
+    menumusic->setLoop(true);
+    menumusic->play();
 }
 
 bool Menu::run()
@@ -152,18 +158,12 @@ void Menu::drawAll()
     }
     else if (currentState == MenuState::DIFFICULTY)
     {
-        sf::Text enterText, returnText;
+        sf::Text returnText;
 
         if (font)
         {
-            enterText.setFont(*font);
             returnText.setFont(*font);
         }
-
-        enterText.setString("Press Enter Three Times");
-        enterText.setCharacterSize(16);
-        enterText.setFillColor(sf::Color::White);
-        enterText.setPosition((GAME_WINDOW_WIDTH - enterText.getLocalBounds().width) / 2, 391);
 
         returnText.setString("Press 'Q' to Return");
         returnText.setCharacterSize(16);
@@ -175,7 +175,6 @@ void Menu::drawAll()
             windowPtr->draw((*difficultyOptions)[i]);
         }
 
-        windowPtr->draw(enterText);
         windowPtr->draw(returnText);
     }
 
@@ -290,14 +289,17 @@ void Menu::showAbout()
         "Game Version 1.0\n"
         "Developed by\n\n\n"
         "Andriel Vinicius\n\n"
-        "   Performance Optimizer, Modularizer, Game Designer, Sound Engineer\n"
+        "   Performance Optimizer, Modularizer, Game Designer\n"
         "   & Developer\n"
         "\n\n"
         "Flawbert Lorran\n\n"
         "   Game Designer, Sound Engineer & Developer\n"
         "\n\n"
         "Murilo Costa\n\n"
-        "   Performance Optimizer, Modularizer & Developer\n";
+        "   Performance Optimizer, Modularizer & Developer\n"
+        "\n\n"
+        "Special thanks to Hadassa Garcia for created the ending background."
+        "\n\n";
 
     infoText.setString(aboutText);
     infoText.setPosition(100.f, 200.f);
