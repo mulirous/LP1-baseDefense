@@ -15,6 +15,7 @@
 class Game
 {
 private:
+    sf::Clock clock;
     std::unique_ptr<sf::Music> gameovermusic;
     std::unique_ptr<sf::Music> battlemusic;
     float deltaTime;

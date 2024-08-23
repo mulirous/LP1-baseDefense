@@ -11,9 +11,12 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
                                                                                                     centerY(y),
                                                                                                     gameWindow(window),
                                                                                                     difficulty(difficulty),
+                                                                                                    clock(sf::Clock()),
                                                                                                     enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
                                                                                                     drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
-                                                                                                    background(std::make_unique<sf::Sprite>())
+                                                                                                    background(std::make_unique<sf::Sprite>()),
+                                                                                                    battlemusic(std::make_unique<sf::Music>()),
+                                                                                                    gameovermusic(std::make_unique<sf::Music>())
 {
     srand(static_cast<unsigned>(time(0)));
 
@@ -24,11 +27,11 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
     switch (difficulty)
     {
     case GameDifficulty::EASY:
-        heroHealth = 125;
+        heroHealth = 100;
         baseDefense = 1000.0f;
         baseRegenerationSeconds = 10;
         spawnInterval = 5.0f;
-        gameTime = 91.0f;
+        gameTime = 90.0f;
         enemySpd = 30.0f;
         enemyLife = 50;
         enemyDamage = 5;
@@ -58,9 +61,9 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
     }
 
     hero = std::make_shared<Hero>(50, 50, 90, heroHealth, 600, 400);
-    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds, x, y);
-
     hero->initAnimations();
+
+    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds, x, y);
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
@@ -89,18 +92,9 @@ void Game::setDifficulty(GameDifficulty diff)
 
 void Game::run()
 {
-    sf::Clock clock;
-
-    this->battlemusic = std::make_unique<sf::Music>();
-    if (!this->battlemusic->openFromFile(BATTLE_MUSIC))
-    {
-        std::cout << "Unable to load the battle music. \n";
-    }
-    else
-    {
-        this->battlemusic->setLoop(true);
-        this->battlemusic->play();
-    }
+    battlemusic->openFromFile(BATTLE_MUSIC);
+    battlemusic->setLoop(true);
+    battlemusic->play();
 
     while (gameWindow->isOpen())
     {
@@ -111,11 +105,12 @@ void Game::run()
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
-            this->battlemusic->stop();
+            battlemusic->stop();
             showGameOver();
         }
         else if (this->gameTime <= 0)
         {
+            battlemusic->stop();
             showGameWin();
         }
         else
@@ -188,7 +183,8 @@ void Game::render()
         {
             for (const auto &projectile : enemyProjectiles)
             {
-                gameWindow->draw(projectile->getSprite());
+                if (!projectile->hasReachedTarget())
+                    gameWindow->draw(projectile->getSprite());
             }
         }
     }
@@ -203,7 +199,8 @@ void Game::render()
     {
         for (const auto &projectile : heroProjectiles)
         {
-            gameWindow->draw(projectile->getSprite());
+            if (!projectile->hasReachedTarget())
+                gameWindow->draw(projectile->getSprite());
         }
     }
 
@@ -408,16 +405,12 @@ void Game::spawnDrop(sf::Vector2f &position)
 
 void Game::showGameOver()
 {
-    this->gameovermusic = std::make_unique<sf::Music>();
-    if (!this->gameovermusic->openFromFile(GAMEOVER_MUSIC))
-    {
-        std::cout << "Unable to load the game over music. \n";
-    }
-    else
-    {
-        this->gameovermusic->setLoop(true); // Loop a música
-        this->gameovermusic->play();
-    }
+    battlemusic->stop();
+
+    gameovermusic->openFromFile(GAMEOVER_MUSIC);
+    gameovermusic->setLoop(true);
+    gameovermusic->setVolume(100);
+    gameovermusic->play();
 
     sf::Font font;
     if (!font.loadFromFile(GAME_FONT))
@@ -447,7 +440,7 @@ void Game::showGameOver()
             if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
             {
                 gameWindow->close();
-                this->gameovermusic->stop();
+                gameovermusic->stop();
             }
         }
 
@@ -460,25 +453,26 @@ void Game::showGameOver()
 
 void Game::showGameWin()
 {
-    sf::Font font;
-    if (!font.loadFromFile(GAME_FONT))
-    {
-        std::cout << "Couldn't load font. Exiting.";
-        return;
-    }
+    sf::Font font = *ResourceManager::getFont(GAME_FONT);
 
-    sf::Text gameWinText, returnText;
+    sf::Text gameWinText, killCounterText, returnText;
     gameWinText.setFont(font);
     gameWinText.setString("You Win!");
     gameWinText.setCharacterSize(48);
     gameWinText.setFillColor(sf::Color::Green);
     gameWinText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
+    killCounterText.setFont(font);
+    killCounterText.setString("Kills: " + std::to_string(killCounter));
+    killCounterText.setCharacterSize(24);
+    killCounterText.setFillColor(sf::Color::Black);
+    killCounterText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+
     returnText.setFont(font);
     returnText.setString("Press any key to return");
     returnText.setCharacterSize(24);
     returnText.setFillColor(sf::Color::Black);
-    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 420);
 
     while (gameWindow->isOpen())
     {
@@ -493,6 +487,7 @@ void Game::showGameWin()
 
         gameWindow->clear(sf::Color::White);
         gameWindow->draw(gameWinText);
+        gameWindow->draw(killCounterText);
         gameWindow->draw(returnText);
         gameWindow->display();
     }

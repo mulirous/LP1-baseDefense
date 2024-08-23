@@ -32,11 +32,15 @@ void Projectile::initAnimations()
 
 void Projectile::update(float deltaTime)
 {
+    if (hasReachedTarget())
+        return;
+
     if (animations)
     {
         (*animations)["attack"]->update(deltaTime);
         sprite->setTextureRect((*animations)["attack"]->textureRect);
     }
+
     sf::Vector2f direction = target - position;
     float magnitude = sqrt(direction.x * direction.x + direction.y * direction.y);
     if (magnitude != 0.0f)
@@ -58,11 +62,20 @@ sf::FloatRect Projectile::getBounds()
 
 int Projectile::getDamage()
 {
-    return this->damage;
+    return damage;
 }
 
 bool Projectile::isOffScreen() const
 {
     sf::FloatRect bounds = sprite->getGlobalBounds();
     return position.x < 0 || position.x > GAME_WINDOW_WIDTH || position.y < 0 || position.y > GAME_WINDOW_HEIGHT;
+}
+
+bool Projectile::hasReachedTarget() const
+{
+    sf::Vector2f distance;
+    distance.x = target.x - position.x;
+    distance.y = target.y - position.y;
+
+    return distance.x < 1 && distance.y < 1 && distance.x > -1 && distance.y > -1;
 }
