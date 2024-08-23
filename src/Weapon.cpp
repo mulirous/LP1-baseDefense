@@ -2,16 +2,15 @@
 
 Weapon::Weapon(int range, float releaseTime, int damage) : range(range), releaseTime(releaseTime), damage(damage)
 {
-    sf::Clock newClock;
-    releaseTimeCounter = newClock;
+    releaseTimeCounter.restart(); // Initialize counter
 }
 
-float Weapon::getReleaseTime()
+float Weapon::getReleaseTime() const
 {
     return releaseTime;
 }
 
-int Weapon::getDamage()
+int Weapon::getDamage() const
 {
     return damage;
 }

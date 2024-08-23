@@ -8,17 +8,17 @@ Character::Character(float width, float height, float speed, int maxLife, float 
 
 Character::Character(float width, float height, float speed, int maxLife, sf::Vector2f position) : Character(width, height, speed, maxLife, position.x, position.y) {};
 
-float Character::getWidth()
+float Character::getWidth() const
 {
     return this->width;
 }
 
-float Character::getHeigth()
+float Character::getHeight() const
 {
     return this->height;
 }
 
-float Character::getSpeed()
+float Character::getSpeed() const
 {
     return this->speed;
 }
@@ -33,7 +33,7 @@ void Character::setAnimationState(CharacterAnimation &animation)
     this->animationState = animation;
 }
 
-std::shared_ptr<RangedWeapon> Character::getRangedWeapon()
+const std::shared_ptr<RangedWeapon> Character::getRangedWeapon()
 {
     return weapon;
 }
@@ -54,7 +54,7 @@ bool Character::isCollidingWith(std::shared_ptr<Character> other)
     return this->getBounds().intersects(other->getBounds());
 }
 
-bool Character::isAnimationCompleted(const std::string &action)
+bool Character::isAnimationCompleted(const std::string &action) const
 {
     return (*animations)[action]->isCompleted();
 }
