@@ -7,7 +7,7 @@
 #include "../enums/MenuState.h"
 #include "../enums/GameState.h"
 #include <iostream>
-#include "structs.hpp"
+#include "MenuOptions.hpp"
 
 class Menu
 {
