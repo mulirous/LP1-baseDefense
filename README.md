@@ -50,8 +50,8 @@ Antes de iniciar o jogo, o usuário é direcionado para a escolha de dificuldade
 - Regeneração: 10 segundos
 - Intervalo de Spawn: 5 segundos
 - Duração do Jogo: 91 segundos
-- Velocidade do Inimigo: 30 unidades
-- Vida do Inimigo: 50 pontos
+- Velocidade do Inimigo: 40 unidades
+- Vida do Inimigo: 25 pontos
 - Dano do Inimigo: 5 pontos
 
 ##### Médio:
@@ -60,7 +60,7 @@ Antes de iniciar o jogo, o usuário é direcionado para a escolha de dificuldade
 - Intervalo de Spawn: 3 segundos
 - Duração do Jogo: 121 segundos
 - Velocidade do Inimigo: 40 unidades
-- Vida do Inimigo: 70 pontos
+- Vida do Inimigo: 50 pontos
 - Dano do Inimigo: 10 pontos
 
 ##### Difícil:
@@ -69,7 +69,7 @@ Antes de iniciar o jogo, o usuário é direcionado para a escolha de dificuldade
 - Intervalo de Spawn: 3 segundos
 - Duração do Jogo: 181 segundos
 - Velocidade do Inimigo: 40 unidades
-- Vida do Inimigo: 90 pontos
+- Vida do Inimigo: 75 pontos
 - Dano do Inimigo: 15 pontos
 
 #### Como Jogar
