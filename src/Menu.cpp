@@ -5,29 +5,42 @@
 Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
 {
     window = gameWindow;
-    font = std::make_unique<sf::Font>();
+    font = std::make_unique<sf::Font>(*ResourceManager::getFont(GAME_FONT));
     image = std::make_unique<sf::Texture>(*ResourceManager::getTexture(MENU_IMAGE));
     bg = std::make_unique<sf::Sprite>();
 
     menumusic = std::make_unique<sf::Music>();
-    gameOverMusic = std::make_unique<sf::Music>();
+    menumusic->openFromFile(MENU_MUSIC);
+    menumusic->setLoop(true);
 
-    init();
+    gameOverMusic = std::make_unique<sf::Music>();
+    gameOverMusic->openFromFile(GAMEOVER_MUSIC);
+    gameOverMusic->setLoop(true);
+
+    mainMenuOptions = std::make_unique<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
+        {"START", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
+        {"CREDITS", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
+        {"EXIT", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
+    mainOptions = std::make_unique<std::vector<sf::Text>>(mainMenuOptions->size());
+
+    difficultyMenuOptions = std::make_unique<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
+        {"EASY", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
+        {"MEDIUM", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
+        {"HARD", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
+    difficultyOptions = std::make_unique<std::vector<sf::Text>>(difficultyMenuOptions->size());
 }
 
-void Menu::init()
+void Menu::initializeObjects()
 {
     current = 0;
     pressed = selected = false;
     mousePosition = sf::Vector2f(0, 0);
     mouseCords = sf::Vector2f(0, 0);
 
-    font = std::make_unique<sf::Font>(*ResourceManager::getFont(GAME_FONT));
-    bg->setTexture(*image);
-
     auto windowPtr = window.lock();
     if (windowPtr)
     {
+        bg->setTexture(*image);
         sf::Vector2u windowSize = windowPtr->getSize();
         sf::Vector2u imageSize = image->getSize();
 
@@ -41,12 +54,6 @@ void Menu::init()
     }
 
     // Creates the menu's main section options
-    mainMenuOptions = std::make_unique<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
-        {"START", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
-        {"CREDITS", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
-        {"EXIT", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
-
-    mainOptions = std::make_unique<std::vector<sf::Text>>(mainMenuOptions->size());
 
     for (int i = 0; i < mainMenuOptions->size(); i++)
     {
@@ -61,27 +68,10 @@ void Menu::init()
     }
     (*mainOptions)[0].setOutlineThickness(3);
 
-    if (!menumusic->openFromFile(MENU_MUSIC))
-    {
-        std::cout << "Unable to load the menu music. \n";
-    }
-    else
-    {
-        menumusic->setLoop(true);
-        menumusic->play();
-    }
-    gameOverMusic->openFromFile(GAMEOVER_MUSIC);
-    gameOverMusic->setLoop(true);
+    menumusic->play();
     gameOverMusic->setVolume(100);
 
     // Creates menu's choose difficult section
-    difficultyMenuOptions = std::make_unique<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
-        {"EASY", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
-        {"MEDIUM", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
-        {"HARD", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
-
-    difficultyOptions = std::make_unique<std::vector<sf::Text>>(difficultyMenuOptions->size());
-
     for (int i = 0; i < difficultyMenuOptions->size(); i++)
     {
         if (font)
@@ -95,10 +85,6 @@ void Menu::init()
     }
 
     (*difficultyOptions)[0].setOutlineThickness(3);
-
-    menumusic->openFromFile(MENU_MUSIC);
-    menumusic->setLoop(true);
-    menumusic->play();
 }
 
 void Menu::run(GameState &state, GameDifficulty &difficulty)
@@ -107,7 +93,7 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
     if (!windowPtr)
         state = GameState::PLAY;
 
-    menumusic->play();
+    initializeObjects();
 
     while (state != GameState::PLAY && state != GameState::EXIT)
     {
@@ -328,7 +314,6 @@ void Menu::displayCredits()
         }
 
         windowPtr->clear(sf::Color::Black);
-        // windowPtr->draw();
         windowPtr->draw(infoText);
         windowPtr->draw(exitText);
         windowPtr->display();
@@ -339,48 +324,38 @@ void Menu::showBadEnding(GameState &state)
 {
     auto windowPtr = window.lock();
 
-    if (!windowPtr)
+    if (!windowPtr || !bg)
         return;
 
     gameOverMusic->play();
 
     auto gameOverImage = ResourceManager::getTexture(BAD_GAMEOVER_IMAGE);
     sf::Sprite gameOverBg;
-    if (gameOverImage)
-    {
-        gameOverBg.setTexture(*gameOverImage);
+    gameOverBg.setTexture(*gameOverImage);
 
-        sf::Vector2u windowSize = windowPtr->getSize();
-        sf::Vector2u imageSize = gameOverImage->getSize();
+    sf::Vector2u windowSize = windowPtr->getSize();
+    sf::Vector2u imageSize = gameOverImage->getSize();
 
-        float scaleX = static_cast<float>(windowSize.x) / imageSize.x;
-        float scaleY = static_cast<float>(windowSize.y) / imageSize.y;
-        gameOverBg.setScale(scaleX, scaleY);
+    float scaleX = static_cast<float>(windowSize.x) / imageSize.x;
+    float scaleY = static_cast<float>(windowSize.y) / imageSize.y;
+    gameOverBg.setScale(scaleX, scaleY);
 
-        float newHeight = imageSize.y * scaleX;
-        float offsetY = (windowSize.y - newHeight) / 2;
-        gameOverBg.setPosition(0, offsetY);
-    }
-
-    sf::Font font;
-    if (!font.loadFromFile(GAME_FONT))
-    {
-        std::cout << "Couldn't load font. Exiting.";
-        return;
-    }
+    float newHeight = imageSize.y * scaleX;
+    float offsetY = (windowSize.y - newHeight) / 4;
+    gameOverBg.setPosition(0, offsetY);
 
     sf::Text gameOverText, exitText;
-    gameOverText.setFont(font);
+    gameOverText.setFont(*font);
     gameOverText.setString("Game Over");
     gameOverText.setCharacterSize(48);
     gameOverText.setFillColor(sf::Color::Red);
     gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
-    exitText.setFont(font);
+    exitText.setFont(*font);
     exitText.setString("Press any key to return");
-    exitText.setCharacterSize(24);
+    exitText.setCharacterSize(20);
     exitText.setFillColor(sf::Color::White);
-    exitText.setPosition((GAME_WINDOW_WIDTH / 3) - (GAME_WINDOW_WIDTH / 5), 350);
+    exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
 
     while (state != GameState::MENU)
     {
@@ -425,13 +400,13 @@ void Menu::showGoodEnding(GameState &state, int totalKills)
 
     killCounterText.setFont(font);
     killCounterText.setString("Kills: " + std::to_string(totalKills));
-    killCounterText.setCharacterSize(24);
+    killCounterText.setCharacterSize(20);
     killCounterText.setFillColor(sf::Color::Black);
     killCounterText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
 
     returnText.setFont(font);
     returnText.setString("Press any key to return");
-    returnText.setCharacterSize(24);
+    returnText.setCharacterSize(20);
     returnText.setFillColor(sf::Color::Black);
     returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 420);
 

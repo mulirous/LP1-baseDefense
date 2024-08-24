@@ -45,8 +45,8 @@ protected:
     /// @note This also handle interactions such as navigating through options (although this doesn't return any MenuAction object, just modifies the menu state)
     MenuActions handleActions();
 
-    /// @brief Initialize many objects. Required on constructor
-    void init();
+    /// @brief Initialize many objects.
+    void initializeObjects();
     /// @brief Draws options and images on screen
     void drawAll();
 
