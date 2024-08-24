@@ -27,11 +27,11 @@ private:
 
     std::unique_ptr<sf::Music> menumusic;
 
-    std::shared_ptr<std::vector<sf::Text>> options;
-    std::shared_ptr<std::vector<MenuOptions>> mainMenuOptions;
-    std::shared_ptr<std::vector<MenuOptions>> difficultyMenuOptions;
-    std::shared_ptr<std::vector<sf::Text>> mainOptions;
-    std::shared_ptr<std::vector<sf::Text>> difficultyOptions;
+    std::unique_ptr<std::vector<sf::Text>> options;
+    std::unique_ptr<std::vector<MenuOptions>> mainMenuOptions;
+    std::unique_ptr<std::vector<MenuOptions>> difficultyMenuOptions;
+    std::unique_ptr<std::vector<sf::Text>> mainOptions;
+    std::unique_ptr<std::vector<sf::Text>> difficultyOptions;
 
     GameDifficulty selectedDifficulty = GameDifficulty::MEDIUM;
     MenuState currentState = MenuState::MAIN;

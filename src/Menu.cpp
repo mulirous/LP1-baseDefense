@@ -41,12 +41,12 @@ void Menu::init()
     }
 
     // Creates the menu's main section options
-    mainMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
+    mainMenuOptions = std::make_unique<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
         {"START", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
         {"CREDITS", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
         {"EXIT", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
 
-    mainOptions = std::make_shared<std::vector<sf::Text>>(mainMenuOptions->size());
+    mainOptions = std::make_unique<std::vector<sf::Text>>(mainMenuOptions->size());
 
     for (int i = 0; i < mainMenuOptions->size(); i++)
     {
@@ -75,12 +75,12 @@ void Menu::init()
     gameOverMusic->setVolume(100);
 
     // Creates menu's choose difficult section
-    difficultyMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
+    difficultyMenuOptions = std::make_unique<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
         {"EASY", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
         {"MEDIUM", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
         {"HARD", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
 
-    difficultyOptions = std::make_shared<std::vector<sf::Text>>(difficultyMenuOptions->size());
+    difficultyOptions = std::make_unique<std::vector<sf::Text>>(difficultyMenuOptions->size());
 
     for (int i = 0; i < difficultyMenuOptions->size(); i++)
     {
