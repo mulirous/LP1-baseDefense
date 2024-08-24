@@ -1,5 +1,4 @@
 #include "Animation.hpp"
-#include <iostream>
 #include <stdlib.h>
 
 Animation::Animation(sf::Texture *texture, sf::Vector2u imageCount, float switchTime, std::unique_ptr<std::vector<sf::IntRect>> framesSizes)
@@ -27,6 +26,16 @@ Animation::Animation(sf::Texture *texture, sf::Vector2u imageCount, float switch
         }
     }
 };
+
+void Animation::reset()
+{
+    current.x = 0;
+}
+
+bool Animation::isCompleted() const
+{
+    return current.x + 1 == imageCount.x;
+}
 
 void Animation::update(float dt)
 {
@@ -61,14 +70,4 @@ void Animation::update(float dt, CharacterDirection direction)
         textureRect.left += textureRect.width;  // Adjust the left position
         textureRect.width = -textureRect.width; // Invert the width for flipping
     }
-}
-
-void Animation::reset()
-{
-    current.x = 0;
-}
-
-bool Animation::isCompleted() const
-{
-    return current.x + 1 == imageCount.x;
 }

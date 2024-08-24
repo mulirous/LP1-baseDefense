@@ -1,10 +1,11 @@
 #pragma once
 
+/// @brief Represents each menu action.
 enum class MenuActions
 {
     NONE,
     START,
-    ABOUT,
+    CREDITS,
     CHOOSE_DIFFICULTY,
     EXIT
 };

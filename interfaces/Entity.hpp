@@ -6,8 +6,7 @@
 /// @class Entity
 /// @brief Abstract class that defines common behavior for some game entites. Character and Base inherits from this.
 /// @details This class is designed to be inherited by other classes such as Character and Base.
-/// It provides common properties like position, life, and collision detection, as well as an interface
-/// for handling damage. The `takeDamage` function is pure virtual, meaning derived classes must implement their own version.
+/// It provides common properties like position, life, and collision detection, as well as an interface for handling damage.
 class Entity
 {
 protected:
@@ -54,7 +53,7 @@ public:
     /// @return A constant shared pointer to the sprite representing the entity.
     const std::shared_ptr<sf::Sprite> getSprite();
 
-    /// @brief Gets the global bounding box of the entity's sprite.
+    /// @brief Gets the global bounding box of the entity's sprite. Used to detect collisions.
     /// @return A FloatRect representing the bounding box of the sprite.
     sf::FloatRect getBounds();
 

@@ -27,7 +27,7 @@ public:
     /// @param regenerationSeconds The number of seconds between each life regeneration tick.
     Base(int maxLife, float regenerationSeconds);
 
-    /// @brief Default destructor for the Base class.
+    /// @brief Default Base destructor.
     virtual ~Base() = default;
 
     /// @brief Reduces the life of the base by a specified damage amount.
