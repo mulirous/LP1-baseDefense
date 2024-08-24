@@ -1,6 +1,6 @@
 # Spell Guard 🧙
 
-O mundo assim como no principio se torna escuro e vazio, com a calamidade das criaturas com a sobreania Skulls Archers, que a todo custo querem o mundo a sua imagem e semelhança.
+O mundo assim como no principio se torna escuro e vazio, com a calamidade das criaturas com a sobrenia Skulls Archers, que a todo custo querem o mundo a sua imagem e semelhança.
 Apenas o nosso herói pode mudar a história completando sua invocação arcana de poderoso nivel para trazer a luz novamente.
 
 ### Compilação
