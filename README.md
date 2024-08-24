@@ -3,7 +3,6 @@
 ### Compilação
 Basta digitar `make` ou `mingw32-make` para compilar o programa.
 Contudo, caso não tenha o `make` para rodar o MAKEFILE em sua máquina, você pode compilar o programa de outras formas, como:
-- Utilizando os atalhos de Build `Ctrl + Shift + B`, no isual Studio Code.
 - Compilando manualmente abrindo o seu terminal dentro do diretório do projeto e digitando:
                   `g++ -g "src/*.cpp" -I"sfml/include" -L"sfml/lib" -lsfml-graphics -lsfml-window -lsfml-system -o "bin/app"`
 
@@ -19,10 +18,10 @@ Apenas abra seu terminal dentro do diretório do projeto e digite `./bin/app`.
 Spell Guard é um jogo de defesa de base em que inimigos surgem no mapa com o objetivo de destruir a base. Seu objetivo é proteger a base durante um tempo determinado.
 
 #### Recursos do Herói
-- Vida: 100 pontos fixos.
+- Vida: 100 pontos fixo.
+- Regeneração: Ao coletar poções de vida dropadas pelos inimigos.
 - Mana: 50 pontos, usados para lançar projéteis.
 - Movimento: O herói se move em direção ao ponto clicado com o botão direito do mouse. Se o botão direito for mantido pressionado, o herói segue o cursor do mouse.
-- Sprint: Ao clicar o botão esquerdo do mouse, o herói realiza um sprint.
 - Área de Ação: O herói pode se mover livremente dentro e fora da base.
 - Ataque: O herói pode disparar projéteis pressionando a tecla Q, com alcance limitado, na direção do cursor do mouse.
 #### Inimigos
@@ -30,7 +29,7 @@ Spell Guard é um jogo de defesa de base em que inimigos surgem no mapa com o ob
 - Movimento: Os inimigos se movem em direção ao centro da base ou ao herói.
 - Ataque: Disparam projéteis em direção ao herói.
 - Interações: Os projéteis podem colidir com o herói, com outros inimigos, ou com a base.
-- Drops: Ao serem derrotados, os inimigos deixam itens (mana) que podem ser coletados pelo herói. Esses itens desaparecem após certo tempo se não forem coletados.
+- Drops: Ao serem derrotados, os inimigos deixam itens (mana e poção de vida) que podem ser coletados pelo herói. Esses itens desaparecem após certo tempo se não forem coletados.
 #### Base
 - Vida: A base tem sua vida determinada pela dificuldade do jogo.
 - Regeneração: A base regenera sua vida ao longo do tempo.
@@ -67,11 +66,11 @@ Antes de iniciar o jogo, o usuário é direcionado para a escolha de dificuldade
 - Dano do Inimigo: 15 pontos
 
 #### Como Jogar
-###### Menu: Ao iniciar o jogo, você será levado ao menu principal, onde pode selecionar a dificuldade e iniciar o jogo.
-###### Movimentação: Use o botão direito do mouse para definir o destino do herói. O botão esquerdo aciona o sprint.
-###### Ataque: Pressione Q para disparar projéteis em direção ao cursor do mouse.
-###### Proteger a Base: Derrote inimigos e colete mana para se fortalecer.
-###### Sobrevivência: Proteja a base pelo tempo determinado ou até que todos os inimigos sejam derrotados.
+##### Menu: Ao iniciar o jogo, você será levado ao menu principal, onde pode selecionar a dificuldade e iniciar o jogo.
+##### Movimentação: Use o botão direito do mouse para definir o destino do herói. O botão esquerdo aciona o sprint.
+##### Ataque: Pressione Q para disparar projéteis em direção ao cursor do mouse.
+##### Proteger a Base: Derrote inimigos e colete mana para se fortalecer.
+##### Sobrevivência: Proteja a base pelo tempo determinado ou até que todos os inimigos sejam derrotados.
 
 ### Estrutura do Código
 O código está organizado em classes e módulos, incluindo:
