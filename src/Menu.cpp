@@ -42,9 +42,9 @@ void Menu::init()
 
     // Creates the menu's main section options
     mainMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
-        {"START", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
-        {"ABOUT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
-        {"EXIT", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)}});
+        {"START", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
+        {"ABOUT", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
+        {"EXIT", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
 
     mainOptions = std::make_shared<std::vector<sf::Text>>(mainMenuOptions->size());
 
@@ -76,9 +76,9 @@ void Menu::init()
 
     // Creates menu's choose difficult section
     difficultyMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
-        {"EASY", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 191)},
-        {"MEDIUM", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 241)},
-        {"HARD", 24, sf::Vector2f((GAME_WINDOW_WIDTH - 100) / 2, 291)}});
+        {"EASY", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
+        {"MEDIUM", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
+        {"HARD", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
 
     difficultyOptions = std::make_shared<std::vector<sf::Text>>(difficultyMenuOptions->size());
 
@@ -170,7 +170,7 @@ void Menu::drawAll()
         returnText.setString("Press 'Q' to Return");
         returnText.setCharacterSize(16);
         returnText.setFillColor(sf::Color::White);
-        returnText.setPosition((GAME_WINDOW_WIDTH - returnText.getLocalBounds().width) / 2, 491);
+        returnText.setPosition((GAME_WINDOW_WIDTH - returnText.getLocalBounds().width) / 2, GAME_WINDOW_HEIGHT - returnText.getLocalBounds().height);
 
         for (size_t i = 0; i < difficultyOptions->size(); i++)
         {
@@ -341,6 +341,24 @@ void Menu::showBadEnding(GameState &state)
 
     gameOverMusic->play();
 
+    auto gameOverImage = ResourceManager::getTexture(BAD_GAMEOVER_IMAGE);
+    sf::Sprite gameOverBg;
+    if (gameOverImage)
+    {
+        gameOverBg.setTexture(*gameOverImage);
+
+        sf::Vector2u windowSize = windowPtr->getSize();
+        sf::Vector2u imageSize = gameOverImage->getSize();
+
+        float scaleX = static_cast<float>(windowSize.x) / imageSize.x;
+        float scaleY = static_cast<float>(windowSize.y) / imageSize.y;
+        gameOverBg.setScale(scaleX, scaleY);
+
+        float newHeight = imageSize.y * scaleX;
+        float offsetY = (windowSize.y - newHeight) / 2;
+        gameOverBg.setPosition(0, offsetY);
+    }
+
     sf::Font font;
     if (!font.loadFromFile(GAME_FONT))
     {
@@ -375,6 +393,7 @@ void Menu::showBadEnding(GameState &state)
         }
 
         windowPtr->clear();
+        windowPtr->draw(gameOverBg);
         windowPtr->draw(gameOverText);
         windowPtr->draw(exitText);
         windowPtr->display();
