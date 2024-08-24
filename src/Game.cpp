@@ -56,8 +56,8 @@ void Game::initializeObjects()
         baseRegenerationSeconds = 10;
         spawnInterval = 5.0f;
         gameTime = 91.0f;
-        enemySpd = 30.0f;
-        enemyLife = 50;
+        enemySpd = 40.0f;
+        enemyLife = 25;
         enemyDamage = 5;
         break;
 
@@ -67,17 +67,17 @@ void Game::initializeObjects()
         spawnInterval = 3.0f;
         gameTime = 121.0f;
         enemySpd = 40.0f;
-        enemyLife = 70;
+        enemyLife = 50;
         enemyDamage = 10;
         break;
 
     case GameDifficulty::HARD:
         baseDefense = 600.0f;
         baseRegenerationSeconds = 20;
-        spawnInterval = 3.f;
+        spawnInterval = 3.0f;
         gameTime = 181.0f;
         enemySpd = 40.0f;
-        enemyLife = 90;
+        enemyLife = 75;
         enemyDamage = 15;
         break;
     }
