@@ -7,7 +7,7 @@ Hero::Hero(float width, float height, float speed, int maxLife, float posX, floa
 {
     direction = CharacterDirection::RIGHT; // Starts facing right by default
     animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
-    weapon = std::make_shared<RangedWeapon>(10, 0.5, 50);
+    weapon = std::make_shared<RangedWeapon>(10, 0.5, 50, 25);
     sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
     sprite->setScale(2, 2);
     initAnimations();
@@ -32,17 +32,10 @@ void Hero::initAnimations()
     (*animations)["attack"] = attack;
 }
 
-void Hero::takeDamage(int damage)
-{
-    if (damage <= 0)
-        return;
-    this->currentLife -= damage;
-}
-
 void Hero::doAttack(sf::Vector2f &target, float dt)
 {
     // Hero can't attack again if it's still on animation
-    if (this->animationState == CharacterAnimation::ATTACK)
+    if (animationState == CharacterAnimation::ATTACK || !weapon->isReadyToAttack())
         return;
 
     (*animations)["attack"]->reset();
@@ -56,10 +49,10 @@ void Hero::doAttack(sf::Vector2f &target, float dt)
     else
         direction = CharacterDirection::LEFT;
 
-    this->animationState = CharacterAnimation::ATTACK;
+    animationState = CharacterAnimation::ATTACK;
     updateAnimation("attack", dt);
 
-    this->weapon->shoot(target, heroPosition, true);
+    weapon->shoot(target, heroPosition, true);
 }
 
 void Hero::move(float deltaTime)
@@ -113,8 +106,7 @@ void Hero::move(float deltaTime)
     }
     sprite->move(movement);
 
-    sf::Vector2f newPosition = sprite->getPosition();
-    this->setCurrentPosition(newPosition);
+    currentPosition = sprite->getPosition();
 }
 
 void Hero::updateAnimation(const std::string &action, float dt)
@@ -129,7 +121,6 @@ void Hero::updateAnimation(const std::string &action, float dt)
     }
     else if (action == "attack" && sprite->getTexture() != ResourceManager::getTexture(HERO_ATTACK_IMAGE) && animationState == CharacterAnimation::ATTACK)
     {
-        std::cout << "attack action!\n";
         sprite->setTexture(*ResourceManager::getTexture(HERO_ATTACK_IMAGE));
     }
 
@@ -141,8 +132,11 @@ void Hero::updateAnimation(const std::string &action, float dt)
 
 void Hero::heal(int healAmount)
 {
-    if (healAmount + currentLife > 100)
+    if (healAmount + currentLife > maximumLife)
+    {
+        this->currentLife = maximumLife;
         return;
+    }
 
     this->currentLife += healAmount;
 }
@@ -152,12 +146,10 @@ void Hero::recharge(int ammo)
     this->weapon->addAmmo(ammo);
 };
 
-std::shared_ptr<RangedWeapon> Hero::getRangedWeapon()
-{
-    return this->weapon;
-}
-
 void Hero::setTargetPosition(sf::Vector2f target)
 {
-    this->targetPosition = target;
+    if (target.x < 0 || target.x >= GAME_WINDOW_WIDTH - 35 || target.y < 0 || target.y >= GAME_WINDOW_HEIGHT - 35)
+        return;
+
+    targetPosition = target;
 }

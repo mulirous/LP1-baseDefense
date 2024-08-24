@@ -7,18 +7,20 @@
 #include "../interfaces/Quiver.hpp"
 #include "modules/animation/src/Animation.hpp"
 
-Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
+Game::Game(std::shared_ptr<sf::RenderWindow> window) : centerX(GAME_WINDOW_WIDTH / 2),
+                                                       centerY(GAME_WINDOW_HEIGHT / 2),
+                                                       gameWindow(window),
+                                                       clock(sf::Clock()),
+                                                       enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
+                                                       drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
+                                                       background(std::make_unique<sf::Sprite>()),
+                                                       battlemusic(std::make_unique<sf::Music>()),
+                                                       gameovermusic(std::make_unique<sf::Music>())
 {
     srand(static_cast<unsigned>(time(0)));
-    centerX = x;
-    centerY = y;
-    enemies = std::make_shared<std::list<std::shared_ptr<Enemy>>>();
-    drops = std::make_unique<std::list<std::shared_ptr<Drop>>>();
-    gameWindow = window;
-    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
-    hero->initAnimations();
-    base = std::make_shared<Base>(500, x, y);
-    background = std::make_unique<sf::Sprite>();
+
+    menu = std::make_unique<Menu>(gameWindow);
+    state = GameState::MENU;
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
@@ -30,38 +32,119 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window)
     background->setScale(scaleX, scaleY);
 };
 
+sf::Vector2f Game::getMousePosition()
+{
+    return static_cast<sf::Vector2f>(sf::Mouse::getPosition(*this->gameWindow));
+};
+
+void Game::setDeltaTime(float dt)
+{
+    deltaTime = dt;
+}
+
+void Game::initializeObjects()
+{
+    restart(); // Tem que ter o restart antes de cada execução para não usar os mesmos dados de antes
+
+    int heroHealth;
+    float baseDefense, baseRegenerationSeconds;
+
+    switch (difficulty)
+    {
+    case GameDifficulty::EASY:
+        baseDefense = 1000.0f;
+        baseRegenerationSeconds = 10;
+        spawnInterval = 5.0f;
+        gameTime = 9.0f;
+        enemySpd = 30.0f;
+        enemyLife = 50;
+        enemyDamage = 5;
+        break;
+
+    case GameDifficulty::MEDIUM:
+        baseDefense = 800.0f;
+        baseRegenerationSeconds = 15;
+        spawnInterval = 3.0f;
+        gameTime = 121.0f;
+        enemySpd = 40.0f;
+        enemyLife = 70;
+        enemyDamage = 10;
+        break;
+
+    case GameDifficulty::HARD:
+        baseDefense = 600.0f;
+        baseRegenerationSeconds = 20;
+        spawnInterval = 3.f;
+        gameTime = 181.0f;
+        enemySpd = 40.0f;
+        enemyLife = 90;
+        enemyDamage = 15;
+        break;
+    }
+
+    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
+    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds);
+}
+
+void Game::start()
+{
+    while (state != GameState::EXIT)
+    {
+        switch (state)
+        {
+        case GameState::MENU:
+            menu->run(state, difficulty);
+            break;
+
+        case GameState::PLAY:
+            initializeObjects();
+            run();
+            break;
+        }
+    }
+    close();
+}
+
+void Game::restart()
+{
+    killCounter = 0;
+    gameTime = 0;
+    spawnTimer = 0;
+
+    enemies->clear();
+    drops->clear();
+
+    clock.restart();
+}
+
 void Game::run()
 {
-    sf::Clock clock;
+    battlemusic->openFromFile(BATTLE_MUSIC);
+    battlemusic->setLoop(true);
+    battlemusic->play();
 
-    this->battlemusic = std::make_unique<sf::Music>();
-    if (!this->battlemusic->openFromFile(BATTLE_MUSIC))
+    while (state != GameState::EXIT)
     {
-        std::cout << "Unable to load the battle music. \n";
-    }
-    else
-    {
-        this->battlemusic->setLoop(true); // Loop a música
-        this->battlemusic->play();
-    }
+        float dt = clock.restart().asSeconds();
+        setDeltaTime(dt);
 
-    while (gameWindow->isOpen())
-    {
-        float deltaTime = clock.restart().asSeconds();
-
-        setDeltaTime(deltaTime);
+        gameTime -= deltaTime;
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
-            this->battlemusic->stop();
-            showGameOver();
+            renderEnding(false);
+            break;
+        }
+        else if (this->gameTime <= 0)
+        {
+            renderEnding(true);
             break;
         }
         else
         {
             render();
             handleEvents();
-            update(deltaTime);
+            update();
         }
     }
 }
@@ -70,9 +153,9 @@ void Game::renderStatus()
 {
     auto font = *ResourceManager::getFont(GAME_FONT);
 
-    sf::Text heroLifeText, ammoText, baseLifeText;
+    sf::Text heroLifeText, ammoText, baseLifeText, killCounterText, timeText;
     heroLifeText.setFont(font);
-    heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()));
+    heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()) + "/" + std::to_string(hero->getMaxLife()));
     heroLifeText.setCharacterSize(16);
     heroLifeText.setFillColor(sf::Color::White);
     heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
@@ -89,9 +172,25 @@ void Game::renderStatus()
     baseLifeText.setFillColor(sf::Color::White);
     baseLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 75);
 
+    killCounterText.setFont(font);
+    killCounterText.setString("KILLS: " + std::to_string(this->killCounter));
+    killCounterText.setCharacterSize(16);
+    killCounterText.setFillColor(sf::Color::White);
+    killCounterText.setPosition(GAME_WINDOW_WIDTH - 200, 100);
+
+    int timeToDisplay = static_cast<int>(gameTime);
+
+    timeText.setFont(font);
+    timeText.setString("TIME: " + std::to_string(timeToDisplay) + "s");
+    timeText.setCharacterSize(16);
+    timeText.setFillColor(sf::Color::White);
+    timeText.setPosition(GAME_WINDOW_WIDTH - 200, 125);
+
     gameWindow->draw(heroLifeText);
     gameWindow->draw(ammoText);
     gameWindow->draw(baseLifeText);
+    gameWindow->draw(killCounterText);
+    gameWindow->draw(timeText);
 }
 
 void Game::render()
@@ -111,7 +210,8 @@ void Game::render()
         {
             for (const auto &projectile : enemyProjectiles)
             {
-                gameWindow->draw(projectile->getSprite());
+                if (!projectile->hasReachedTarget())
+                    gameWindow->draw(projectile->getSprite());
             }
         }
     }
@@ -126,11 +226,12 @@ void Game::render()
     {
         for (const auto &projectile : heroProjectiles)
         {
-            gameWindow->draw(projectile->getSprite());
+            if (!projectile->hasReachedTarget())
+                gameWindow->draw(projectile->getSprite());
         }
     }
 
-    this->renderStatus();
+    renderStatus();
     gameWindow->display();
 }
 
@@ -139,13 +240,10 @@ void Game::handleEvents()
     sf::Event event;
     while (gameWindow->pollEvent(event))
     {
-        if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))
         {
-            gameWindow->close();
-        }
-        else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-        {
-            gameWindow->close();
+            state = GameState::EXIT;
+            break;
         }
         else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q)
         {
@@ -160,7 +258,199 @@ void Game::handleEvents()
     }
 }
 
-void Game::update(float deltaTime)
+void Game::update()
+{
+    updateBase();
+
+    updateHero();
+
+    updateEnemies();
+
+    dealCollisions();
+
+    updateDrops();
+
+    spawnTimer += deltaTime;
+    if (spawnTimer >= spawnInterval)
+    {
+        spawnEnemy();
+        spawnTimer = 0.f;
+    }
+}
+
+void Game::spawnEnemy()
+{
+    float spawnX;
+    float spawnY;
+
+    int side = getRandomNumber(0, 3) % 4;
+
+    switch (side)
+    {
+    case 0: // Top
+        spawnX = rand() % GAME_WINDOW_WIDTH;
+        spawnY = -20;
+        break;
+    case 1: // Right
+        spawnX = GAME_WINDOW_WIDTH + 20;
+        spawnY = rand() % GAME_WINDOW_HEIGHT;
+        break;
+    case 2: // Bottom
+        spawnX = rand() % GAME_WINDOW_WIDTH;
+        spawnY = GAME_WINDOW_HEIGHT + 20.f;
+        break;
+    case 3: // Left
+        spawnX = -20.f;
+        spawnY = rand() % GAME_WINDOW_HEIGHT;
+        break;
+    }
+
+    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, enemyDamage, spawnX, spawnY, this->centerX, this->centerY);
+    enemies->push_back(enemy);
+}
+
+void Game::spawnDrop(sf::Vector2f &position)
+{
+    // Randomically selects item
+    int num = getRandomNumber(0, 100);
+
+    std::shared_ptr<Drop> drop;
+
+    if (num % 2)
+    {
+        int life = getRandomNumber(10, 20);
+        auto item = std::make_shared<Potion>(life);
+        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
+    }
+    else
+    {
+        int mana = getRandomNumber(5, 10);
+        auto item = std::make_shared<ManaPotion>(mana);
+        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
+    }
+
+    drops->push_back(drop);
+}
+
+void Game::showGameOver()
+{
+    battlemusic->stop();
+
+    gameovermusic->openFromFile(GAMEOVER_MUSIC);
+    gameovermusic->setLoop(true);
+    gameovermusic->setVolume(100);
+    gameovermusic->play();
+
+    sf::Font font;
+    if (!font.loadFromFile(GAME_FONT))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+
+    sf::Text gameOverText, exitText;
+    gameOverText.setFont(font);
+    gameOverText.setString("Game Over");
+    gameOverText.setCharacterSize(48);
+    gameOverText.setFillColor(sf::Color::Red);
+    gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
+
+    exitText.setFont(font);
+    exitText.setString("Press any key to return");
+    exitText.setCharacterSize(24);
+    exitText.setFillColor(sf::Color::White);
+    exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+
+    while (gameWindow->isOpen())
+    {
+        sf::Event event;
+        while (gameWindow->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
+            {
+                gameWindow->close();
+                gameovermusic->stop();
+            }
+        }
+
+        gameWindow->clear();
+        gameWindow->draw(gameOverText);
+        gameWindow->draw(exitText);
+        gameWindow->display();
+    }
+}
+
+void Game::showGameWin()
+{
+    sf::Font font = *ResourceManager::getFont(GAME_FONT);
+
+    sf::Text gameWinText, killCounterText, returnText;
+    gameWinText.setFont(font);
+    gameWinText.setString("You Win!");
+    gameWinText.setCharacterSize(48);
+    gameWinText.setFillColor(sf::Color::Green);
+    gameWinText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
+
+    killCounterText.setFont(font);
+    killCounterText.setString("Kills: " + std::to_string(killCounter));
+    killCounterText.setCharacterSize(24);
+    killCounterText.setFillColor(sf::Color::Black);
+    killCounterText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+
+    returnText.setFont(font);
+    returnText.setString("Press any key to return");
+    returnText.setCharacterSize(24);
+    returnText.setFillColor(sf::Color::Black);
+    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 420);
+
+    while (gameWindow->isOpen())
+    {
+        sf::Event event;
+        while (gameWindow->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
+            {
+                return;
+            }
+        }
+
+        gameWindow->clear(sf::Color::White);
+        gameWindow->draw(gameWinText);
+        gameWindow->draw(killCounterText);
+        gameWindow->draw(returnText);
+        gameWindow->display();
+    }
+}
+
+void Game::renderEnding(bool isSuccess)
+{
+    battlemusic->stop();
+
+    if (isSuccess)
+        menu->showGoodEnding(state, killCounter);
+    else
+        menu->showBadEnding(state);
+
+    state = GameState::MENU; // Go back again to menu
+
+    return;
+}
+
+void Game::close()
+{
+    if (battlemusic->getStatus() == sf::Music::Playing)
+    {
+        battlemusic->stop();
+    }
+
+    enemies->clear();
+    drops->clear();
+
+    gameWindow->close();
+}
+
+#pragma region Private update methods
+void Game::updateHero()
 {
     hero->move(deltaTime);
     auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
@@ -169,9 +459,12 @@ void Game::update(float deltaTime)
         for (auto &projectile : *heroProjectiles)
             projectile->update(deltaTime);
 
-        this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
+        calculateCollisionsWithProjectiles(heroProjectiles, enemies);
     }
+}
 
+void Game::updateEnemies()
+{
     for (const auto &enemy : *enemies)
     {
         if (enemy->isDead())
@@ -185,7 +478,6 @@ void Game::update(float deltaTime)
         else
         {
             enemy->move(deltaTime);
-            enemy->updateAnimation("walk", deltaTime); // Atualiza a animação de movimento
             int randNum = rand();
             if (randNum % 2 == 0)
             {
@@ -218,7 +510,10 @@ void Game::update(float deltaTime)
             }
         }
     }
-    // Resolve collisions
+}
+
+void Game::dealCollisions()
+{
     for (const auto &enemy : *enemies)
     {
         if (enemy->isDead())
@@ -244,7 +539,15 @@ void Game::update(float deltaTime)
             }
         }
     }
+}
 
+void Game::updateBase()
+{
+    base->heal();
+}
+
+void Game::updateDrops()
+{
     for (const auto &drop : *drops)
     {
         if (drop->hasExpired())
@@ -261,121 +564,6 @@ void Game::update(float deltaTime)
             continue;
         }
     }
-
-    this->spawnTimer += deltaTime;
-    if (this->spawnTimer >= this->spawnInterval)
-    {
-        spawnEnemy();
-        this->spawnTimer = 0.f;
-    }
 }
 
-void Game::spawnEnemy()
-{
-    float spawnX;
-    float spawnY;
-
-    int side = getRandomNumber(0, 3) % 4;
-
-    switch (side)
-    {
-    case 0: // Top
-        spawnX = rand() % GAME_WINDOW_WIDTH;
-        spawnY = -20;
-        break;
-    case 1: // Right
-        spawnX = GAME_WINDOW_WIDTH + 20;
-        spawnY = rand() % GAME_WINDOW_HEIGHT;
-        break;
-    case 2: // Bottom
-        spawnX = rand() % GAME_WINDOW_WIDTH;
-        spawnY = GAME_WINDOW_HEIGHT + 20.f;
-        break;
-    case 3: // Left
-        spawnX = -20.f;
-        spawnY = rand() % GAME_WINDOW_HEIGHT;
-        break;
-    }
-
-    auto enemy = std::make_shared<Enemy>(40, 40, 50, 80, spawnX, spawnY, this->centerX, this->centerY);
-    enemies->push_back(enemy);
-}
-
-void Game::close()
-{
-    gameWindow->close();
-}
-
-void Game::spawnDrop(sf::Vector2f &position)
-{
-    // Randomically selects item
-    int num = getRandomNumber(0, 100);
-
-    std::shared_ptr<Drop> drop;
-
-    if (num % 2)
-    {
-        auto item = std::make_shared<Potion>();
-        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
-    }
-    else
-    {
-        int mana = getRandomNumber(5, 10);
-        auto item = std::make_shared<ManaPotion>(mana);
-        drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
-    }
-
-    drops->push_back(drop);
-}
-
-void Game::showGameOver()
-{
-    this->gameovermusic = std::make_unique<sf::Music>();
-    if (!this->gameovermusic->openFromFile(GAMEOVER_MUSIC))
-    {
-        std::cout << "Unable to load the game over music. \n";
-    }
-    else
-    {
-        this->gameovermusic->setLoop(true); // Loop a música
-        this->gameovermusic->play();
-    }
-
-    sf::Font font;
-    if (!font.loadFromFile(GAME_FONT))
-    {
-        std::cout << "Couldn't load font. Exiting.";
-        return;
-    }
-
-    sf::Text gameOverText, exitText;
-    gameOverText.setFont(font);
-    gameOverText.setString("Game Over");
-    gameOverText.setCharacterSize(48);
-    gameOverText.setFillColor(sf::Color::Red);
-    gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
-
-    exitText.setFont(font);
-    exitText.setString("Press any key to exit");
-    exitText.setCharacterSize(24);
-    exitText.setFillColor(sf::Color::White);
-    exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
-
-    while (gameWindow->isOpen())
-    {
-        sf::Event event;
-        while (gameWindow->pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
-            {
-                gameWindow->close();
-                this->gameovermusic->stop();
-            }
-        }
-
-        gameWindow->clear();
-        gameWindow->draw(gameOverText);
-        gameWindow->draw(exitText);
-        gameWindow->display();
-    }
-}
+#pragma endregion

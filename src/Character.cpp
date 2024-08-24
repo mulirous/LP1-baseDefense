@@ -1,48 +1,26 @@
 #include "../interfaces/Character.hpp"
 #include <SFML/Graphics.hpp>
 
-Character::Character(float width, float height, float speed, int maxLife, float posX, float posY) : width(width), height(height), speed(speed), animationState(CharacterAnimation::IDLE),
-                                                                                                    maximumLife(maxLife), currentLife(maxLife), currentPosition(posX, posY)
+Character::Character(float width, float height, float speed, int maxLife, float posX, float posY) : Entity(maxLife, {posX, posY}), width(width), height(height), speed(speed), animationState(CharacterAnimation::IDLE)
 {
-    sprite = std::make_shared<sf::Sprite>();
     sprite->setPosition(posX, posY);
-};
+}
 
 Character::Character(float width, float height, float speed, int maxLife, sf::Vector2f position) : Character(width, height, speed, maxLife, position.x, position.y) {};
 
-float Character::getWidth()
+float Character::getWidth() const
 {
     return this->width;
 }
 
-float Character::getHeigth()
+float Character::getHeight() const
 {
     return this->height;
 }
 
-float Character::getSpeed()
+float Character::getSpeed() const
 {
     return this->speed;
-}
-
-int Character::getMaxLife()
-{
-    return this->maximumLife;
-}
-
-int Character::getLife()
-{
-    return this->currentLife;
-}
-
-sf::Vector2f Character::getCurrentPosition()
-{
-    return this->currentPosition;
-}
-
-sf::FloatRect Character::getGlobalBounds()
-{
-    return sf::FloatRect(this->currentPosition.x, this->currentPosition.y, this->width, this->height);
 }
 
 CharacterAnimation Character::getAnimationState() const
@@ -55,27 +33,28 @@ void Character::setAnimationState(CharacterAnimation &animation)
     this->animationState = animation;
 }
 
-std::shared_ptr<sf::Sprite> Character::getSprite()
+const std::shared_ptr<RangedWeapon> Character::getRangedWeapon()
 {
-    return this->sprite;
+    return weapon;
 }
 
-void Character::setCurrentPosition(sf::Vector2f &position)
+void Character::takeDamage(int damage)
 {
-    this->currentPosition = position;
-}
+    if (damage <= 0)
+        return;
 
-bool Character::isCollidingWith(const sf::FloatRect &rect)
-{
-    return this->getGlobalBounds().intersects(rect);
+    if (currentLife - damage < 0)
+        currentLife = 0;
+    else
+        currentLife -= damage;
 }
 
 bool Character::isCollidingWith(std::shared_ptr<Character> other)
 {
-    return this->getGlobalBounds().intersects(other->getGlobalBounds());
+    return this->getBounds().intersects(other->getBounds());
 }
 
-bool Character::isAnimationCompleted(const std::string &action)
+bool Character::isAnimationCompleted(const std::string &action) const
 {
     return (*animations)[action]->isCompleted();
 }

@@ -13,7 +13,10 @@ Potion::Potion(int healAmount) : Item(POTION_IMAGE)
     idleAnimation = std::make_shared<Animation>(ResourceManager::getTexture(POTION_IMAGE), sf::Vector2u(8, 1), 0.08f);
 }
 
-int Potion::getHealAmount() { return healAmount; }
+int Potion::getHealAmount()
+{
+    return healAmount;
+}
 
 void Potion::animate(float dt)
 {

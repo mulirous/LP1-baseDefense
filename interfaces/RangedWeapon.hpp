@@ -10,9 +10,9 @@
 class RangedWeapon : public Weapon
 {
 private:
-
     /// @brief Weapon's ammo
     int ammo;
+    int maxAmmo;
     /// @brief Creates a projectile when character shoot
     /// @param isHero A boolean to determine if the projectile is from the hero
     /// @return A pointer to projectile
@@ -25,17 +25,13 @@ private:
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> launchedProjectiles;
     /// @brief Makes an attack
     /// @note Only attack if there is remaining ammo and if the weapon's release time has passed
-    /// @returns void
-    void doAttack(bool isHero);
+    void doAttack(bool isHero) override;
 
-    sf::SoundBuffer arrowSoundBuffer;
-    sf::SoundBuffer spellSoundBuffer;
-    sf::Sound arrowSound;
-    sf::Sound spellSound;
+    std::unique_ptr<sf::Sound> arrowSound;
+    std::unique_ptr<sf::Sound> spellSound;
 
 public:
-
-    RangedWeapon(int range, float releaseTime, int ammo);
+    RangedWeapon(int range, float releaseTime, int ammo, int damage);
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles();
     int getAmmo();
     void addAmmo(int ammo);
@@ -48,5 +44,4 @@ public:
     /// @note Internally calls Weapon->doAttack method
     void shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bool isHero);
     bool isReadyToAttack() override;
-
 };

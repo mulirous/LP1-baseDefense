@@ -12,7 +12,6 @@
 class Projectile
 {
 private:
-
     /// @brief Projectile's current position
     sf::Vector2f position;
     /// @brief Projectile's target
@@ -35,4 +34,5 @@ public:
     int getDamage();
     void update(float deltaTime);
     bool isOffScreen() const;
+    bool hasReachedTarget() const;
 };

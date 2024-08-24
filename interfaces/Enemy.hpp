@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "RangedWeapon.hpp"
-#include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include "../enums/EnemyState.h"
 #include "Character.hpp"
 #include "Drop.hpp"
@@ -14,7 +13,6 @@
 class Enemy : public Character
 {
 protected:
-    std::shared_ptr<RangedWeapon> weapon;
     /// @brief
     sf::Vector2f targetPosition;
     /// @brief Flag indicating enemy's state.
@@ -24,26 +22,20 @@ protected:
     sf::Clock clockDeath;
     /// @brief Determines if enemy has drop after its death
     bool drop;
+    void kill();
+    void updateAnimation(const std::string &action, float dt) override;
 
 public:
-    Enemy(float width, float height, float speed, int maxLife, float x, float y, float cX, float cY);
-    Enemy(float width, float height, float speed, int maxLife, sf::Vector2f position, float cX, float cY);
-    Enemy(float width, float height, float speed, int maxLife, sf::Vector2f position, sf::Vector2f target);
-
+    Enemy(float width, float height, float speed, int maxLife, int weaponDamage, float x, float y, float cX, float cY);
+    Enemy(float width, float height, float speed, int maxLife, int weaponDamage, sf::Vector2f position, float cX, float cY);
+    Enemy(float width, float height, float speed, int maxLife, int weaponDamage, sf::Vector2f position, sf::Vector2f target);
     /// @brief Check if enemy's state is DEAD
     bool isDead();
-
     /// @brief Sets enemy's state to DEAD
-    void kill();
-
-    // No implementation yet
     float getTimeSinceDeath();
     bool hasDrop();
-
-    void initAnimations() override;                            // Sobrescrever para inicializar as animações
-    void updateAnimation(const std::string &action, float dt); // Novo método para atualizar as animações
-
-    std::shared_ptr<RangedWeapon> getRangedWeapon();
+    void takeDamage(int damage) override;
+    void initAnimations() override;
     void move(float deltaTime) override;
     void doAttack(sf::Vector2f &target, float dt = {}) override;
 };

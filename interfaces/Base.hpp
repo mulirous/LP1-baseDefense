@@ -1,36 +1,41 @@
-#ifndef BASE_HPP
-#define BASE_HPP
+#pragma once
 
 #include "../src/modules/texture_manager/src/ResourceManager.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "../common.h"
+#include "Entity.hpp"
 
-/// @brief Represents the base which hero must defend and enemies will attack
-class Base
+/// @file Base.hpp
+/// @class Base
+/// @brief Represents the base that the hero must defend and the enemies will attack.
+/// @details The Base class is derived from the Entity class and represents a defensive structure
+/// in the game. It has regeneration capabilities and can take damage from enemies.
+/// The base automatically heals itself after a set period of time, and the hero must protect it from destruction.
+class Base : public Entity
 {
 private:
-    /// @brief Base's max life
-    int maxLife;
-    /// @brief Base's current life
-    int currentLife;
-    /// @brief Base's position on screen
-    sf::Vector2f currentPosition;
-    /// @brief Pointer to base's sprite
-    std::shared_ptr<sf::Sprite> baseSprite;
+    /// @brief The amount of time, in seconds, between each regeneration tick.
+    float regenerationSeconds;
+
+    /// @brief Clock to track the time elapsed for regeneration.
+    sf::Clock regenerationClock;
 
 public:
-    /// @brief Default constructor.
-    /// @param maxLife Base's max life
-    /// @param posX
-    /// @param posY
-    /// @param texture
-    Base(int maxLife, float posX, float posY);
+    /// @brief Constructs a Base with a specific amount of life and regeneration time.
+    /// @param maxLife The maximum life of the base.
+    /// @param regenerationSeconds The number of seconds between each life regeneration tick.
+    Base(int maxLife, float regenerationSeconds);
+
+    /// @brief Default destructor for the Base class.
     virtual ~Base() = default;
-    std::shared_ptr<sf::Sprite> getSprite();
-    sf::Vector2f getPosition();
-    void takeDamage(int damage);
-    int getLife();
-    bool isCollidingWith(const sf::FloatRect &other);
+
+    /// @brief Reduces the life of the base by a specified damage amount.
+    /// @param damage The amount of damage to apply to the base.
+    /// @details If the damage is less than or equal to 0, no damage is applied.
+    void takeDamage(int damage) override;
+
+    /// @brief Heals the base by a fixed amount after a certain time interval.
+    /// @details The base will regenerate life every `regenerationSeconds` seconds, up to its maximum life.
+    void heal();
 };
-#endif // ! BASE_HPP
