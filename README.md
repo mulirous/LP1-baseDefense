@@ -30,15 +30,16 @@ Um Mago a procura de proteger seu Circulo Arcano de Invocação para cessar e a 
 Os Skull Archers. Criaturas das trevas que tentam a todo custo propagar a escuridão pelo mundo, através de suas flechas e medo.
 
 - Spawn: Surgem aleatoriamente nas bordas do mapa em intervalos fixos de tempo, que podem diminuir conforme a dificuldade aumenta.
+- Vida: Os inimigos tem sua vida determinada pela dificuldade do jogo.
 - Movimento: Os inimigos se movem em direção ao centro da base ou ao herói.
-- Ataque: Disparam projéteis em direção ao herói.
+- Ataque: Disparam projéteis em direção ao herói aumentando o dano conforme a dificuldade.
 - Interações: Os projéteis podem colidir com o herói, com outros inimigos, ou com a base.
 - Drops: Ao serem derrotados, os inimigos deixam itens (mana e poção de vida) que podem ser coletados pelo herói. Esses itens desaparecem após certo tempo se não forem coletados.
 #### Base
 Circulo Arcano de Invocação poderoso, capaz de sanar o mundo de sua escuridão.
 
 - Vida: A base tem sua vida determinada pela dificuldade do jogo.
-- Regeneração: A base regenera sua vida ao longo do tempo.
+- Regeneração: A base regenera sua vida ao longo do tempo, aumentando o tempo conforme a dificuldade.
 - Condição de Derrota: O jogo termina se a base for destruída ou se o herói morrer.
 - Condição de Vitória: O jogo termina se a base for protegida durante o tempo determinado.
 #### Dificuldades
