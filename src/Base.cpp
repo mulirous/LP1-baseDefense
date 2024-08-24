@@ -1,9 +1,13 @@
 #include "../interfaces/Base.hpp"
 #include <cmath>
 
-Base::Base(int maxLife, float regenerationSeconds, float posX, float posY)
-    : Entity(maxLife, {posX, posY}), regenerationSeconds(regenerationSeconds)
+Base::Base(int maxLife, float regenerationSeconds)
+    : Entity(maxLife, {GAME_WINDOW_WIDTH / 2, GAME_WINDOW_HEIGHT / 2}), regenerationSeconds(regenerationSeconds)
 {
+    float posX, posY;
+    posX = GAME_WINDOW_WIDTH / 2;
+    posY = GAME_WINDOW_HEIGHT / 2;
+
     regenerationClock = sf::Clock();
     regenerationClock.restart();
 

@@ -7,18 +7,21 @@
 #include "../interfaces/Quiver.hpp"
 #include "modules/animation/src/Animation.hpp"
 
-Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty) : centerX(x),
-                                                                                                    centerY(y),
-                                                                                                    gameWindow(window),
-                                                                                                    difficulty(difficulty),
-                                                                                                    clock(sf::Clock()),
-                                                                                                    enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
-                                                                                                    drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
-                                                                                                    background(std::make_unique<sf::Sprite>()),
-                                                                                                    battlemusic(std::make_unique<sf::Music>()),
-                                                                                                    gameovermusic(std::make_unique<sf::Music>())
+Game::Game(std::shared_ptr<sf::RenderWindow> window) : centerX(GAME_WINDOW_WIDTH / 2),
+                                                       centerY(GAME_WINDOW_HEIGHT / 2),
+                                                       gameWindow(window),
+                                                       difficulty(difficulty),
+                                                       clock(sf::Clock()),
+                                                       enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
+                                                       drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
+                                                       background(std::make_unique<sf::Sprite>()),
+                                                       battlemusic(std::make_unique<sf::Music>()),
+                                                       gameovermusic(std::make_unique<sf::Music>())
 {
     srand(static_cast<unsigned>(time(0)));
+
+    menu = std::make_unique<Menu>(gameWindow);
+    state = GameState::MENU;
 
     // Will only be used here
     int heroHealth;
@@ -63,7 +66,7 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
     hero = std::make_shared<Hero>(50, 50, 90, heroHealth, 600, 400);
     hero->initAnimations();
 
-    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds, x, y);
+    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds);
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
@@ -88,6 +91,26 @@ void Game::setDeltaTime(float dt)
 void Game::setDifficulty(GameDifficulty diff)
 {
     difficulty = diff;
+}
+
+void Game::start()
+{
+    while (state != GameState::EXIT)
+    {
+        switch (state)
+        {
+        case GameState::MENU:
+            menu->run(state, difficulty);
+            break;
+
+        case GameState::PLAY:
+            this->run();
+
+        case GameState::EXIT:
+            gameWindow->close();
+            break;
+        }
+    }
 }
 
 void Game::run()

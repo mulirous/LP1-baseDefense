@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 #include "../enums/GameDifficulty.h"
 #include "../enums/MenuState.h"
+#include "../enums/GameState.h"
 #include <iostream>
 #include "structs.hpp"
 
@@ -44,8 +45,6 @@ protected:
     /// @note This also handle interactions such as navigating through options (although this doesn't return any MenuAction object, just modifies the menu state)
     MenuActions handleActions();
 
-    GameDifficulty handleDifficult();
-
     /// @brief Initialize many objects. Required on constructor
     void init();
     /// @brief Draws options and images on screen
@@ -54,6 +53,5 @@ protected:
 public:
     Menu(std::shared_ptr<sf::RenderWindow> gameWindow);
     virtual ~Menu() = default;
-    GameDifficulty getSelectedDifficulty() const;
-    bool run();
+    void run(GameState &state, GameDifficulty &difficulty);
 };

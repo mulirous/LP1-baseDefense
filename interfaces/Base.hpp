@@ -25,9 +25,7 @@ public:
     /// @brief Constructs a Base with a specific amount of life and regeneration time.
     /// @param maxLife The maximum life of the base.
     /// @param regenerationSeconds The number of seconds between each life regeneration tick.
-    /// @param posX The initial X coordinate of the base's position.
-    /// @param posY The initial Y coordinate of the base's position.
-    Base(int maxLife, float regenerationSeconds, float posX, float posY);
+    Base(int maxLife, float regenerationSeconds);
 
     /// @brief Default destructor for the Base class.
     virtual ~Base() = default;

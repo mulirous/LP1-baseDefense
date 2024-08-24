@@ -4,6 +4,7 @@
 #include "Base.hpp"
 #include "Drop.hpp"
 #include "Menu.hpp"
+#include "../enums/GameState.h"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -34,6 +35,7 @@ private:
     std::unique_ptr<Menu> menu;
 
     GameDifficulty difficulty;
+    GameState state;
 
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
     /// @tparam T A class derived from Character or Base
@@ -103,17 +105,22 @@ private:
     void dealCollisions();
 
 protected:
-    /// @brief The screen's center on x-axis
     float centerX;
+
     /// @brief The screen's center on y-axis
     float centerY;
+
     /// @brief A pointer to a list of enemies pointers
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
+
     std::unique_ptr<std::list<std::shared_ptr<Drop>>> drops;
+
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
+
     /// @brief A pointer to the base
     std::shared_ptr<Base> base;
+
     int addDefense;
     /// @brief An unique pointer to background sprite
     std::unique_ptr<sf::Sprite> background;
@@ -139,10 +146,12 @@ protected:
     void close();
 
 public:
-    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty);
+    Game(std::shared_ptr<sf::RenderWindow> window);
 
     void setDifficulty(GameDifficulty diff);
 
     /// @brief Start point to run game.
     void run();
+
+    void start();
 };

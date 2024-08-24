@@ -14,11 +14,6 @@ Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
     init();
 }
 
-GameDifficulty Menu::getSelectedDifficulty() const
-{
-    return selectedDifficulty;
-}
-
 void Menu::init()
 {
     current = 0;
@@ -103,13 +98,13 @@ void Menu::init()
     menumusic->play();
 }
 
-bool Menu::run()
+void Menu::run(GameState &state, GameDifficulty &difficulty)
 {
     auto windowPtr = window.lock();
     if (!windowPtr)
-        return true;
+        state = GameState::PLAY;
 
-    while (windowPtr->isOpen())
+    while (state != GameState::PLAY)
     {
         drawAll();
         MenuActions action = handleActions();
@@ -117,27 +112,28 @@ bool Menu::run()
         switch (action)
         {
         case MenuActions::START: // After start, player has to select difficulty
-            currentState = MenuState::DIFFICULTY;
             (*mainOptions)[current].setOutlineThickness(0);
             current = 0;
             (*difficultyOptions)[current].setOutlineThickness(2);
+            currentState = MenuState::DIFFICULTY;
             break;
         case MenuActions::CHOOSE_DIFFICULTY:
+            difficulty = selectedDifficulty;
             menumusic->stop();
-            return false; // After difficulty section, game starts
+            state = GameState::PLAY; // After difficulty section, game starts
+            break;
         case MenuActions::ABOUT:
             showAbout();
             break;
         case MenuActions::EXIT:
             menumusic->stop();
             windowPtr->close();
+            state = GameState::EXIT;
             break;
         default:
             break;
         }
     }
-
-    return true;
 }
 
 void Menu::drawAll()
