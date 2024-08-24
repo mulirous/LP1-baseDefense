@@ -1,37 +1,81 @@
 #include "../interfaces/Projectile.hpp"
+#include "SFML/Graphics.hpp"
+#include <cmath>
 
-Projectile::Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target)
-    : position(position), damage(damage), velocity(velocity), target(target)
+Projectile::Projectile(int damage, float velocity, const sf::Vector2f &position, const sf::Vector2f &target, bool isHero)
+    : damage(damage), velocity(velocity), position(position), target(target)
 {
-    shape.setRadius(5);
-    shape.setFillColor(sf::Color::Green);
-    shape.setPosition(this->position);
-    shape.setRotation(atan2(target.y, target.x) * 180 / 3.14159265);
+    sprite = std::make_shared<sf::Sprite>();
+    sprite->setPosition(position);
+
+    if (isHero)
+    {
+        sprite->setTexture(*ResourceManager::getTexture(WIZARD_SPELL));
+        initAnimations();
+    }
+    else
+    {
+        sprite->setTexture(*ResourceManager::getTexture(ENEMY_ARROW));
+        sprite->setScale(2.0f, 2.0f);
+        sf::Vector2f direction = target - position;
+        float angle = atan2(direction.y, direction.x) * 180 / 3.14;
+        sprite->setRotation(angle);
+    }
+}
+
+void Projectile::initAnimations()
+{
+    auto attack = std::make_shared<Animation>(const_cast<sf::Texture *>(sprite->getTexture()), sf::Vector2u(8, 1), 0.05f);
+    animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
+    (*animations)["attack"] = attack;
 }
 
 void Projectile::update(float deltaTime)
 {
-    shape.move(target * velocity * deltaTime);
+    if (hasReachedTarget())
+        return;
+
+    if (animations)
+    {
+        (*animations)["attack"]->update(deltaTime);
+        sprite->setTextureRect((*animations)["attack"]->textureRect);
+    }
+
+    sf::Vector2f direction = target - position;
+    float magnitude = sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (magnitude != 0.0f)
+        direction /= magnitude;
+
+    position += direction * velocity * deltaTime;
+    sprite->setPosition(position);
 }
 
-bool Projectile::isOffScreen() const
+const sf::Sprite &Projectile::getSprite()
 {
-    sf::FloatRect bounds = shape.getGlobalBounds();
-    return (bounds.left + bounds.width < 0 || bounds.left > GAME_WINDOW_WIDTH ||
-            bounds.top + bounds.height < 0 || bounds.top > GAME_WINDOW_HEIGHT);
-}
-
-const sf::CircleShape &Projectile::getShape()
-{
-    return this->shape;
+    return *sprite;
 }
 
 sf::FloatRect Projectile::getBounds()
 {
-    return shape.getGlobalBounds();
+    return sprite->getGlobalBounds();
 }
 
 int Projectile::getDamage()
 {
-    return this->damage;
+    return damage;
+}
+
+bool Projectile::isOffScreen() const
+{
+    sf::FloatRect bounds = sprite->getGlobalBounds();
+    return position.x < 0 || position.x > GAME_WINDOW_WIDTH || position.y < 0 || position.y > GAME_WINDOW_HEIGHT;
+}
+
+bool Projectile::hasReachedTarget() const
+{
+    sf::Vector2f distance;
+    distance.x = target.x - position.x;
+    distance.y = target.y - position.y;
+
+    return distance.x < 1 && distance.y < 1 && distance.x > -1 && distance.y > -1;
 }

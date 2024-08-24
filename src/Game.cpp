@@ -7,56 +7,20 @@
 #include "../interfaces/Quiver.hpp"
 #include "modules/animation/src/Animation.hpp"
 
-Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty) : centerX(x),
-                                                                                                    centerY(y),
-                                                                                                    gameWindow(window),
-                                                                                                    difficulty(difficulty),
-                                                                                                    enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
-                                                                                                    drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
-                                                                                                    background(std::make_unique<sf::Sprite>())
-// menu(std::make_unique<Menu>(window))
+Game::Game(std::shared_ptr<sf::RenderWindow> window) : centerX(GAME_WINDOW_WIDTH / 2),
+                                                       centerY(GAME_WINDOW_HEIGHT / 2),
+                                                       gameWindow(window),
+                                                       clock(sf::Clock()),
+                                                       enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
+                                                       drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
+                                                       background(std::make_unique<sf::Sprite>()),
+                                                       battlemusic(std::make_unique<sf::Music>()),
+                                                       gameovermusic(std::make_unique<sf::Music>())
 {
     srand(static_cast<unsigned>(time(0)));
 
-    int heroHealth;
-    float baseDefense;
-    float spawnInterval;
-    float gameTime;
-
-    switch (difficulty)
-    {
-    case GameDifficulty::EASY:
-        heroHealth = 125;
-        baseDefense = 1000.0f;
-        spawnInterval = 5.0f;
-        gameTime = 91.0f;
-        enemySpd = 30.0f;
-        enemyLife = 50;
-        break;
-
-    case GameDifficulty::MEDIUM:
-        heroHealth = 100;
-        baseDefense = 800.0f;
-        spawnInterval = 3.0f;
-        gameTime = 121.0f;
-        enemySpd = 50.0f;
-        enemyLife = 80;
-        break;
-
-    case GameDifficulty::HARD:
-        heroHealth = 75;
-        baseDefense = 600.0f;
-        spawnInterval = 1.5f;
-        gameTime = 181.0f;
-        enemySpd = 60.0f;
-        enemyLife = 100;
-        break;
-    }
-
-    hero = std::make_shared<Hero>(heroHealth, 50, 90, 80.0f, 600, 400);
-    base = std::make_shared<Base>(baseDefense, x, y);
-
-    hero->initAnimations();
+    menu = std::make_unique<Menu>(gameWindow);
+    state = GameState::MENU;
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
@@ -66,9 +30,6 @@ Game::Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDiffi
 
     background->setTexture(*bgTexture);
     background->setScale(scaleX, scaleY);
-
-    this->spawnInterval = spawnInterval;
-    this->gameTime = gameTime;
 };
 
 sf::Vector2f Game::getMousePosition()
@@ -81,46 +42,103 @@ void Game::setDeltaTime(float dt)
     deltaTime = dt;
 }
 
-void Game::setDifficulty(GameDifficulty diff)
+void Game::initializeObjects()
 {
-    difficulty = diff;
+    restart(); // Tem que ter o restart antes de cada execução para não usar os mesmos dados de antes
+
+    int heroHealth;
+    float baseDefense, baseRegenerationSeconds;
+
+    switch (difficulty)
+    {
+    case GameDifficulty::EASY:
+        baseDefense = 1000.0f;
+        baseRegenerationSeconds = 10;
+        spawnInterval = 5.0f;
+        gameTime = 9.0f;
+        enemySpd = 30.0f;
+        enemyLife = 50;
+        enemyDamage = 5;
+        break;
+
+    case GameDifficulty::MEDIUM:
+        baseDefense = 800.0f;
+        baseRegenerationSeconds = 15;
+        spawnInterval = 3.0f;
+        gameTime = 121.0f;
+        enemySpd = 40.0f;
+        enemyLife = 70;
+        enemyDamage = 10;
+        break;
+
+    case GameDifficulty::HARD:
+        baseDefense = 600.0f;
+        baseRegenerationSeconds = 20;
+        spawnInterval = 3.f;
+        gameTime = 181.0f;
+        enemySpd = 40.0f;
+        enemyLife = 90;
+        enemyDamage = 15;
+        break;
+    }
+
+    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
+    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds);
+}
+
+void Game::start()
+{
+    while (state != GameState::EXIT)
+    {
+        switch (state)
+        {
+        case GameState::MENU:
+            menu->run(state, difficulty);
+            break;
+
+        case GameState::PLAY:
+            initializeObjects();
+            run();
+            break;
+        }
+    }
+    close();
+}
+
+void Game::restart()
+{
+    killCounter = 0;
+    gameTime = 0;
+    spawnTimer = 0;
+
+    enemies->clear();
+    drops->clear();
+
+    clock.restart();
 }
 
 void Game::run()
 {
-    sf::Clock clock;
+    battlemusic->openFromFile(BATTLE_MUSIC);
+    battlemusic->setLoop(true);
+    battlemusic->play();
 
-    this->battlemusic = std::make_unique<sf::Music>();
-    if (!this->battlemusic->openFromFile(BATTLE_MUSIC))
+    while (state != GameState::EXIT)
     {
-        std::cout << "Unable to load the battle music. \n";
-    }
-    else
-    {
-        this->battlemusic->setLoop(true); // Loop a música
-        this->battlemusic->play();
-    }
+        float dt = clock.restart().asSeconds();
+        setDeltaTime(dt);
 
-    while (gameWindow->isOpen())
-    {
-        float deltaTime = clock.restart().asSeconds();
-
-        this->gameTime -= deltaTime;
-
-        this->base->heal(this->gameTime);
-
-        setDeltaTime(deltaTime);
+        gameTime -= deltaTime;
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
-            this->battlemusic->stop();
-            showGameOver();
-            // menu->run();
+            renderEnding(false);
+            break;
         }
         else if (this->gameTime <= 0)
         {
-            showGameWin();
-            // menu->run();
+            renderEnding(true);
+            break;
         }
         else
         {
@@ -137,7 +155,7 @@ void Game::renderStatus()
 
     sf::Text heroLifeText, ammoText, baseLifeText, killCounterText, timeText;
     heroLifeText.setFont(font);
-    heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()));
+    heroLifeText.setString("LIFE: " + std::to_string(hero->getLife()) + "/" + std::to_string(hero->getMaxLife()));
     heroLifeText.setCharacterSize(16);
     heroLifeText.setFillColor(sf::Color::White);
     heroLifeText.setPosition(GAME_WINDOW_WIDTH - 200, 25);
@@ -160,7 +178,7 @@ void Game::renderStatus()
     killCounterText.setFillColor(sf::Color::White);
     killCounterText.setPosition(GAME_WINDOW_WIDTH - 200, 100);
 
-    int timeToDisplay = static_cast<int>(this->gameTime);
+    int timeToDisplay = static_cast<int>(gameTime);
 
     timeText.setFont(font);
     timeText.setString("TIME: " + std::to_string(timeToDisplay) + "s");
@@ -192,7 +210,8 @@ void Game::render()
         {
             for (const auto &projectile : enemyProjectiles)
             {
-                gameWindow->draw(projectile->getShape());
+                if (!projectile->hasReachedTarget())
+                    gameWindow->draw(projectile->getSprite());
             }
         }
     }
@@ -207,11 +226,12 @@ void Game::render()
     {
         for (const auto &projectile : heroProjectiles)
         {
-            gameWindow->draw(projectile->getShape());
+            if (!projectile->hasReachedTarget())
+                gameWindow->draw(projectile->getSprite());
         }
     }
 
-    this->renderStatus();
+    renderStatus();
     gameWindow->display();
 }
 
@@ -220,13 +240,10 @@ void Game::handleEvents()
     sf::Event event;
     while (gameWindow->pollEvent(event))
     {
-        if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))
         {
-            gameWindow->close();
-        }
-        else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-        {
-            gameWindow->close();
+            state = GameState::EXIT;
+            break;
         }
         else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q)
         {
@@ -243,113 +260,21 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    hero->move(deltaTime);
-    auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
-    if (!heroProjectiles->empty())
-    {
-        for (auto &projectile : *heroProjectiles)
-            projectile->update(deltaTime);
+    updateBase();
 
-        this->calculateCollisionsWithProjectiles(heroProjectiles, enemies);
-    }
-    // Updates everything related to enemies
-    for (const auto &enemy : *enemies)
-    {
-        // Enemy is only erased if enough time has passed; meanwhile, it continues
-        if (enemy->isDead())
-        {
-            if (enemy->getTimeSinceDeath() >= 5)
-            {
-                enemies->erase(remove(enemies->begin(), enemies->end(), enemy), enemies->end());
-                continue;
-            }
-        }
-        else
-        {
-            enemy->move(deltaTime);
-            int randNum = rand();
-            if (randNum % 2 == 0)
-            {
-                if (randNum % 5 == 0)
-                {
-                    auto basePosition = sf::Vector2f(base->getSprite()->getPosition());
-                    enemy->doAttack(basePosition);
-                }
-                else
-                {
-                    auto heroPosition = sf::Vector2f(hero->getSprite()->getPosition());
-                    enemy->doAttack(heroPosition);
-                }
-            }
-        }
+    updateHero();
 
-        // Handle enemy's projectiles that are on screen
-        auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
-        for (auto &projectile : *enemyProjectiles)
-        {
-            projectile->update(deltaTime);
-            if (base->isCollidingWith(projectile->getBounds()))
-            {
-                base->takeDamage(projectile->getDamage());
-                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
-            }
-            if (hero->isCollidingWith(projectile->getBounds()))
-            {
-                hero->takeDamage(projectile->getDamage());
-                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
-            }
-        }
-    }
+    updateEnemies();
 
-    // Resolve collisions
-    for (const auto &enemy : *enemies)
-    {
-        if (enemy->isDead())
-            continue;
+    dealCollisions();
 
-        if (hero->isCollidingWith(enemy))
-        {
-            hero->resolveCollision(enemy);
-        }
+    updateDrops();
 
-        if (base->isCollidingWith(enemy->getSprite()->getGlobalBounds()))
-        {
-            base->takeDamage(50);
-            enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
-            continue;
-        }
-
-        for (const auto &otherEnemy : *enemies)
-        {
-            if (&enemy != &otherEnemy && enemy->isCollidingWith(otherEnemy))
-            {
-                enemy->resolveCollision(otherEnemy);
-            }
-        }
-    }
-
-    for (const auto &drop : *drops)
-    {
-        if (drop->hasExpired())
-        {
-            drops->erase(std::remove(drops->begin(), drops->end(), drop), drops->end());
-            continue;
-        }
-        drop->getItem()->animate(deltaTime);
-        if (hero->isCollidingWith(drop->getBounds()))
-        {
-            auto item = drop->getItem();
-            hero->useItem(item);
-            drop->markAsUsed();
-            continue;
-        }
-    }
-
-    this->spawnTimer += deltaTime;
-    if (this->spawnTimer >= this->spawnInterval)
+    spawnTimer += deltaTime;
+    if (spawnTimer >= spawnInterval)
     {
         spawnEnemy();
-        this->spawnTimer = 0.f;
+        spawnTimer = 0.f;
     }
 }
 
@@ -380,13 +305,8 @@ void Game::spawnEnemy()
         break;
     }
 
-    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, enemyDamage, spawnX, spawnY, this->centerX, this->centerY);
     enemies->push_back(enemy);
-}
-
-void Game::close()
-{
-    gameWindow->close();
 }
 
 void Game::spawnDrop(sf::Vector2f &position)
@@ -396,15 +316,16 @@ void Game::spawnDrop(sf::Vector2f &position)
 
     std::shared_ptr<Drop> drop;
 
-    if (num % 2)
+    if (num % 2 || hero->getRangedWeapon()->getAmmo() <= 15)
     {
-        auto item = std::make_shared<Potion>();
+        int mana = getRandomNumber(5, 10);
+        auto item = std::make_shared<ManaPotion>(mana);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
     else
     {
-        int mana = getRandomNumber(5, 10);
-        auto item = std::make_shared<ManaPotion>(mana);
+        int life = getRandomNumber(10, 20);
+        auto item = std::make_shared<Potion>(life);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
 
@@ -413,16 +334,12 @@ void Game::spawnDrop(sf::Vector2f &position)
 
 void Game::showGameOver()
 {
-    this->gameovermusic = std::make_unique<sf::Music>();
-    if (!this->gameovermusic->openFromFile(GAMEOVER_MUSIC))
-    {
-        std::cout << "Unable to load the game over music. \n";
-    }
-    else
-    {
-        this->gameovermusic->setLoop(true); // Loop a música
-        this->gameovermusic->play();
-    }
+    battlemusic->stop();
+
+    gameovermusic->openFromFile(GAMEOVER_MUSIC);
+    gameovermusic->setLoop(true);
+    gameovermusic->setVolume(100);
+    gameovermusic->play();
 
     sf::Font font;
     if (!font.loadFromFile(GAME_FONT))
@@ -452,7 +369,7 @@ void Game::showGameOver()
             if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
             {
                 gameWindow->close();
-                this->gameovermusic->stop();
+                gameovermusic->stop();
             }
         }
 
@@ -465,25 +382,26 @@ void Game::showGameOver()
 
 void Game::showGameWin()
 {
-    sf::Font font;
-    if (!font.loadFromFile(GAME_FONT))
-    {
-        std::cout << "Couldn't load font. Exiting.";
-        return;
-    }
+    sf::Font font = *ResourceManager::getFont(GAME_FONT);
 
-    sf::Text gameWinText, returnText;
+    sf::Text gameWinText, killCounterText, returnText;
     gameWinText.setFont(font);
     gameWinText.setString("You Win!");
     gameWinText.setCharacterSize(48);
     gameWinText.setFillColor(sf::Color::Green);
     gameWinText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
+    killCounterText.setFont(font);
+    killCounterText.setString("Kills: " + std::to_string(killCounter));
+    killCounterText.setCharacterSize(24);
+    killCounterText.setFillColor(sf::Color::Black);
+    killCounterText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+
     returnText.setFont(font);
     returnText.setString("Press any key to return");
     returnText.setCharacterSize(24);
     returnText.setFillColor(sf::Color::Black);
-    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 420);
 
     while (gameWindow->isOpen())
     {
@@ -498,7 +416,154 @@ void Game::showGameWin()
 
         gameWindow->clear(sf::Color::White);
         gameWindow->draw(gameWinText);
+        gameWindow->draw(killCounterText);
         gameWindow->draw(returnText);
         gameWindow->display();
     }
 }
+
+void Game::renderEnding(bool isSuccess)
+{
+    battlemusic->stop();
+
+    if (isSuccess)
+        menu->showGoodEnding(state, killCounter);
+    else
+        menu->showBadEnding(state);
+
+    state = GameState::MENU; // Go back again to menu
+
+    return;
+}
+
+void Game::close()
+{
+    if (battlemusic->getStatus() == sf::Music::Playing)
+    {
+        battlemusic->stop();
+    }
+
+    enemies->clear();
+    drops->clear();
+
+    gameWindow->close();
+}
+
+#pragma region Private update methods
+void Game::updateHero()
+{
+    hero->move(deltaTime);
+    auto heroProjectiles = hero->getRangedWeapon()->getLaunchedProjectiles();
+    if (!heroProjectiles->empty())
+    {
+        for (auto &projectile : *heroProjectiles)
+            projectile->update(deltaTime);
+
+        calculateCollisionsWithProjectiles(heroProjectiles, enemies);
+    }
+}
+
+void Game::updateEnemies()
+{
+    for (const auto &enemy : *enemies)
+    {
+        if (enemy->isDead())
+        {
+            if (enemy->getTimeSinceDeath() >= 5)
+            {
+                enemies->erase(remove(enemies->begin(), enemies->end(), enemy), enemies->end());
+                continue;
+            }
+        }
+        else
+        {
+            enemy->move(deltaTime);
+            int randNum = rand();
+            if (randNum % 2 == 0)
+            {
+                if (randNum % 5 == 0)
+                {
+                    auto basePosition = sf::Vector2f(base->getSprite()->getPosition());
+                    enemy->doAttack(basePosition);
+                }
+                else
+                {
+                    auto heroPosition = sf::Vector2f(hero->getSprite()->getPosition());
+                    enemy->doAttack(heroPosition);
+                }
+            }
+        }
+
+        auto enemyProjectiles = enemy->getRangedWeapon()->getLaunchedProjectiles();
+        for (auto &projectile : *enemyProjectiles)
+        {
+            projectile->update(deltaTime);
+            if (base->isCollidingWith(projectile->getBounds()))
+            {
+                base->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
+            if (hero->isCollidingWith(projectile->getBounds()))
+            {
+                hero->takeDamage(projectile->getDamage());
+                enemyProjectiles->erase(std::remove(enemyProjectiles->begin(), enemyProjectiles->end(), projectile), enemyProjectiles->end());
+            }
+        }
+    }
+}
+
+void Game::dealCollisions()
+{
+    for (const auto &enemy : *enemies)
+    {
+        if (enemy->isDead())
+            continue;
+
+        if (hero->isCollidingWith(enemy))
+        {
+            hero->resolveCollision(enemy);
+        }
+
+        if (base->isCollidingWith(enemy->getSprite()->getGlobalBounds()))
+        {
+            base->takeDamage(50);
+            enemies->erase(std::remove(enemies->begin(), enemies->end(), enemy), enemies->end());
+            continue;
+        }
+
+        for (const auto &otherEnemy : *enemies)
+        {
+            if (&enemy != &otherEnemy && enemy->isCollidingWith(otherEnemy))
+            {
+                enemy->resolveCollision(otherEnemy);
+            }
+        }
+    }
+}
+
+void Game::updateBase()
+{
+    base->heal();
+}
+
+void Game::updateDrops()
+{
+    for (const auto &drop : *drops)
+    {
+        if (drop->hasExpired())
+        {
+            drops->erase(std::remove(drops->begin(), drops->end(), drop), drops->end());
+            continue;
+        }
+        drop->getItem()->animate(deltaTime);
+        if (hero->isCollidingWith(drop->getBounds()))
+        {
+            auto item = drop->getItem();
+            hero->useItem(item);
+            drop->markAsUsed();
+            continue;
+        }
+    }
+}
+
+#pragma endregion

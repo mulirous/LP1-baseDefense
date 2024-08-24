@@ -12,9 +12,11 @@ class RangedWeapon : public Weapon
 private:
     /// @brief Weapon's ammo
     int ammo;
+    int maxAmmo;
     /// @brief Creates a projectile when character shoot
+    /// @param isHero A boolean to determine if the projectile is from the hero
     /// @return A pointer to projectile
-    std::shared_ptr<Projectile> launchProjectile();
+    std::shared_ptr<Projectile> launchProjectile(bool isHero);
     /// @brief Current position
     sf::Vector2f currentPosition;
     /// @brief Target's position
@@ -23,16 +25,13 @@ private:
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> launchedProjectiles;
     /// @brief Makes an attack
     /// @note Only attack if there is remaining ammo and if the weapon's release time has passed
-    /// @returns void
-    void doAttack() override;
+    void doAttack(bool isHero) override;
 
-    sf::SoundBuffer arrowSoundBuffer;
-    sf::SoundBuffer spellSoundBuffer;
-    sf::Sound arrowSound;
-    sf::Sound spellSound;
+    std::unique_ptr<sf::Sound> arrowSound;
+    std::unique_ptr<sf::Sound> spellSound;
 
 public:
-    RangedWeapon(int range, float releaseTime, int ammo);
+    RangedWeapon(int range, float releaseTime, int ammo, int damage);
     std::shared_ptr<std::list<std::shared_ptr<Projectile>>> getLaunchedProjectiles();
     int getAmmo();
     void addAmmo(int ammo);
@@ -41,6 +40,7 @@ public:
     /// @brief Represents the ranged weapon's attack.
     /// @param target Target's position on Vector2f type
     /// @param currentPosition Character's current position on Vector2f type
+    /// @param isHero A boolean to determine if the projectile is from the hero
     /// @note Internally calls Weapon->doAttack method
     void shoot(sf::Vector2f &target, sf::Vector2f &currentPosition, bool isHero);
     bool isReadyToAttack() override;

@@ -4,6 +4,7 @@
 #include "Base.hpp"
 #include "Drop.hpp"
 #include "Menu.hpp"
+#include "../enums/GameState.h"
 #include <list>
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -15,21 +16,28 @@
 class Game
 {
 private:
+    sf::Clock clock;
     std::unique_ptr<sf::Music> gameovermusic;
     std::unique_ptr<sf::Music> battlemusic;
+    float deltaTime;
+    float spawnInterval;
+    float spawnTimer = 0;
+    float enemySpd;
+    int enemyLife;
+    int enemyDamage;
 
     /// @brief A varieable that show the count os killf the player have in the game
     int killCounter = 0;
 
     float gameTime;
-    float healTime = 12.0f;
 
     std::unique_ptr<Menu> menu;
 
     GameDifficulty difficulty;
+    GameState state;
 
     /// @brief Resolve conflicts with projectiles and characters (enemies or hero), erasing projectiles if it need to
-    /// @tparam T A class derived from Character
+    /// @tparam T A class derived from Character or Base
     /// @param projectiles A shared pointer to a list of Projectiles pointers
     /// @param characters A shared pointer to a list of T pointers
     template <typename T>
@@ -49,9 +57,17 @@ private:
             }
             for (auto characterIt = characters->begin(); characterIt != characters->end(); characterIt++)
             {
+                // If projectile isn't colliding with enemy, or if it is but enemy is dead, projectile keeps on screen.
+
                 auto character = *characterIt;
                 if (!character->isCollidingWith(projectile->getBounds()))
                     continue;
+
+                if constexpr (std::is_same<Enemy, T>::value)
+                {
+                    if (character->isDead())
+                        continue;
+                }
 
                 projectileIt = projectiles->erase(projectileIt);
 
@@ -59,11 +75,15 @@ private:
 
                 if constexpr (std::is_same<Enemy, T>::value)
                 {
-                    if (character->isDead() && character->hasDrop())
+                    if (character->isDead())
                     {
-                        this->killCounter++;
-                        sf::Vector2f pos = character->getCurrentPosition();
-                        spawnDrop(pos);
+                        killCounter++;
+
+                        if (character->hasDrop())
+                        {
+                            sf::Vector2f pos = character->getCurrentPosition();
+                            spawnDrop(pos);
+                        }
                     }
                 }
             }
@@ -75,32 +95,38 @@ private:
     void showGameOver();
     sf::Vector2f getMousePosition();
     void setDeltaTime(float time);
-
     /// @brief Changes to game win screen
     void showGameWin();
+    void updateBase();
+    void updateHero();
+    void updateEnemies();
+    void updateDrops();
+    void dealCollisions();
+
+    void initializeObjects();
+    void restart();
 
 protected:
-    /// @brief The screen's center on x-axis
     float centerX;
+
     /// @brief The screen's center on y-axis
     float centerY;
+
     /// @brief A pointer to a list of enemies pointers
     std::shared_ptr<std::list<std::shared_ptr<Enemy>>> enemies;
-    float enemySpd;
-    int enemyLife;
+
     std::unique_ptr<std::list<std::shared_ptr<Drop>>> drops;
+
     /// @brief A pointer to the hero
     std::shared_ptr<Hero> hero;
+
     /// @brief A pointer to the base
     std::shared_ptr<Base> base;
-    int addDefense;
+
     /// @brief An unique pointer to background sprite
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
     std::shared_ptr<sf::RenderWindow> gameWindow;
-    float deltaTime;
-    float spawnInterval;
-    float spawnTimer = 0;
     /// @brief Render some information on screen (life and ammo).
     void renderStatus();
     /// @brief Adds a new enemy to game
@@ -120,14 +146,13 @@ protected:
     /// @brief Closes the window and ends the game.
     void close();
 
-public:
-    Game(float x, float y, std::shared_ptr<sf::RenderWindow> window, GameDifficulty difficulty);
-    /// @brief Menu Constructor
-    Game() : menu(nullptr) {}
-
-    void setDifficulty(GameDifficulty diff);
+    void renderEnding(bool isSuccess);
 
     /// @brief Start point to run game.
-    void
-    run();
+    void run();
+
+public:
+    Game(std::shared_ptr<sf::RenderWindow> window);
+
+    void start();
 };

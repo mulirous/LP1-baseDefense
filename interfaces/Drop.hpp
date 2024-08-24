@@ -1,45 +1,60 @@
 #pragma once
+
 #include "Item.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <iostream>
-#include <random>
-#include "../src/modules/texture_manager/src/ResourceManager.hpp"
-#include <optional>
 
-/// @brief Enemy's drop
+/// @file Drop.hpp
+/// @class Drop
+/// @brief Represents a drop item that appears in the game world, such as loot from fallen enemies.
+/// @details This class manages the position, expiration, and state of the drop.
+/// It holds a reference to an `Item` and determines whether the drop is still valid or has expired.
 class Drop
 {
 private:
+    /// @brief Position of the drop in the game world.
     sf::Vector2f position;
+
+    /// @brief The item that the drop represents.
     std::shared_ptr<Item> item;
+
+    /// @brief Clock to track the time since the drop was created.
     sf::Clock expiredCounter;
+
+    /// @brief Time in seconds that the drop will remain on screen before disappearing.
     float expirationTime;
+
+    /// @brief Boolean indicating whether the drop has been used.
     bool used;
 
 public:
-    /// @brief Default constructor
-    /// @param item Pointer to item-type object. Must be derived from Item
-    /// @param position Position that drop will be rendered
-    /// @param expirationSeconds Time that drop will remain on screen until disappears. Default is 7
-    Drop(std::shared_ptr<Item> item, sf::Vector2f &position, std::optional<float> expirationSeconds = 7);
-    /// @brief Sets drop position
-    /// @param position Position's vector
-    void setPosition(sf::Vector2f &position);
-    /// @brief Gets drop bounds
-    /// @return FloatRect with bounds
-    const sf::FloatRect getBounds();
-    /// @brief Gets sprite of drop's item
-    /// @return Pointer to item's sprite
-    std::shared_ptr<sf::Sprite> getItemSprite();
-    /// @brief Sets drop as used
-    /// @note Cannot rollback used state after this
+    /// @brief Constructs a Drop with specified attributes.
+    /// @param item A shared pointer to the item associated with the drop. Must be derived from `Item`.
+    /// @param position The position where the drop will be rendered in the game world.
+    /// @param expirationSeconds Time in seconds that the drop will remain on screen before disappearing. Default is 7 seconds.
+    Drop(std::shared_ptr<Item> item, sf::Vector2f position, float expirationSeconds = 7);
+
+    /// @brief Sets the position of the drop.
+    /// @param position The new position of the drop as a vector.
+    void setPosition(sf::Vector2f position);
+
+    /// @brief Gets the bounding box of the drop.
+    /// @return An `sf::FloatRect` representing the bounds of the drop.
+    const sf::FloatRect getBounds() const;
+
+    /// @brief Gets the item associated with the drop.
+    /// @return A constant shared pointer to the item.
+    const std::shared_ptr<Item> getItem() const;
+
+    /// @brief Gets the sprite of the item's drop.
+    /// @return A constant shared pointer to the sprite of the item.
+    const std::shared_ptr<sf::Sprite> getItemSprite() const;
+
+    /// @brief Marks the drop as used.
+    /// @note Once marked as used, the state cannot be reverted.
     void markAsUsed();
-    /// @brief Get drop state
-    /// @return Boolean indicating if drop is still valid
-    /// @note A drop can expire because time or if it was used
-    bool hasExpired();
-    /// @brief Gets drop item
-    /// @return Pointer to item
-    std::shared_ptr<Item> getItem();
+
+    /// @brief Checks if the drop has expired.
+    /// @return True if the drop has expired due to time or if it has been used or false otherwise.
+    bool hasExpired() const;
 };
