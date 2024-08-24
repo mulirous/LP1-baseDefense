@@ -55,7 +55,7 @@ void Game::initializeObjects()
         baseDefense = 1000.0f;
         baseRegenerationSeconds = 10;
         spawnInterval = 5.0f;
-        gameTime = 9.0f;
+        gameTime = 90.0f;
         enemySpd = 30.0f;
         enemyLife = 50;
         enemyDamage = 5;
