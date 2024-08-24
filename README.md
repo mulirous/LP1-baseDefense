@@ -1,9 +1,9 @@
-#Spell Guard 🧙
+# Spell Guard 🧙
 
-O mundo assim como no principio se torna escuro e vazio, com a calamidade das criaturas com a soberania Skulls Archers, que a todo custo querem o mundo a sua imagem e semelhança.Apenas o nosso herói pode mudar a história completando sua invocação arcana de poderoso nivel para trazer a luz novamente.
+O mundo assim como no principio se torna escuro e vazio, com a calamidade das criaturas com a soberania Skulls Archers, que a todo custo querem o mundo a sua imagem e semelhança. Apenas o nosso herói pode mudar a história completando sua invocação arcana de poderoso nivel para trazer a luz novamente.
 
-                                                                                                                            ## #Requisitos -
-                                                                                                                            Ambiente Windows;
+### Requisitos
+- Ambiente Windows;
 - Possuir o GCC 13.1.0 ou versão superior;
 - De preferência, estar utilizando o Visual Studio Code;
 - Possuir o `make` instalado;
