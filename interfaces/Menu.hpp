@@ -6,7 +6,6 @@
 #include "../enums/GameDifficulty.h"
 #include "../enums/MenuState.h"
 #include "../enums/GameState.h"
-#include <iostream>
 #include "MenuOptions.hpp"
 
 class Menu
@@ -38,7 +37,7 @@ private:
     MenuState currentState = MenuState::MAIN;
 
     /// @brief Show the About Screen with the infos about Us, the developers
-    void showAbout();
+    void displayCredits();
 
 protected:
     /// @brief Catch user actions with menu

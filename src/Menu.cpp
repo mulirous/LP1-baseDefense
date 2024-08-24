@@ -43,7 +43,7 @@ void Menu::init()
     // Creates the menu's main section options
     mainMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
         {"START", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 150)},
-        {"ABOUT", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
+        {"CREDITS", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 100)},
         {"EXIT", 24, sf::Vector2f(50, GAME_WINDOW_HEIGHT - 50)}});
 
     mainOptions = std::make_shared<std::vector<sf::Text>>(mainMenuOptions->size());
@@ -59,7 +59,7 @@ void Menu::init()
         (*mainOptions)[i].setFillColor(sf::Color::White);
         (*mainOptions)[i].setPosition(mainMenuOptions->at(i).position);
     }
-    (*mainOptions)[0].setOutlineThickness(2);
+    (*mainOptions)[0].setOutlineThickness(3);
 
     if (!menumusic->openFromFile(MENU_MUSIC))
     {
@@ -94,7 +94,7 @@ void Menu::init()
         (*difficultyOptions)[i].setPosition(difficultyMenuOptions->at(i).position);
     }
 
-    (*difficultyOptions)[0].setOutlineThickness(2);
+    (*difficultyOptions)[0].setOutlineThickness(3);
 
     menumusic->openFromFile(MENU_MUSIC);
     menumusic->setLoop(true);
@@ -107,6 +107,8 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
     if (!windowPtr)
         state = GameState::PLAY;
 
+    menumusic->play();
+
     while (state != GameState::PLAY && state != GameState::EXIT)
     {
         drawAll();
@@ -117,7 +119,7 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
         case MenuActions::START: // After start, player has to select difficulty
             (*mainOptions)[current].setOutlineThickness(0);
             current = 0;
-            (*difficultyOptions)[current].setOutlineThickness(2);
+            (*difficultyOptions)[current].setOutlineThickness(3);
             currentState = MenuState::DIFFICULTY;
             break;
 
@@ -127,8 +129,8 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
             state = GameState::PLAY; // After difficulty section, game starts
             break;
 
-        case MenuActions::ABOUT:
-            showAbout();
+        case MenuActions::CREDITS:
+            displayCredits();
             break;
 
         case MenuActions::EXIT:
@@ -205,13 +207,13 @@ MenuActions Menu::handleActions()
                 {
                     (*mainOptions)[current].setOutlineThickness(0);
                     ++current;
-                    (*mainOptions)[current].setOutlineThickness(2);
+                    (*mainOptions)[current].setOutlineThickness(3);
                 }
                 else if (currentState == MenuState::DIFFICULTY && current < difficultyOptions->size() - 1)
                 {
                     (*difficultyOptions)[current].setOutlineThickness(0);
                     ++current;
-                    (*difficultyOptions)[current].setOutlineThickness(2);
+                    (*difficultyOptions)[current].setOutlineThickness(3);
                 }
                 pressed = true;
             }
@@ -221,13 +223,13 @@ MenuActions Menu::handleActions()
                 {
                     (*mainOptions)[current].setOutlineThickness(0);
                     --current;
-                    (*mainOptions)[current].setOutlineThickness(2);
+                    (*mainOptions)[current].setOutlineThickness(3);
                 }
                 else if (currentState == MenuState::DIFFICULTY && current > 0)
                 {
                     (*difficultyOptions)[current].setOutlineThickness(0);
                     --current;
-                    (*difficultyOptions)[current].setOutlineThickness(2);
+                    (*difficultyOptions)[current].setOutlineThickness(3);
                 }
                 pressed = true;
             }
@@ -241,7 +243,7 @@ MenuActions Menu::handleActions()
                     if (current == 0)
                         return MenuActions::START;
                     if (current == 1)
-                        return MenuActions::ABOUT;
+                        return MenuActions::CREDITS;
                     if (current == 2)
                         return MenuActions::EXIT;
                 }
@@ -262,7 +264,7 @@ MenuActions Menu::handleActions()
                 currentState = MenuState::MAIN;
                 (*difficultyOptions)[current].setOutlineThickness(0);
                 current = 0;
-                (*mainOptions)[current].setOutlineThickness(2);
+                (*mainOptions)[current].setOutlineThickness(3);
             }
         }
 
@@ -276,7 +278,7 @@ MenuActions Menu::handleActions()
     return MenuActions::NONE;
 }
 
-void Menu::showAbout()
+void Menu::displayCredits()
 {
     auto windowPtr = window.lock();
     if (!windowPtr)
@@ -287,11 +289,11 @@ void Menu::showAbout()
     infoText.setCharacterSize(15);
     infoText.setFillColor(sf::Color::White);
 
-    std::string aboutText =
-        "Game Version 1.0\n"
+    std::string rawText =
+        "Game Version 1.0\n\n"
         "Developed by\n\n\n"
         "Andriel Vinicius\n\n"
-        "   Performance Optimizer, Modularizer, Game Designer\n"
+        "   Performance Optimizer, Modularizer, Game Designer\n\n"
         "   & Developer\n"
         "\n\n"
         "Flawbert Lorran\n\n"
@@ -300,11 +302,12 @@ void Menu::showAbout()
         "Murilo Costa\n\n"
         "   Performance Optimizer, Modularizer & Developer\n"
         "\n\n"
-        "Special thanks to Hadassa Garcia for created the ending background."
+        "Special thanks to: \n\n"
+        "    - Hadassa Garcia: bad ending art."
         "\n\n";
 
-    infoText.setString(aboutText);
-    infoText.setPosition(100.f, 200.f);
+    infoText.setString(rawText);
+    infoText.setPosition(100.f, 175.f);
 
     sf::Text exitText;
     exitText.setFont(*font);
@@ -324,8 +327,8 @@ void Menu::showAbout()
             }
         }
 
-        windowPtr->clear();
-        windowPtr->draw(*bg);
+        windowPtr->clear(sf::Color::Black);
+        // windowPtr->draw();
         windowPtr->draw(infoText);
         windowPtr->draw(exitText);
         windowPtr->display();

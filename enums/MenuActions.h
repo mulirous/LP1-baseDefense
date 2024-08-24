@@ -4,7 +4,7 @@ enum class MenuActions
 {
     NONE,
     START,
-    ABOUT,
+    CREDITS,
     CHOOSE_DIFFICULTY,
     EXIT
 };
