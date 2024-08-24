@@ -54,9 +54,8 @@ void Game::initializeObjects()
         baseDefense = 1000.0f;
         baseRegenerationSeconds = 10;
         spawnInterval = 5.0f;
-        gameTime = 9.0f;
-        enemySpd = 30.0f;
-        enemyLife = 50;
+        gameTime = 91.0f;
+        enemyLife = 25;
         enemyDamage = 5;
         break;
 
@@ -65,8 +64,7 @@ void Game::initializeObjects()
         baseRegenerationSeconds = 15;
         spawnInterval = 3.0f;
         gameTime = 121.0f;
-        enemySpd = 40.0f;
-        enemyLife = 70;
+        enemyLife = 50;
         enemyDamage = 10;
         break;
 
@@ -75,8 +73,7 @@ void Game::initializeObjects()
         baseRegenerationSeconds = 20;
         spawnInterval = 3.f;
         gameTime = 181.0f;
-        enemySpd = 40.0f;
-        enemyLife = 90;
+        enemyLife = 75;
         enemyDamage = 15;
         break;
     }
@@ -304,7 +301,7 @@ void Game::spawnEnemy()
         break;
     }
 
-    auto enemy = std::make_shared<Enemy>(40, 40, enemySpd, enemyLife, enemyDamage, spawnX, spawnY, this->centerX, this->centerY);
+    auto enemy = std::make_shared<Enemy>(40, 40, 40, enemyLife, enemyDamage, spawnX, spawnY, this->centerX, this->centerY);
     enemies->push_back(enemy);
 }
 
@@ -329,96 +326,6 @@ void Game::spawnDrop(sf::Vector2f &position)
     }
 
     drops->push_back(drop);
-}
-
-void Game::showGameOver()
-{
-    battlemusic->stop();
-
-    gameovermusic->openFromFile(GAMEOVER_MUSIC);
-    gameovermusic->setLoop(true);
-    gameovermusic->setVolume(100);
-    gameovermusic->play();
-
-    sf::Font font;
-    if (!font.loadFromFile(GAME_FONT))
-    {
-        std::cout << "Couldn't load font. Exiting.";
-        return;
-    }
-
-    sf::Text gameOverText, exitText;
-    gameOverText.setFont(font);
-    gameOverText.setString("Game Over");
-    gameOverText.setCharacterSize(48);
-    gameOverText.setFillColor(sf::Color::Red);
-    gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
-
-    exitText.setFont(font);
-    exitText.setString("Press any key to return");
-    exitText.setCharacterSize(24);
-    exitText.setFillColor(sf::Color::White);
-    exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
-
-    while (gameWindow->isOpen())
-    {
-        sf::Event event;
-        while (gameWindow->pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
-            {
-                gameWindow->close();
-                gameovermusic->stop();
-            }
-        }
-
-        gameWindow->clear();
-        gameWindow->draw(gameOverText);
-        gameWindow->draw(exitText);
-        gameWindow->display();
-    }
-}
-
-void Game::showGameWin()
-{
-    sf::Font font = *ResourceManager::getFont(GAME_FONT);
-
-    sf::Text gameWinText, killCounterText, returnText;
-    gameWinText.setFont(font);
-    gameWinText.setString("You Win!");
-    gameWinText.setCharacterSize(48);
-    gameWinText.setFillColor(sf::Color::Green);
-    gameWinText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
-
-    killCounterText.setFont(font);
-    killCounterText.setString("Kills: " + std::to_string(killCounter));
-    killCounterText.setCharacterSize(24);
-    killCounterText.setFillColor(sf::Color::Black);
-    killCounterText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
-
-    returnText.setFont(font);
-    returnText.setString("Press any key to return");
-    returnText.setCharacterSize(24);
-    returnText.setFillColor(sf::Color::Black);
-    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 420);
-
-    while (gameWindow->isOpen())
-    {
-        sf::Event event;
-        while (gameWindow->pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
-            {
-                return;
-            }
-        }
-
-        gameWindow->clear(sf::Color::White);
-        gameWindow->draw(gameWinText);
-        gameWindow->draw(killCounterText);
-        gameWindow->draw(returnText);
-        gameWindow->display();
-    }
 }
 
 void Game::renderEnding(bool isSuccess)

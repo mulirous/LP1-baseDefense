@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
+/// @brief Represents each menu options, encapsulating relevant attributes to display it on screen.
 struct MenuOptions
 {
     std::string text;
