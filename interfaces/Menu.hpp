@@ -22,6 +22,7 @@ private:
     std::unique_ptr<sf::Font> font;
     std::unique_ptr<sf::Texture> image;
     std::unique_ptr<sf::Sprite> bg;
+    std::unique_ptr<sf::Music> gameOverMusic;
     sf::Vector2f mouseCords;
     sf::Vector2f mousePosition;
 
@@ -54,4 +55,6 @@ public:
     Menu(std::shared_ptr<sf::RenderWindow> gameWindow);
     virtual ~Menu() = default;
     void run(GameState &state, GameDifficulty &difficulty);
+    void showBadEnding(GameState &state);
+    void showGoodEnding(GameState &state, int totalKills);
 };

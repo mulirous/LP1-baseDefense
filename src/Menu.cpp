@@ -10,6 +10,7 @@ Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
     bg = std::make_unique<sf::Sprite>();
 
     menumusic = std::make_unique<sf::Music>();
+    gameOverMusic = std::make_unique<sf::Music>();
 
     init();
 }
@@ -60,7 +61,6 @@ void Menu::init()
     }
     (*mainOptions)[0].setOutlineThickness(2);
 
-    menumusic = std::make_unique<sf::Music>();
     if (!menumusic->openFromFile(MENU_MUSIC))
     {
         std::cout << "Unable to load the menu music. \n";
@@ -70,6 +70,9 @@ void Menu::init()
         menumusic->setLoop(true);
         menumusic->play();
     }
+    gameOverMusic->openFromFile(GAMEOVER_MUSIC);
+    gameOverMusic->setLoop(true);
+    gameOverMusic->setVolume(100);
 
     // Creates menu's choose difficult section
     difficultyMenuOptions = std::make_shared<std::vector<MenuOptions>>(std::initializer_list<MenuOptions>{
@@ -104,7 +107,7 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
     if (!windowPtr)
         state = GameState::PLAY;
 
-    while (state != GameState::PLAY)
+    while (state != GameState::PLAY && state != GameState::EXIT)
     {
         drawAll();
         MenuActions action = handleActions();
@@ -117,19 +120,22 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
             (*difficultyOptions)[current].setOutlineThickness(2);
             currentState = MenuState::DIFFICULTY;
             break;
+
         case MenuActions::CHOOSE_DIFFICULTY:
             difficulty = selectedDifficulty;
             menumusic->stop();
             state = GameState::PLAY; // After difficulty section, game starts
             break;
+
         case MenuActions::ABOUT:
             showAbout();
             break;
+
         case MenuActions::EXIT:
             menumusic->stop();
-            windowPtr->close();
             state = GameState::EXIT;
             break;
+
         default:
             break;
         }
@@ -322,6 +328,108 @@ void Menu::showAbout()
         windowPtr->draw(*bg);
         windowPtr->draw(infoText);
         windowPtr->draw(exitText);
+        windowPtr->display();
+    }
+}
+
+void Menu::showBadEnding(GameState &state)
+{
+    auto windowPtr = window.lock();
+
+    if (!windowPtr)
+        return;
+
+    gameOverMusic->play();
+
+    sf::Font font;
+    if (!font.loadFromFile(GAME_FONT))
+    {
+        std::cout << "Couldn't load font. Exiting.";
+        return;
+    }
+
+    sf::Text gameOverText, exitText;
+    gameOverText.setFont(font);
+    gameOverText.setString("Game Over");
+    gameOverText.setCharacterSize(48);
+    gameOverText.setFillColor(sf::Color::Red);
+    gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
+
+    exitText.setFont(font);
+    exitText.setString("Press any key to return");
+    exitText.setCharacterSize(24);
+    exitText.setFillColor(sf::Color::White);
+    exitText.setPosition((GAME_WINDOW_WIDTH / 3) - (GAME_WINDOW_WIDTH / 5), 350);
+
+    while (state != GameState::MENU)
+    {
+        sf::Event event;
+        while (windowPtr->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
+            {
+                gameOverMusic->stop();
+                state = GameState::MENU;
+                break;
+            }
+        }
+
+        windowPtr->clear();
+        windowPtr->draw(gameOverText);
+        windowPtr->draw(exitText);
+        windowPtr->display();
+    }
+
+    return;
+}
+
+void Menu::showGoodEnding(GameState &state, int totalKills)
+{
+    auto windowPtr = window.lock();
+
+    if (!windowPtr)
+        return;
+
+    gameOverMusic->play();
+
+    sf::Font font = *ResourceManager::getFont(GAME_FONT);
+
+    sf::Text gameWinText, killCounterText, returnText;
+    gameWinText.setFont(font);
+    gameWinText.setString("You Win!");
+    gameWinText.setCharacterSize(48);
+    gameWinText.setFillColor(sf::Color::Green);
+    gameWinText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
+
+    killCounterText.setFont(font);
+    killCounterText.setString("Kills: " + std::to_string(totalKills));
+    killCounterText.setCharacterSize(24);
+    killCounterText.setFillColor(sf::Color::Black);
+    killCounterText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
+
+    returnText.setFont(font);
+    returnText.setString("Press any key to return");
+    returnText.setCharacterSize(24);
+    returnText.setFillColor(sf::Color::Black);
+    returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 420);
+
+    while (state != GameState::MENU)
+    {
+        sf::Event event;
+        while (windowPtr->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
+            {
+                gameOverMusic->stop();
+                state = GameState::MENU;
+                break;
+            }
+        }
+
+        windowPtr->clear(sf::Color::White);
+        windowPtr->draw(gameWinText);
+        windowPtr->draw(killCounterText);
+        windowPtr->draw(returnText);
         windowPtr->display();
     }
 }

@@ -30,7 +30,6 @@ private:
     int killCounter = 0;
 
     float gameTime;
-    float healTime = 12.0f;
 
     std::unique_ptr<Menu> menu;
 
@@ -104,6 +103,9 @@ private:
     void updateDrops();
     void dealCollisions();
 
+    void initializeObjects();
+    void restart();
+
 protected:
     float centerX;
 
@@ -121,7 +123,6 @@ protected:
     /// @brief A pointer to the base
     std::shared_ptr<Base> base;
 
-    int addDefense;
     /// @brief An unique pointer to background sprite
     std::unique_ptr<sf::Sprite> background;
     /// @brief A pointer to game's window
@@ -145,10 +146,10 @@ protected:
     /// @brief Closes the window and ends the game.
     void close();
 
+    void renderEnding(bool isSuccess);
+
 public:
     Game(std::shared_ptr<sf::RenderWindow> window);
-
-    void setDifficulty(GameDifficulty diff);
 
     /// @brief Start point to run game.
     void run();

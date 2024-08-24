@@ -10,7 +10,6 @@
 Game::Game(std::shared_ptr<sf::RenderWindow> window) : centerX(GAME_WINDOW_WIDTH / 2),
                                                        centerY(GAME_WINDOW_HEIGHT / 2),
                                                        gameWindow(window),
-                                                       difficulty(difficulty),
                                                        clock(sf::Clock()),
                                                        enemies(std::make_shared<std::list<std::shared_ptr<Enemy>>>()),
                                                        drops(std::make_unique<std::list<std::shared_ptr<Drop>>>()),
@@ -22,51 +21,6 @@ Game::Game(std::shared_ptr<sf::RenderWindow> window) : centerX(GAME_WINDOW_WIDTH
 
     menu = std::make_unique<Menu>(gameWindow);
     state = GameState::MENU;
-
-    // Will only be used here
-    int heroHealth;
-    float baseDefense, baseRegenerationSeconds;
-
-    switch (difficulty)
-    {
-    case GameDifficulty::EASY:
-        heroHealth = 100;
-        baseDefense = 1000.0f;
-        baseRegenerationSeconds = 10;
-        spawnInterval = 5.0f;
-        gameTime = 90.0f;
-        enemySpd = 30.0f;
-        enemyLife = 50;
-        enemyDamage = 5;
-        break;
-
-    case GameDifficulty::MEDIUM:
-        heroHealth = 100;
-        baseDefense = 800.0f;
-        baseRegenerationSeconds = 15;
-        spawnInterval = 3.0f;
-        gameTime = 121.0f;
-        enemySpd = 40.0f;
-        enemyLife = 70;
-        enemyDamage = 10;
-        break;
-
-    case GameDifficulty::HARD:
-        heroHealth = 75;
-        baseDefense = 600.0f;
-        baseRegenerationSeconds = 25;
-        spawnInterval = 1.5f;
-        gameTime = 181.0f;
-        enemySpd = 50.0f;
-        enemyLife = 90;
-        enemyDamage = 15;
-        break;
-    }
-
-    hero = std::make_shared<Hero>(50, 50, 90, heroHealth, 600, 400);
-    hero->initAnimations();
-
-    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds);
 
     auto bgTexture = ResourceManager::getTexture(BACKGROUND_GAME);
     sf::Vector2u textureSize = bgTexture->getSize();
@@ -88,9 +42,48 @@ void Game::setDeltaTime(float dt)
     deltaTime = dt;
 }
 
-void Game::setDifficulty(GameDifficulty diff)
+void Game::initializeObjects()
 {
-    difficulty = diff;
+    restart(); // Tem que ter o restart antes de cada execução para não usar os mesmos dados de antes
+
+    int heroHealth;
+    float baseDefense, baseRegenerationSeconds;
+
+    switch (difficulty)
+    {
+    case GameDifficulty::EASY:
+        baseDefense = 1000.0f;
+        baseRegenerationSeconds = 10;
+        spawnInterval = 5.0f;
+        gameTime = 9.0f;
+        enemySpd = 30.0f;
+        enemyLife = 50;
+        enemyDamage = 5;
+        break;
+
+    case GameDifficulty::MEDIUM:
+        baseDefense = 800.0f;
+        baseRegenerationSeconds = 15;
+        spawnInterval = 3.0f;
+        gameTime = 121.0f;
+        enemySpd = 40.0f;
+        enemyLife = 70;
+        enemyDamage = 10;
+        break;
+
+    case GameDifficulty::HARD:
+        baseDefense = 600.0f;
+        baseRegenerationSeconds = 20;
+        spawnInterval = 3.f;
+        gameTime = 181.0f;
+        enemySpd = 40.0f;
+        enemyLife = 90;
+        enemyDamage = 15;
+        break;
+    }
+
+    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
+    base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds);
 }
 
 void Game::start()
@@ -104,13 +97,24 @@ void Game::start()
             break;
 
         case GameState::PLAY:
-            this->run();
-
-        case GameState::EXIT:
-            gameWindow->close();
+            initializeObjects();
+            run();
             break;
         }
     }
+    close();
+}
+
+void Game::restart()
+{
+    killCounter = 0;
+    gameTime = 0;
+    spawnTimer = 0;
+
+    enemies->clear();
+    drops->clear();
+
+    clock.restart();
 }
 
 void Game::run()
@@ -119,7 +123,7 @@ void Game::run()
     battlemusic->setLoop(true);
     battlemusic->play();
 
-    while (gameWindow->isOpen())
+    while (state != GameState::EXIT)
     {
         float dt = clock.restart().asSeconds();
         setDeltaTime(dt);
@@ -128,13 +132,13 @@ void Game::run()
 
         if (base->getLife() <= 0 || hero->getLife() <= 0)
         {
-            battlemusic->stop();
-            showGameOver();
+            renderEnding(false);
+            break;
         }
         else if (this->gameTime <= 0)
         {
-            battlemusic->stop();
-            showGameWin();
+            renderEnding(true);
+            break;
         }
         else
         {
@@ -236,13 +240,10 @@ void Game::handleEvents()
     sf::Event event;
     while (gameWindow->pollEvent(event))
     {
-        if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))
         {
-            gameWindow->close();
-        }
-        else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-        {
-            gameWindow->close();
+            state = GameState::EXIT;
+            break;
         }
         else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q)
         {
@@ -421,8 +422,30 @@ void Game::showGameWin()
     }
 }
 
+void Game::renderEnding(bool isSuccess)
+{
+    battlemusic->stop();
+
+    if (isSuccess)
+        menu->showGoodEnding(state, killCounter);
+    else
+        menu->showBadEnding(state);
+
+    state = GameState::MENU; // Go back again to menu
+
+    return;
+}
+
 void Game::close()
 {
+    if (battlemusic->getStatus() == sf::Music::Playing)
+    {
+        battlemusic->stop();
+    }
+
+    enemies->clear();
+    drops->clear();
+
     gameWindow->close();
 }
 
