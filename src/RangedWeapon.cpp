@@ -1,7 +1,6 @@
 #include "../interfaces/RangedWeapon.hpp"
 #include <cmath>
 #include "../common.h"
-#include <iostream>
 
 RangedWeapon::RangedWeapon(int range, float releaseTime, int ammo, int damage) : Weapon(range, releaseTime, damage), ammo(ammo), maxAmmo(ammo)
 {
@@ -69,7 +68,7 @@ std::shared_ptr<std::list<std::shared_ptr<Projectile>>> RangedWeapon::getLaunche
     return launchedProjectiles;
 }
 
-int RangedWeapon::getAmmo()
+int RangedWeapon::getAmmo() const
 {
     return ammo;
 }

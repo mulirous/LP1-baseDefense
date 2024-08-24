@@ -5,7 +5,6 @@
 class Quiver : public Item
 {
 private:
-    /// @brief Quiver arrow's number
     int arrows;
 
 public:

@@ -3,13 +3,16 @@
 #include <cmath>
 
 Hero::Hero(float width, float height, float speed, int maxLife, float posX, float posY)
-    : Character(width, height, speed, maxLife, posX, posY)
+    : Character(width, height, speed, maxLife, posX, posY),
+      targetPosition(posX, posY)
 {
-    direction = CharacterDirection::RIGHT; // Starts facing right by default
-    animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
+    direction = CharacterDirection::RIGHT;
     weapon = std::make_shared<RangedWeapon>(10, 0.5, 50, 25);
+
     sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
     sprite->setScale(2, 2);
+
+    animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
     initAnimations();
 };
 
@@ -86,47 +89,38 @@ void Hero::move(float deltaTime)
             movement.y += this->speed * deltaTime;
         }
 
-        if (distanceX < 1 && distanceY < 1 && distanceX > -1 && distanceY > -1)
+        if (std::abs(distanceX) < 1 && std::abs(distanceY) < 1)
         {
-            // Hero is on target destination (or closely enough)
             animationState = CharacterAnimation::IDLE;
             updateAnimation("idle", deltaTime);
         }
         else
         {
-            // Hero isn't close to target, so it will move
-            if (movement.x > 0)
-                this->direction = CharacterDirection::RIGHT;
-            else
-                this->direction = CharacterDirection::LEFT;
-
+            direction = (movement.x > 0) ? CharacterDirection::RIGHT : CharacterDirection::LEFT;
             animationState = CharacterAnimation::WALK;
             updateAnimation("walk", deltaTime);
         }
     }
-    sprite->move(movement);
 
+    sprite->move(movement);
     currentPosition = sprite->getPosition();
 }
 
 void Hero::updateAnimation(const std::string &action, float dt)
 {
-    if (action == "idle" && sprite->getTexture() != ResourceManager::getTexture(HERO_IDLE_IMAGE) && animationState == CharacterAnimation::IDLE)
-    {
-        sprite->setTexture(*ResourceManager::getTexture(HERO_IDLE_IMAGE));
-    }
-    else if (action == "walk" && sprite->getTexture() != ResourceManager::getTexture(HERO_WALK_IMAGE) && animationState == CharacterAnimation::WALK)
-    {
-        sprite->setTexture(*ResourceManager::getTexture(HERO_WALK_IMAGE));
-    }
-    else if (action == "attack" && sprite->getTexture() != ResourceManager::getTexture(HERO_ATTACK_IMAGE) && animationState == CharacterAnimation::ATTACK)
-    {
-        sprite->setTexture(*ResourceManager::getTexture(HERO_ATTACK_IMAGE));
-    }
+    const sf::Texture *currentTexture = sprite->getTexture();
+    sf::Texture *newTexture = ResourceManager::getTexture(HERO_IDLE_IMAGE);
+
+    if (action == "walk")
+        newTexture = ResourceManager::getTexture(HERO_WALK_IMAGE);
+    else if (action == "attack")
+        newTexture = ResourceManager::getTexture(HERO_ATTACK_IMAGE);
+
+    if (currentTexture != newTexture)
+        sprite->setTexture(*newTexture);
 
     (*animations)[action]->update(dt, direction);
 
-    // Sets texture rect to render updated sprite
     sprite->setTextureRect((*animations)[action]->textureRect);
 }
 
@@ -134,21 +128,21 @@ void Hero::heal(int healAmount)
 {
     if (healAmount + currentLife > maximumLife)
     {
-        this->currentLife = maximumLife;
+        currentLife = maximumLife;
         return;
     }
 
-    this->currentLife += healAmount;
+    currentLife += healAmount;
 }
 
 void Hero::recharge(int ammo)
 {
-    this->weapon->addAmmo(ammo);
-};
+    weapon->addAmmo(ammo);
+}
 
 void Hero::setTargetPosition(sf::Vector2f target)
 {
-    if (target.x < 0 || target.x >= GAME_WINDOW_WIDTH - 35 || target.y < 0 || target.y >= GAME_WINDOW_HEIGHT - 35)
+    if (target.x < 0 || target.x >= GAME_WINDOW_WIDTH - BORDER_MARGIN || target.y < 0 || target.y >= GAME_WINDOW_HEIGHT - BORDER_MARGIN)
         return;
 
     targetPosition = target;

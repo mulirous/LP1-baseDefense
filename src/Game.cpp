@@ -1,9 +1,8 @@
 #include "../interfaces/Game.hpp"
 #include "../interfaces/Enemy.hpp"
 #include "../common.h"
-#include <iostream>
 #include <math.h>
-#include "../interfaces/Potion.hpp"
+#include "../interfaces/LifePotion.hpp"
 #include "../interfaces/Quiver.hpp"
 #include "modules/animation/src/Animation.hpp"
 
@@ -325,7 +324,7 @@ void Game::spawnDrop(sf::Vector2f &position)
     else
     {
         int life = getRandomNumber(10, 20);
-        auto item = std::make_shared<Potion>(life);
+        auto item = std::make_shared<LifePotion>(life);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
 

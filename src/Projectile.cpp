@@ -60,14 +60,13 @@ sf::FloatRect Projectile::getBounds()
     return sprite->getGlobalBounds();
 }
 
-int Projectile::getDamage()
+int Projectile::getDamage() const
 {
     return damage;
 }
 
 bool Projectile::isOffScreen() const
 {
-    sf::FloatRect bounds = sprite->getGlobalBounds();
     return position.x < 0 || position.x > GAME_WINDOW_WIDTH || position.y < 0 || position.y > GAME_WINDOW_HEIGHT;
 }
 
@@ -77,5 +76,5 @@ bool Projectile::hasReachedTarget() const
     distance.x = target.x - position.x;
     distance.y = target.y - position.y;
 
-    return distance.x < 1 && distance.y < 1 && distance.x > -1 && distance.y > -1;
+    return std::abs(distance.x) < 1 && std::abs(distance.y) < 1;
 }

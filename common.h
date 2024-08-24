@@ -3,6 +3,7 @@
 #include <string>
 #include <random>
 
+const float BORDER_MARGIN = 35.f;
 const int GAME_WINDOW_HEIGHT = 800;
 const int GAME_WINDOW_WIDTH = 1200;
 const int PROJECTILE_VELOCITY = 250;

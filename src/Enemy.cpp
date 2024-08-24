@@ -3,14 +3,16 @@
 #include <cmath>
 
 Enemy::Enemy(float width, float height, float speed, int maxLife, int weaponDamage, float x, float y, float cX, float cY)
-    : Character(width, height, speed, maxLife, x, y)
+    : Character(width, height, speed, maxLife, x, y),
+      targetPosition(cX, cY),
+      state(EnemyState::ALIVE),
+      drop(getRandomNumber(0, 100) >= 60)
 {
-    targetPosition = {cX, cY};
     weapon = std::make_shared<RangedWeapon>(5, 2, 50, weaponDamage);
-    animationState = CharacterAnimation::WALK;
-    state = EnemyState::ALIVE;
-    drop = getRandomNumber(0, 100) >= 60 ? true : false;
+
     animations = std::make_shared<std::map<std::string, std::shared_ptr<Animation>>>();
+    animationState = CharacterAnimation::WALK;
+
     sprite->setTexture(*ResourceManager::getTexture(ENEMY_WALK_IMAGE));
     sprite->setScale(2.0f, 2.0f);
     initAnimations();
@@ -36,7 +38,7 @@ void Enemy::takeDamage(int damage)
 
 void Enemy::kill()
 {
-    this->state = EnemyState::DEAD;
+    state = EnemyState::DEAD;
     clockDeath = sf::Clock();
     clockDeath.restart();
 }
@@ -48,7 +50,7 @@ float Enemy::getTimeSinceDeath()
 
 bool Enemy::hasDrop()
 {
-    return this->drop;
+    return drop;
 }
 
 void Enemy::initAnimations()
@@ -63,7 +65,7 @@ void Enemy::initAnimations()
                                                                                                        sf::IntRect(163, 0, 21, 21),
                                                                                                        sf::IntRect(184, 0, 19, 21)}));
     auto walk = std::make_shared<Animation>(ResourceManager::getTexture(ENEMY_WALK_IMAGE), sf::Vector2u(8, 1), 0.05f);
-    auto attack = std::make_shared<Animation>(ResourceManager::getTexture(ENEMY_ATTACK_IMAGE), sf::Vector2u(9, 1), 0.08f, std::move(attackFrames));
+    auto attack = std::make_shared<Animation>(ResourceManager::getTexture(ENEMY_ATTACK_IMAGE), sf::Vector2u(9, 1), 0.05f, std::move(attackFrames));
     (*animations)["walk"] = walk;
     (*animations)["attack"] = attack;
 }
@@ -93,26 +95,26 @@ void Enemy::move(float deltaTime)
     else
     {
         animationState = CharacterAnimation::WALK;
-        float directionX = targetPosition.x - this->currentPosition.x;
-        float directionY = targetPosition.y - this->currentPosition.y;
+        float directionX = targetPosition.x - currentPosition.x;
+        float directionY = targetPosition.y - currentPosition.y;
         float magnitude = sqrt(pow(directionX, 2) + pow(directionY, 2));
 
         if (targetPosition.x < currentPosition.x)
         {
-            movement.x -= this->speed * deltaTime;
+            movement.x -= speed * deltaTime;
         }
         else if (targetPosition.x > currentPosition.x)
         {
-            movement.x += this->speed * deltaTime;
+            movement.x += speed * deltaTime;
         }
 
         if (targetPosition.y < currentPosition.y)
         {
-            movement.y -= this->speed * deltaTime;
+            movement.y -= speed * deltaTime;
         }
         else if (targetPosition.y > currentPosition.y)
         {
-            movement.y += this->speed * deltaTime;
+            movement.y += speed * deltaTime;
         }
 
         if (movement.x > 0)
@@ -124,9 +126,9 @@ void Enemy::move(float deltaTime)
 
         if (magnitude > 0.5f)
         {
-            this->currentPosition.x += (directionX / magnitude) * this->speed * deltaTime;
-            this->currentPosition.y += (directionY / magnitude) * this->speed * deltaTime;
-            sprite->setPosition(this->currentPosition);
+            currentPosition.x += (directionX / magnitude) * speed * deltaTime;
+            currentPosition.y += (directionY / magnitude) * speed * deltaTime;
+            sprite->setPosition(currentPosition);
 
             updateAnimation("walk", deltaTime);
         }
@@ -148,6 +150,6 @@ void Enemy::doAttack(sf::Vector2f &target, float dt)
     animationState = CharacterAnimation::ATTACK;
     updateAnimation("attack", dt);
 
-    sf::Vector2f current = sf::Vector2f(this->currentPosition);
+    sf::Vector2f current = sf::Vector2f(currentPosition);
     weapon->shoot(target, current, false);
 }

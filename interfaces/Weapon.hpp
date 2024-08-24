@@ -4,7 +4,7 @@
 
 /// @file Weapon.hpp
 /// @class Weapon
-/// @brief Abstract class that represents a generic weapon in the game.
+/// @brief Abstract class that represents a generic weapon in the game. All types of Weapon inherits from this.
 /// @details This class is designed to be inherited by specific weapon types.
 /// It encapsulates common attributes and methods for weapons, such as range, release time, and damage.
 /// Also, it handles the timing of attacks and checking if the weapon is ready to attack.
@@ -30,7 +30,7 @@ public:
     /// @param damage The amount of damage dealt by the weapon.
     Weapon(int range, float releaseTime, int damage);
 
-    /// @brief Default destructor for Weapon.
+    /// @brief Default Weapon destructor.
     virtual ~Weapon() = default;
 
     /// @brief Gets the time in seconds between attacks.
@@ -47,6 +47,6 @@ public:
     virtual void doAttack(bool isHero = false) = 0;
 
     /// @brief Checks if the weapon is ready to attack based on the release time.
-    /// @return True if the weapon is ready to attack, false otherwise.
+    /// @return True if the weapon is ready to attack or false otherwise.
     virtual bool isReadyToAttack() = 0;
 };

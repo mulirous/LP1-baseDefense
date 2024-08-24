@@ -9,9 +9,9 @@ Menu::Menu(std::shared_ptr<sf::RenderWindow> gameWindow)
     image = std::make_unique<sf::Texture>(*ResourceManager::getTexture(MENU_IMAGE));
     bg = std::make_unique<sf::Sprite>();
 
-    menumusic = std::make_unique<sf::Music>();
-    menumusic->openFromFile(MENU_MUSIC);
-    menumusic->setLoop(true);
+    menuMusic = std::make_unique<sf::Music>();
+    menuMusic->openFromFile(MENU_MUSIC);
+    menuMusic->setLoop(true);
 
     gameOverMusic = std::make_unique<sf::Music>();
     gameOverMusic->openFromFile(GAMEOVER_MUSIC);
@@ -34,8 +34,6 @@ void Menu::initializeObjects()
 {
     current = 0;
     pressed = selected = false;
-    mousePosition = sf::Vector2f(0, 0);
-    mouseCords = sf::Vector2f(0, 0);
 
     auto windowPtr = window.lock();
     if (windowPtr)
@@ -68,7 +66,7 @@ void Menu::initializeObjects()
     }
     (*mainOptions)[0].setOutlineThickness(3);
 
-    menumusic->play();
+    menuMusic->play();
     gameOverMusic->setVolume(100);
 
     // Creates menu's choose difficult section
@@ -111,7 +109,7 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
 
         case MenuActions::CHOOSE_DIFFICULTY:
             difficulty = selectedDifficulty;
-            menumusic->stop();
+            menuMusic->stop();
             state = GameState::PLAY; // After difficulty section, game starts
             break;
 
@@ -120,7 +118,7 @@ void Menu::run(GameState &state, GameDifficulty &difficulty)
             break;
 
         case MenuActions::EXIT:
-            menumusic->stop();
+            menuMusic->stop();
             state = GameState::EXIT;
             break;
 
@@ -352,7 +350,7 @@ void Menu::showBadEnding(GameState &state)
     gameOverText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 280);
 
     exitText.setFont(*font);
-    exitText.setString("Press any key to return");
+    exitText.setString("Press `Q` to return");
     exitText.setCharacterSize(20);
     exitText.setFillColor(sf::Color::White);
     exitText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
@@ -362,7 +360,7 @@ void Menu::showBadEnding(GameState &state)
         sf::Event event;
         while (windowPtr->pollEvent(event))
         {
-            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
+            if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q))
             {
                 gameOverMusic->stop();
                 state = GameState::MENU;
@@ -405,7 +403,7 @@ void Menu::showGoodEnding(GameState &state, int totalKills)
     killCounterText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 350);
 
     returnText.setFont(font);
-    returnText.setString("Press any key to return");
+    returnText.setString("Press `Q` to return");
     returnText.setCharacterSize(20);
     returnText.setFillColor(sf::Color::Black);
     returnText.setPosition((GAME_WINDOW_WIDTH / 2) - (GAME_WINDOW_WIDTH / 5), 420);
@@ -415,7 +413,7 @@ void Menu::showGoodEnding(GameState &state, int totalKills)
         sf::Event event;
         while (windowPtr->pollEvent(event))
         {
-            if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed)
+            if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Q))
             {
                 gameOverMusic->stop();
                 state = GameState::MENU;

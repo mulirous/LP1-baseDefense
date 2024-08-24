@@ -6,7 +6,7 @@ Item::Item(const std::string &filepath)
     sprite->setTexture(*ResourceManager::getTexture(filepath));
 }
 
-std::shared_ptr<sf::Sprite> Item::getSprite()
+const std::shared_ptr<sf::Sprite> Item::getSprite()
 {
     return sprite;
 }
