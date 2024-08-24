@@ -82,7 +82,7 @@ void Game::initializeObjects()
         break;
     }
 
-    hero = std::make_shared<Hero>(50, 50, 90, 100, 600, 400);
+    hero = std::make_shared<Hero>(50, 50, HERO_VELOCITY, 100, 600, 400);
     base = std::make_shared<Base>(baseDefense, baseRegenerationSeconds);
 }
 

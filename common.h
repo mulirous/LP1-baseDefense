@@ -6,6 +6,7 @@
 const int GAME_WINDOW_HEIGHT = 800;
 const int GAME_WINDOW_WIDTH = 1200;
 const int PROJECTILE_VELOCITY = 250;
+const int HERO_VELOCITY = 150;
 const float DROP_EXPIRATION_SECONDS = 7;
 const std::string ASSETS_FOLDER = "resources/assets/textures";
 const std::string AUDIO_FOLDER = "resources/assets/audio";
