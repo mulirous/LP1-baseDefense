@@ -316,16 +316,16 @@ void Game::spawnDrop(sf::Vector2f &position)
 
     std::shared_ptr<Drop> drop;
 
-    if (num % 2)
+    if (num % 2 || hero->getRangedWeapon()->getAmmo() <= 15)
     {
-        int life = getRandomNumber(10, 20);
-        auto item = std::make_shared<Potion>(life);
+        int mana = getRandomNumber(5, 10);
+        auto item = std::make_shared<ManaPotion>(mana);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
     else
     {
-        int mana = getRandomNumber(5, 10);
-        auto item = std::make_shared<ManaPotion>(mana);
+        int life = getRandomNumber(10, 20);
+        auto item = std::make_shared<Potion>(life);
         drop = std::make_shared<Drop>(item, position, DROP_EXPIRATION_SECONDS);
     }
 

@@ -148,11 +148,11 @@ protected:
 
     void renderEnding(bool isSuccess);
 
-public:
-    Game(std::shared_ptr<sf::RenderWindow> window);
-
     /// @brief Start point to run game.
     void run();
+
+public:
+    Game(std::shared_ptr<sf::RenderWindow> window);
 
     void start();
 };
