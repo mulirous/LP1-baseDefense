@@ -8,7 +8,7 @@ INCLUDE_DIR = sfml/include
 LIB_DIR = sfml/lib
 
 CXX = g++
-CXXFLAGS = -std=c++17 -g3 -Wall -Wextra
+CXXFLAGS = -std=c++17 -g3
 LDFLAGS = -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio 
 INC = -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(INTERFACE_DIR) -I$(MODULE_DIR)/animation/src -I$(MODULE_DIR)/texture_manager/src
 

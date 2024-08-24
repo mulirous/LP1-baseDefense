@@ -71,7 +71,7 @@ void Game::initializeObjects()
     case GameDifficulty::HARD:
         baseDefense = 600.0f;
         baseRegenerationSeconds = 20;
-        spawnInterval = 3.f;
+        spawnInterval = 3.0f;
         gameTime = 181.0f;
         enemyLife = 75;
         enemyDamage = 15;
@@ -248,7 +248,7 @@ void Game::handleEvents()
         }
     }
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
         hero->setTargetPosition(getMousePosition());
     }
