@@ -43,7 +43,7 @@ void Game::setDeltaTime(float dt)
 
 void Game::initializeObjects()
 {
-    restart(); // Tem que ter o restart antes de cada execução para não usar os mesmos dados de antes
+    restart();
 
     int heroHealth;
     float baseDefense, baseRegenerationSeconds;
