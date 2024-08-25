@@ -102,10 +102,46 @@ O código está organizado em classes e módulos, incluindo:
 
 Para uma melhor visualização, visite a seção **Documentação.**
 
-### Criação de Objetos e Lógica de Jogo
+#### Criação de Objetos e Lógica de Jogo
 - Inicialização: Cada objeto é inicializado com atributos específicos, como vida, velocidade e posição.
 - Atualização: Durante o jogo, todos os objetos são atualizados em tempo real, incluindo movimento, ataques e colisões.
 - Colisões: A detecção de colisões é gerenciada para interações entre projéteis, herói, inimigos e base.
+- Herança: Foi criada uma classe pai denominada <i>Entity</i>, que contém métodos e atributos comuns a todos os objetos do jogo. A partir dessa classe, foram derivadas as classes filhas <i>Base</i> e <i>Character</i>. A classe <i>Character</i> foi dividida em duas subclasses: <i>Hero</i> e <i>Enemy</i>. Cada uma dessas classes herda os atributos e métodos comuns de <i>Entity</i>, permitindo que compartilhem comportamentos básicos enquanto ainda podem definir seus próprios comportamentos específicos.
+- Polimorfismo: Para permitir que diferentes classes possam ter comportamentos específicos, alguns métodos foram declarados como <i>virtual</i>, permitindo que as classes derivadas sobrescrevam esses métodos e implementem comportamentos específicos. Isso permite, por exemplo, que tanto o herói quanto os inimigos tenham métodos de movimento ou ataque com comportamentos diferentes, mas ainda sejam chamados de forma genérica através de um ponteiro ou referência da classe pai.
+- Métodos Genéricos: Foram implementados métodos genéricos para realizar operações comuns em diferentes tipos de objetos do jogo. Por exemplo, funções que lidam com colisões, movimentação, ou atualizações podem ser escritas de forma genérica utilizando templates, permitindo que o código funcione com diferentes tipos de entidades, como <i>Hero</i>, <i>Enemy</i>, ou <i>Base</i>, sem precisar duplicar a lógica.
+
+#### Funcionalidades Implementadas
+
+- Movimentação do Herói: O herói pode se mover em qualquer direção ao clicar no mapa com o botão direito do mouse.
+- Disparo de Projéteis pelo Herói: O herói dispara projéteis na direção do cursor ao pressionar a tecla "Q".
+- Diferentes Texturas: Sprites para entidades, telas, fontes, etc.
+- Animações: Animaçõs em diversos momentos, como caminhar, atacar, projéteis, etc...
+- Sons: Trilhas e efeitos sonoros.
+- Vida do Herói: O herói tem vida limitada a 100.
+- Inimigos: Inimigos surgem aleatoriamente nas bordas do mapa e caminham em direção à base.
+- Colisão de Projéteis: Projéteis podem colidir com o herói, inimigos, ou a base.
+- Drop: Itens de vida e munição deixados pelos inimigos abatidos.
+- Coleta de Projéteis: Herói pode coletar projéteis deixados pelos inimigos abatidos.
+- Quantidade Limitada de Projéteis do Herói.
+- Disparo de Projéteis pelos Inimigos em Direção ao Herói
+- Regeneração da Base: A base regenera sua estrutura ao longo do tempo.
+- Menu
+- Dificuldade: Três niveís diferentes de dificuldades, alternando entre Fácil, Normal e Difícil.
+- Finalização do Jogo: Condições de vitória\derrota baseadas no tempo, na destruição da base ou na morte do herói.
+- Game Over e Game Win.
+- Smart Pointers.
+- Documentação com Doxygen
+
+##### Possíveis Erros 
+###### As animações nem sempre respondem corretamente.
+
+
+#### Funcionalidades Não Implementadas
+- Pause: Foi iniciada a implementação do Pause, contudo não finalizada.
+- Animações pendentes: Animações como dano ou regeneração de vida ou mana.
+- Diferentes tipos de inimigos: A ideia foi posta em prática, contudo sprites não rendimensionadas.
+- Ataque Corpo a Corpo: Foi iniciada a implementação do dano Corpo a Corpo, porém havia alguns erros com a colisão.
+
 
 ### Considerações Finais
 Aproveite o jogo e defenda sua base com estratégia e habilidade! Se tiver sugestões ou encontrar algum bug, sinta-se à vontade para contribuir no repositório com o seu próprio `pull request`.
